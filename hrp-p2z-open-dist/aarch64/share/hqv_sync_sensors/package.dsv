@@ -1,0 +1,12 @@
+source;share/hqv_sync_sensors/hook/cmake_prefix_path.ps1
+source;share/hqv_sync_sensors/hook/cmake_prefix_path.dsv
+source;share/hqv_sync_sensors/hook/cmake_prefix_path.sh
+source;share/hqv_sync_sensors/hook/ld_library_path_lib.ps1
+source;share/hqv_sync_sensors/hook/ld_library_path_lib.dsv
+source;share/hqv_sync_sensors/hook/ld_library_path_lib.sh
+source;share/hqv_sync_sensors/hook/pythonpath.ps1
+source;share/hqv_sync_sensors/hook/pythonpath.dsv
+source;share/hqv_sync_sensors/hook/pythonpath.sh
+source;share/hqv_sync_sensors/hook/ament_prefix_path.ps1
+source;share/hqv_sync_sensors/hook/ament_prefix_path.dsv
+source;share/hqv_sync_sensors/hook/ament_prefix_path.sh

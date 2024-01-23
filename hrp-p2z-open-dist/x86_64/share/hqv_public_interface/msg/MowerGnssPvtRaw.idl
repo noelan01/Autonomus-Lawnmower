@@ -1,0 +1,89 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerGnssPvtRaw.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerGnssPvtRaw {
+      std_msgs::msg::Header header;
+
+      uint64 time_ms;
+
+      uint32 i_tow;
+
+      uint16 year;
+
+      uint8 month;
+
+      uint8 day;
+
+      uint8 hour;
+
+      uint8 min;
+
+      uint8 sec;
+
+      uint8 validity_flags;
+
+      uint32 t_acc;
+
+      int32 nano;
+
+      uint8 fix_type;
+
+      uint8 fix_status_flags;
+
+      uint8 flags2;
+
+      uint8 num_sv;
+
+      int32 lon;
+
+      int32 lat;
+
+      int32 height;
+
+      int32 h_msl;
+
+      uint32 h_acc;
+
+      uint32 v_acc;
+
+      int32 vel_n;
+
+      int32 vel_e;
+
+      int32 vel_d;
+
+      int32 g_speed;
+
+      int32 head_mot;
+
+      uint32 s_acc;
+
+      uint32 head_acc;
+
+      uint16 p_dop;
+
+      uint8 flags3;
+
+      uint8 reserved0_0;
+
+      uint8 reserved0_1;
+
+      uint8 reserved0_2;
+
+      uint8 reserved0_3;
+
+      uint8 reserved0_4;
+
+      int32 head_veh;
+
+      int16 mag_dec;
+
+      uint16 mag_acc;
+    };
+  };
+};

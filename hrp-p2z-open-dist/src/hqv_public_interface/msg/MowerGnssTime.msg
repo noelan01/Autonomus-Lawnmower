@@ -1,0 +1,12 @@
+std_msgs/Header     header
+uint32 itow
+uint16 year
+uint8  month
+uint8  day
+uint8  hour
+uint8  minute
+uint8  second
+int32 nano
+uint32 timeaccuracy
+bool   timevalid
+bool   datevalid

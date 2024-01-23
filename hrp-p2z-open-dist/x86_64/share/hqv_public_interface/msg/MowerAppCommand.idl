@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerAppCommand.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerAppCommand_Constants {
+      const uint8 START = 0;
+      const uint8 PAUSE = 1;
+      const uint8 ABORT_START = 2;
+      const uint8 CONFIRM_ERROR = 3;
+    };
+    @verbatim (language="comment", text=
+      "Subscription constants")
+    struct MowerAppCommand {
+      @verbatim (language="comment", text=
+        "Subscription Request")
+      std_msgs::msg::Header header;
+
+      uint8 command;
+    };
+  };
+};

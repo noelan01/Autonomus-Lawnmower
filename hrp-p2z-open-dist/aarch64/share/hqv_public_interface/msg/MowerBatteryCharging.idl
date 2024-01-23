@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerBatteryCharging.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerBatteryCharging {
+      std_msgs::msg::Header header;
+
+      @verbatim (language="comment", text=
+        "bool")
+      boolean charging;
+    };
+  };
+};

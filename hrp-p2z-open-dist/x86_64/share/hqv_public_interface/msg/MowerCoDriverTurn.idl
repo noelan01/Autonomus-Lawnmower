@@ -1,0 +1,12 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerCoDriverTurn.msg
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module msg {
+    struct MowerCoDriverTurn {
+      float turnangle;
+    };
+  };
+};

@@ -1,0 +1,39 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerCoDriverResult.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerCoDriverResult_Constants {
+      const uint8 ICODRIVER_RESULT_DISABLED = 0;
+      const uint8 ICODRIVER_RESULT_COMMAND_COMPLETED = 1;
+      const uint8 ICODRIVER_RESULT_COMMAND_INCOMPLETE = 2;
+      const uint8 ICODRIVER_RESULT_COMMAND_PENDING = 3;
+      const uint8 ICODRIVER_RESULT_COMMAND_TIMEOUT = 4;
+      const uint8 ICODRIVER_RESULT_COMMAND_ACCEPTED = 5;
+      const uint8 ICODRIVER_RESULT_COMMAND_REJECTED = 6;
+      const uint8 ICODRIVER_RESULT_NO_ACTIVE_COMMAND = 7;
+      const uint8 ICODRIVER_COMMAND_NONE = 0;
+      const uint8 ICODRIVER_COMMAND_ABORT = 1;
+      const uint8 ICODRIVER_COMMAND_ROTATE = 2;
+      const uint8 ICODRIVER_COMMAND_TURN = 3;
+      const uint8 ICODRIVER_COMMAND_MOVE_TO = 4;
+      const uint8 ICODRIVER_COMMAND_REDUCE_SPEED = 5;
+      const uint8 ICODRIVER_COMMAND_FAILED = 0;
+      const uint8 ICODRIVER_COMMAND_PASSED = 1;
+    };
+    @verbatim (language="comment", text=
+      "result code constants")
+    struct MowerCoDriverResult {
+      std_msgs::msg::Header header;
+
+      uint8 result;
+
+      uint8 command;
+
+      uint8 resultcode;
+    };
+  };
+};

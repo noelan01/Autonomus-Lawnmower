@@ -1,0 +1,45 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/WheelPair.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct WheelPair {
+      std_msgs::msg::Header header;
+
+      uint16 power_left;
+
+      uint16 power_right;
+
+      int32 counter_left;
+
+      int32 counter_right;
+
+      uint8 free_left;
+
+      uint8 free_right;
+
+      float deltadistance_left;
+
+      float deltadistance_right;
+
+      uint8 state_left;
+
+      uint8 state_right;
+
+      int16 current_left;
+
+      int16 current_right;
+
+      float speed_left;
+
+      float speed_right;
+
+      boolean isrunning_left;
+
+      boolean isrunning_right;
+    };
+  };
+};

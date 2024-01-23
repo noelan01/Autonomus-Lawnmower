@@ -1,0 +1,30 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerMowerState.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerMowerState_Constants {
+      const uint8 MOWERAPP_STATE_OFF = 0;
+      const uint8 MOWERAPP_STATE_WAIT_FOR_SAFETYPIN = 1;
+      const uint8 MOWERAPP_STATE_STOPPED = 2;
+      const uint8 MOWERAPP_STATE_FATAL_ERROR = 3;
+      const uint8 MOWERAPP_STATE_PENDING_START = 4;
+      const uint8 MOWERAPP_STATE_PAUSED = 5;
+      const uint8 MOWERAPP_STATE_IN_OPERATION = 6;
+      const uint8 MOWERAPP_STATE_RESTRICTED = 7;
+      const uint8 MOWERAPP_STATE_ERROR = 8;
+    };
+    @verbatim (language="comment", text=
+      " State \"enum\"")
+    struct MowerMowerState {
+      std_msgs::msg::Header header;
+
+      uint8 state;
+
+      string description;
+    };
+  };
+};

@@ -1,0 +1,27 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerSlamState.msg
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module msg {
+    module MowerSlamState_Constants {
+      const uint8 STATE_RUNNING = 0;
+      const uint8 STATE_IDLE = 1;
+      const uint8 STATE_STARTED = 2;
+      const uint8 STATE_CONNECTED = 3;
+      const uint8 STATE_READY = 4;
+      const uint8 STATE_CALIBRATING = 5;
+      const uint8 STATE_FILTER_WARM_UP = 6;
+      const uint8 STATE_WAITING_FOR_GLOBAL_POS = 7;
+      const uint8 STATE_UNKNOWN = 8;
+    };
+    @verbatim (language="comment", text=
+      " State \"enum\"")
+    struct MowerSlamState {
+      @verbatim (language="comment", text=
+        "std_msgs/Header     header")
+      uint8 state;
+    };
+  };
+};

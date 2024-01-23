@@ -1,0 +1,26 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerMowerMode.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerMowerMode_Constants {
+      const uint8 MOWERAPP_MODE_AUTO = 0;
+      const uint8 MOWERAPP_MODE_MANUAL = 1;
+      const uint8 MOWERAPP_MODE_HOME = 2;
+      const uint8 MOWERAPP_MODE_DEMO = 3;
+      const uint8 MOWERAPP_MODE_POI = 4;
+    };
+    @verbatim (language="comment", text=
+      " State \"enum\"")
+    struct MowerMowerMode {
+      std_msgs::msg::Header header;
+
+      uint8 mode;
+
+      string description;
+    };
+  };
+};

@@ -1,0 +1,36 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MapInfo.msg
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Point32.idl"
+#include "hqv_public_interface/msg/MapShape.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MapInfo {
+      string map_name;
+
+      @verbatim (language="comment", text=
+        " charging station position")
+      geometry_msgs::msg::Point32 cs_pos;
+
+      @verbatim (language="comment", text=
+        " path connection position")
+      geometry_msgs::msg::Point32 pc_pos;
+
+      hqv_public_interface::msg::MapShape charging_station;
+
+      sequence<hqv_public_interface::msg::MapShape> working_areas;
+
+      sequence<hqv_public_interface::msg::MapShape> transport_areas;
+
+      sequence<hqv_public_interface::msg::MapShape> forbidden_areas;
+
+      sequence<hqv_public_interface::msg::MapShape> hidden_areas;
+
+      sequence<hqv_public_interface::msg::MapShape> transport_paths;
+
+      sequence<hqv_public_interface::msg::MapShape> poi_paths;
+    };
+  };
+};

@@ -1,0 +1,27 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerGnssHdop.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerGnssHdop_Constants {
+      const uint8 IGNSS_SIGNALSTRENGTH_0 = 0;
+      const uint8 IGNSS_SIGNALSTRENGTH_7 = 2;
+      const uint8 IGNSS_SIGNALSTRENGTH_6 = 3;
+      const uint8 IGNSS_SIGNALSTRENGTH_5 = 4;
+      const uint8 IGNSS_SIGNALSTRENGTH_4 = 5;
+      const uint8 IGNSS_SIGNALSTRENGTH_3 = 6;
+      const uint8 IGNSS_SIGNALSTRENGTH_2 = 7;
+      const uint8 IGNSS_SIGNALSTRENGTH_1 = 8;
+    };
+    @verbatim (language="comment", text=
+      "strength constants")
+    struct MowerGnssHdop {
+      std_msgs::msg::Header header;
+
+      uint8 strength;
+    };
+  };
+};

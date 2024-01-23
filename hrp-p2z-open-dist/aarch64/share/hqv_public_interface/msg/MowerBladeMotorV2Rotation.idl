@@ -1,0 +1,19 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerBladeMotorV2Rotation.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerBladeMotorV2Rotation {
+      std_msgs::msg::Header header;
+
+      uint8 index;
+
+      @verbatim (language="comment", text=
+        "default=0 cw=1 ccw=2")
+      uint8 direction;
+    };
+  };
+};

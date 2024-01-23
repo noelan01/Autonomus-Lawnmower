@@ -1,0 +1,14 @@
+source;share/hrp_pkg/hook/cmake_prefix_path.ps1
+source;share/hrp_pkg/hook/cmake_prefix_path.dsv
+source;share/hrp_pkg/hook/cmake_prefix_path.sh
+source;share/hrp_pkg/hook/ld_library_path_lib.ps1
+source;share/hrp_pkg/hook/ld_library_path_lib.dsv
+source;share/hrp_pkg/hook/ld_library_path_lib.sh
+source;share/hrp_pkg/hook/pythonpath.ps1
+source;share/hrp_pkg/hook/pythonpath.dsv
+source;share/hrp_pkg/hook/pythonpath.sh
+source;share/hrp_pkg/local_setup.bash
+source;share/hrp_pkg/local_setup.dsv
+source;share/hrp_pkg/local_setup.ps1
+source;share/hrp_pkg/local_setup.sh
+source;share/hrp_pkg/local_setup.zsh

@@ -1,0 +1,12 @@
+source;share/hqv_keyboard_remote_drive/hook/cmake_prefix_path.ps1
+source;share/hqv_keyboard_remote_drive/hook/cmake_prefix_path.dsv
+source;share/hqv_keyboard_remote_drive/hook/cmake_prefix_path.sh
+source;share/hqv_keyboard_remote_drive/hook/ld_library_path_lib.ps1
+source;share/hqv_keyboard_remote_drive/hook/ld_library_path_lib.dsv
+source;share/hqv_keyboard_remote_drive/hook/ld_library_path_lib.sh
+source;share/hqv_keyboard_remote_drive/hook/pythonpath.ps1
+source;share/hqv_keyboard_remote_drive/hook/pythonpath.dsv
+source;share/hqv_keyboard_remote_drive/hook/pythonpath.sh
+source;share/hqv_keyboard_remote_drive/hook/ament_prefix_path.ps1
+source;share/hqv_keyboard_remote_drive/hook/ament_prefix_path.dsv
+source;share/hqv_keyboard_remote_drive/hook/ament_prefix_path.sh

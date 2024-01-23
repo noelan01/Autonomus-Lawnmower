@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerGnssFix.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerGnssFix_Constants {
+      const uint8 IGNSS_GPSFIX_NO_FIX = 0;
+      const uint8 IGNSS_GPSFIX_DEAD_REACKONING = 1;
+      const uint8 IGNSS_GPSFIX_2D_FIX = 2;
+      const uint8 IGNSS_GPSFIX_3D_FIX = 3;
+      const uint8 IGNSS_GPSFIX_GPS_DEAD_REACKONING = 4;
+      const uint8 IGNSS_GPSFIX_TIME_ONLY = 5;
+    };
+    @verbatim (language="comment", text=
+      "status constants")
+    struct MowerGnssFix {
+      std_msgs::msg::Header header;
+
+      uint8 status;
+    };
+  };
+};

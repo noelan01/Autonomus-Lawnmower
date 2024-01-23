@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/GetMap.srv
+// generated code does not contain a copyright notice
+
+#include "hqv_public_interface/msg/MapInfo.idl"
+
+module hqv_public_interface {
+  module srv {
+    struct GetMap_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct GetMap_Response {
+      int64 result;
+
+      hqv_public_interface::msg::MapInfo map_info;
+    };
+  };
+};

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>hqv_sync_sensors</name>
+  <version>0.0.0</version>
+  <description>Package to sync data from topics and create a single output topic. Can be used as a pre-node to align sensor data without having to implement buffers on your own</description>
+  <maintainer email="jonas.rangsjo@husqvarnagroup.com">jonas</maintainer>
+  <license>TODO: License declaration</license>
+
+  <depend>hqv_public_interface</depend>
+  <depend>hqv_private_interface</depend>
+  <depend>rclpy</depend>
+
+  <exec_depend>tf_transformations</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>transforms3d</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/TifInjectIrregularPattern.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    struct TifInjectIrregularPattern_Request {
+      uint8 set_state;
+    };
+    struct TifInjectIrregularPattern_Response {
+      uint8 status;
+    };
+  };
+};

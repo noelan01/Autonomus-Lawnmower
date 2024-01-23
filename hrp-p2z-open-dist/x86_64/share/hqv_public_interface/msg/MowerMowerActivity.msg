@@ -1,0 +1,12 @@
+# State "enum"
+uint8 MOWERAPP_ACTIVITY_NONE = 0
+uint8 MOWERAPP_ACTIVITY_CHARGING = 1
+uint8 MOWERAPP_ACTIVITY_GOING_OUT = 2
+uint8 MOWERAPP_ACTIVITY_MOWING = 3
+uint8 MOWERAPP_ACTIVITY_GOING_HOME = 4
+uint8 MOWERAPP_ACTIVITY_PARKED = 5
+uint8 MOWERAPP_ACTIVITY_STOPPED_IN_GARDEN = 6
+
+std_msgs/Header     header
+uint8               activity
+string              description

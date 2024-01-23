@@ -1,0 +1,16 @@
+float32   x 0
+float32   y 0
+float32   spd 0.4
+float32   line_a_x 0
+float32   line_a_y 0
+float32   line_b_x 0
+float32   line_b_y 0
+float32   path_offset 0
+bool      randomize_path_offset false
+bool      merge_at_end false
+bool      follow_path_backwards false
+uint8     finish_action 0
+---
+uint8   result
+---
+uint8   prog

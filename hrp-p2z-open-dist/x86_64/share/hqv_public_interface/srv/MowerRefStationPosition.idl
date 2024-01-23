@@ -1,0 +1,29 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/MowerRefStationPosition.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    module MowerRefStationPosition_Request_Constants {
+      const uint8 MESSAGE_TYPE_INSTALLED_POSITION = 0;
+      const uint8 MESSAGE_TYPE_CURRENT_POSITION = 1;
+    };
+    @verbatim (language="comment", text=
+      " Message type \"enum\"")
+    struct MowerRefStationPosition_Request {
+      @verbatim (language="comment", text=
+        " See above")
+      uint8 message_type;
+    };
+    struct MowerRefStationPosition_Response {
+      boolean status;
+
+      int32 longitude;
+
+      int32 latitude;
+
+      int32 altitude;
+    };
+  };
+};

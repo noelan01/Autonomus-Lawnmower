@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerGnssPosAcc.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerGnssPosAcc {
+      std_msgs::msg::Header header;
+
+      double horizontal;
+
+      double vertical;
+    };
+  };
+};

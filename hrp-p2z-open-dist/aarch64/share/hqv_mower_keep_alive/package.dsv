@@ -1,0 +1,6 @@
+source;share/hqv_mower_keep_alive/hook/pythonpath.ps1
+source;share/hqv_mower_keep_alive/hook/pythonpath.dsv
+source;share/hqv_mower_keep_alive/hook/pythonpath.sh
+source;share/hqv_mower_keep_alive/hook/ament_prefix_path.ps1
+source;share/hqv_mower_keep_alive/hook/ament_prefix_path.dsv
+source;share/hqv_mower_keep_alive/hook/ament_prefix_path.sh

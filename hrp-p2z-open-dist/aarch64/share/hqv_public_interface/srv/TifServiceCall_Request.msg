@@ -1,0 +1,9 @@
+#request constants
+
+#request field
+string nodename
+uint16 family
+uint16 command
+byte[] payload
+uint16 timeout
+

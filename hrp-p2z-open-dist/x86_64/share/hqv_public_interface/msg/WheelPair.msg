@@ -1,0 +1,17 @@
+std_msgs/Header     header
+uint16              power_left
+uint16              power_right
+int32               counter_left
+int32               counter_right
+uint8               free_left
+uint8               free_right
+float32             deltadistance_left
+float32             deltadistance_right
+uint8               state_left
+uint8               state_right
+int16               current_left
+int16               current_right
+float32             speed_left
+float32             speed_right
+bool                isrunning_left
+bool                isrunning_right

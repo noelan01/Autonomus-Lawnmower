@@ -1,0 +1,11 @@
+#strength constants
+uint8 IGNSS_SIGNALSTRENGTH_0  = 0
+uint8 IGNSS_SIGNALSTRENGTH_7  = 2
+uint8 IGNSS_SIGNALSTRENGTH_6  = 3
+uint8 IGNSS_SIGNALSTRENGTH_5  = 4
+uint8 IGNSS_SIGNALSTRENGTH_4  = 5
+uint8 IGNSS_SIGNALSTRENGTH_3  = 6
+uint8 IGNSS_SIGNALSTRENGTH_2  = 7
+uint8 IGNSS_SIGNALSTRENGTH_1  = 8
+std_msgs/Header   header
+uint8             strength

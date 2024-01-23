@@ -1,0 +1,36 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/MowerSlamMapHandling.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    module MowerSlamMapHandling_Request_Constants {
+      const uint8 MESSAGE_TYPE_GET_ACTIVE_MAP = 1;
+      const uint8 MESSAGE_TYPE_LIST_MAPS = 4;
+    };
+    @verbatim (language="comment", text=
+      " Message type \"enum\"" "\n"
+      "uint8 MESSAGE_TYPE_SET_ACTIVE_MAP = 0")
+    struct MowerSlamMapHandling_Request {
+      @verbatim (language="comment", text=
+        "uint8 MESSAGE_TYPE_DELETE_MAPS = 5" "\n"
+        " See above")
+      uint8 message_type;
+
+      @verbatim (language="comment", text=
+        " Only used for MESSAGE_TYPE = 0,2,3")
+      uint32 map_id;
+    };
+    typedef uint32 uint32__10[10];
+    struct MowerSlamMapHandling_Response {
+      @verbatim (language="comment", text=
+        " Only used for MESSAGE_TYPE = 1")
+      uint32 map_id;
+
+      @verbatim (language="comment", text=
+        " Only used for MESSAGE_TYPE = 4")
+      uint32__10 map_ids;
+    };
+  };
+};

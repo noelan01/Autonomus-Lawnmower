@@ -1,0 +1,31 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/TifServiceCall.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    @verbatim (language="comment", text=
+      "request constants")
+    struct TifServiceCall_Request {
+      @verbatim (language="comment", text=
+        "request field")
+      string nodename;
+
+      uint16 family;
+
+      uint16 command;
+
+      sequence<octet> payload;
+
+      uint16 timeout;
+    };
+    @verbatim (language="comment", text=
+      "response field")
+    struct TifServiceCall_Response {
+      uint8 result;
+
+      sequence<octet> data;
+    };
+  };
+};

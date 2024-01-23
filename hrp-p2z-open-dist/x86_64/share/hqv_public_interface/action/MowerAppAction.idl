@@ -1,0 +1,32 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from hqv_public_interface/action/MowerAppAction.action
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module action {
+    module MowerAppAction_Goal_Constants {
+      const uint8 START = 0;
+      const uint8 PAUSE = 1;
+      const uint8 ABORT_START = 2;
+      const uint8 CONFIRM_ERROR = 3;
+    };
+    @verbatim (language="comment", text=
+      "Action constants")
+    struct MowerAppAction_Goal {
+      @verbatim (language="comment", text=
+        "Action Request")
+      uint8 action;
+    };
+    struct MowerAppAction_Result {
+      @verbatim (language="comment", text=
+        "Action Result")
+      boolean result;
+    };
+    struct MowerAppAction_Feedback {
+      @verbatim (language="comment", text=
+        "Action Feedback")
+      uint8 progress;
+    };
+  };
+};

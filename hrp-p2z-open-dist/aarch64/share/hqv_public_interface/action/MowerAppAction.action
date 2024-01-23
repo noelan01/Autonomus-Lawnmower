@@ -1,0 +1,14 @@
+#Action constants
+uint8 START=0
+uint8 PAUSE=1
+uint8 ABORT_START=2
+uint8 CONFIRM_ERROR=3
+
+#Action Request
+uint8 action
+---
+#Action Result
+bool result
+---
+#Action Feedback
+uint8   progress

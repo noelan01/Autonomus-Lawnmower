@@ -1,0 +1,10 @@
+#status constants
+uint8 IGNSS_GPSFIX_NO_FIX=0
+uint8 IGNSS_GPSFIX_DEAD_REACKONING=1
+uint8 IGNSS_GPSFIX_2D_FIX=2
+uint8 IGNSS_GPSFIX_3D_FIX=3
+uint8 IGNSS_GPSFIX_GPS_DEAD_REACKONING=4
+uint8 IGNSS_GPSFIX_TIME_ONLY=5
+
+std_msgs/Header   header
+uint8             status

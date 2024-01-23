@@ -1,0 +1,19 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerBladeMotorV2SpeedMeassure.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerBladeMotorV2SpeedMeassure {
+      std_msgs::msg::Header header;
+
+      uint8 index;
+
+      @verbatim (language="comment", text=
+        "rpm")
+      uint16 speed;
+    };
+  };
+};

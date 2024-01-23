@@ -1,0 +1,14 @@
+# State "enum"
+uint8 MOWERAPP_STATE_OFF = 0
+uint8 MOWERAPP_STATE_WAIT_FOR_SAFETYPIN = 1
+uint8 MOWERAPP_STATE_STOPPED = 2
+uint8 MOWERAPP_STATE_FATAL_ERROR = 3
+uint8 MOWERAPP_STATE_PENDING_START = 4
+uint8 MOWERAPP_STATE_PAUSED = 5
+uint8 MOWERAPP_STATE_IN_OPERATION = 6
+uint8 MOWERAPP_STATE_RESTRICTED = 7
+uint8 MOWERAPP_STATE_ERROR = 8
+
+std_msgs/Header     header
+uint8               state
+string              description

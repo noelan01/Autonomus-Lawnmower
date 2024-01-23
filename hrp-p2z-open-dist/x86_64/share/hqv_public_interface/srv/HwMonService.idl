@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/HwMonService.srv
+// generated code does not contain a copyright notice
+
+#include "hqv_public_interface/msg/HwMon.idl"
+
+module hqv_public_interface {
+  module srv {
+    struct HwMonService_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct HwMonService_Response {
+      hqv_public_interface::msg::HwMon hw_monitor;
+    };
+  };
+};

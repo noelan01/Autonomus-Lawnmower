@@ -1,0 +1,26 @@
+#result code constants
+uint8 ICODRIVER_RESULT_DISABLED           = 0
+uint8 ICODRIVER_RESULT_COMMAND_COMPLETED  = 1
+uint8 ICODRIVER_RESULT_COMMAND_INCOMPLETE = 2
+uint8 ICODRIVER_RESULT_COMMAND_PENDING    = 3
+uint8 ICODRIVER_RESULT_COMMAND_TIMEOUT    = 4
+uint8 ICODRIVER_RESULT_COMMAND_ACCEPTED   = 5
+uint8 ICODRIVER_RESULT_COMMAND_REJECTED   = 6
+uint8 ICODRIVER_RESULT_NO_ACTIVE_COMMAND  = 7
+
+# commands constants
+uint8 ICODRIVER_COMMAND_NONE         = 0
+uint8 ICODRIVER_COMMAND_ABORT        = 1
+uint8 ICODRIVER_COMMAND_ROTATE       = 2
+uint8 ICODRIVER_COMMAND_TURN         = 3
+uint8 ICODRIVER_COMMAND_MOVE_TO      = 4
+uint8 ICODRIVER_COMMAND_REDUCE_SPEED = 5
+
+# result constants
+uint8 ICODRIVER_COMMAND_FAILED         = 0
+uint8 ICODRIVER_COMMAND_PASSED         = 1
+
+std_msgs/Header   header
+uint8             result
+uint8             command
+uint8             resultcode

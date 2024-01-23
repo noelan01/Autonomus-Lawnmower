@@ -1,0 +1,32 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerSlamFeedback.msg
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module msg {
+    module MowerSlamFeedback_Constants {
+      const uint8 FEEDBACK_NORMAL = 0;
+      const uint8 FEEDBACK_FULL_STOP = 1;
+      const uint8 FEEDBACK_TURN_IN_PLACE = 2;
+      const uint8 FEEDBACK_ADAPT_MAX_VELOCITY = 3;
+      const uint8 FEEDBACK_CHANGE_HEADING = 4;
+      const uint8 FEEDBACK_DRIVE_STRAIGHT = 5;
+      const uint8 FEEDBACK_DRIVE_TO = 6;
+      const uint8 FEEDBACK_CALIBRATION_DONE = 7;
+      const uint8 FEEDBACK_RTK_ANOMALY = 8;
+      const uint8 FEEDBACK_UNKNOWN = 9;
+    };
+    @verbatim (language="comment", text=
+      "Subscription constants")
+    struct MowerSlamFeedback {
+      @verbatim (language="comment", text=
+        "std_msgs/Header     header")
+      uint8 feedback;
+
+      int32 feedback_data_1;
+
+      int32 feedback_data_2;
+    };
+  };
+};

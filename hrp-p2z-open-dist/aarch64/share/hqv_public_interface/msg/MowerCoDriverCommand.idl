@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerCoDriverCommand.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    module MowerCoDriverCommand_Constants {
+      const uint8 ICODRIVER_COMMAND_NONE = 0;
+      const uint8 ICODRIVER_COMMAND_ABORT = 1;
+      const uint8 ICODRIVER_COMMAND_ROTATE = 2;
+      const uint8 ICODRIVER_COMMAND_TURN = 3;
+      const uint8 ICODRIVER_COMMAND_MOVE_TO = 4;
+      const uint8 ICODRIVER_COMMAND_REDUCE_SPEED = 5;
+    };
+    @verbatim (language="comment", text=
+      "status constants")
+    struct MowerCoDriverCommand {
+      std_msgs::msg::Header header;
+
+      uint8 command;
+    };
+  };
+};

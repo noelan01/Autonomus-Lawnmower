@@ -1,0 +1,10 @@
+msg/Dummy.idl
+msg/Dummy.msg
+msg/EgaliteSlamFeedback.idl
+msg/EgaliteSlamFeedback.msg
+msg/EgaliteSlamPosition.idl
+msg/EgaliteSlamPosition.msg
+msg/EgaliteSlamState.idl
+msg/EgaliteSlamState.msg
+msg/EgaliteTlvBoardDebug.idl
+msg/EgaliteTlvBoardDebug.msg

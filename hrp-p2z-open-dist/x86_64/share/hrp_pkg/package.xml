@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>hrp_pkg</name>
+  <version>0.0.0</version>
+  <description>Meta data package to specify all top dependencies for this project</description>
+  <maintainer email="jonas.rangsjo@husqvarnagroup.com">jonas</maintainer>
+  <license>PRIVATE</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>hqv_proxy</depend>
+  <depend>hqv_power_shutdown_linux</depend>
+  <exec_depend>hqv_sync_sensors</exec_depend>
+  <depend>hqv_mower_keep_alive</depend>
+  <depend>hqv_keyboard_remote_drive</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

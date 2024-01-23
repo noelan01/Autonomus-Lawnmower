@@ -1,0 +1,35 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from hqv_public_interface/msg/MowerGnssTime.msg
+// generated code does not contain a copyright notice
+
+#include "std_msgs/msg/Header.idl"
+
+module hqv_public_interface {
+  module msg {
+    struct MowerGnssTime {
+      std_msgs::msg::Header header;
+
+      uint32 itow;
+
+      uint16 year;
+
+      uint8 month;
+
+      uint8 day;
+
+      uint8 hour;
+
+      uint8 minute;
+
+      uint8 second;
+
+      int32 nano;
+
+      uint32 timeaccuracy;
+
+      boolean timevalid;
+
+      boolean datevalid;
+    };
+  };
+};

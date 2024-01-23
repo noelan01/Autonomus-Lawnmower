@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/TifGetFile.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    struct TifGetFile_Request {
+      string filename;
+    };
+    struct TifGetFile_Response {
+      uint8 status;
+
+      sequence<octet> data;
+    };
+  };
+};

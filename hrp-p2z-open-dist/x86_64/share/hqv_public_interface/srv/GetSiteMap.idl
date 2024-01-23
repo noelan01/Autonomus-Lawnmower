@@ -1,0 +1,32 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from hqv_public_interface/srv/GetSiteMap.srv
+// generated code does not contain a copyright notice
+
+
+module hqv_public_interface {
+  module srv {
+    module GetSiteMap_Request_Constants {
+      const uint8 MAP_SITENAME = 0;
+      const uint8 MAP_DATA = 1;
+      const uint8 MAP_UPDATE = 2;
+    };
+    @verbatim (language="comment", text=
+      "request constants")
+    struct GetSiteMap_Request {
+      @verbatim (language="comment", text=
+        "request field")
+      uint8 request;
+    };
+    @verbatim (language="comment", text=
+      "response field")
+    struct GetSiteMap_Response {
+      boolean loaded;
+
+      boolean valid;
+
+      string sitename;
+
+      sequence<octet> data;
+    };
+  };
+};
