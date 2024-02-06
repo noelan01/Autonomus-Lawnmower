@@ -1,0 +1,10 @@
+[Unit]
+Description=startup ros2 and hrp
+ 
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu
+ExecStart=/home/ubuntu/hrp2-autostart.sh
+ 
+[Install]
+WantedBy=multi-user.target
