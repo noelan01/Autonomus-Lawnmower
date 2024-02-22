@@ -1,10 +1,15 @@
+import numpy as np
+import rclpy
+
+from rclpy.node import Node
+from hqv_public_interface.msg import MowerGnssRtkRelativePositionENU
+from hqv_public_interface.msg import MowerGnssUnixTime
+
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
 """
 ###################################################################
-
-import numpy as np
 
 class EKF():
     def __init__(self, init_state, init_input, init_P, init_noise, init_pos_reading):
@@ -16,13 +21,17 @@ class EKF():
         self._B = None
         self._K_k = None
         self._y_k = None
-
+        
         self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # från exempel JUSTERA
         self._H_k = np.eye(3)   # justera vid behov
         self._R_k = np.eye(3)   # justera vid behov
         self._F_k = np.eye(3)
         self._Q_k = np.eye(3)   # kovariansmatris, se anteckningar JUSTERA VID BEHOV
         self._dk = ...          # VAD ÄR DK I VÅRT FALL?
+
+        ## OSÄKER PÅ DESSA. KOllA UPP
+        self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
+        self.time_subscriber = self.create_subscription(MowerGnssUnixTime, '/hqv_mower/gnss/unixtime', self.time_callback, 10)
 
     """
     Update funtionen uppdaterar alla delar i kalmanfiltret.
@@ -169,6 +178,18 @@ class EKF():
         error = ...
         return error
     
+    """
+    CALLBACKS
+    """
+    
+    # TODO
+    # DO SOME FUcKERY HERE
+
+    def rtk_callback(self):
+        pass
+
+    def time_callback(self):
+        pass
     
 
 
