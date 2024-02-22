@@ -8,6 +8,11 @@ from hqv_public_interface.msg import MowerGnssUnixTime
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
+
+Nu görs state estimationen med GPS data enbart samt predictions baserat på
+control inputs. Skapa sensor fusion function?
+
+https://www.youtube.com/watch?v=whSw42XddsU&ab_channel=BrianDouglas
 """
 ###################################################################
 
@@ -17,17 +22,18 @@ class EKF():
         self._input = init_input               # init_input = [v_prev, yaw_rate_prev]
         self._noise = init_noise
         self._Z_k = init_pos_reading
+        self._time = 0
 
+        self._A = np.eye(3)
         self._B = None
         self._K_k = None
-        self._y_k = None
+        self._y_k = None        # diff mellan mätvärden och predikterade mätvärden
         
-        self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # från exempel JUSTERA
-        self._H_k = np.eye(3)   # justera vid behov
-        self._R_k = np.eye(3)   # justera vid behov
-        self._F_k = np.eye(3)
-        self._Q_k = np.eye(3)   # kovariansmatris, se anteckningar JUSTERA VID BEHOV
-        self._dk = ...          # VAD ÄR DK I VÅRT FALL?
+        self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # Predikterad kovarians matris av state estimering  JUSTERA
+        self._H_k = np.eye(3)   # Mätningsmatris                    justera vid behov
+        self._R_k = np.eye(3)   # Sensorbrus kovarians matris       justera vid behov
+        self._F_k = np.eye(3)   # Funkar som A matrisen
+        self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
 
         ## OSÄKER PÅ DESSA. KOllA UPP
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
@@ -102,8 +108,15 @@ class EKF():
 
     def set_pos_update(self):
         # TODO
-        # Hämta positionsmätningar och uppdatera Z_k
-        self._Z_k = ...
+        # Hämta positionsmätningar och uppdatera Z_k (yaw från imu?)
+        # ENDAST GPS? ELLER KOMBINERA SENSORER??
+
+        rtk_available = ...        # checka om RTK tillgänglig
+
+        if rtk_available == True:           # väljer RTK om tillgänglig
+            self._Z_k = ...
+        else:                               # annars GNSS
+            self._Z_k = ...
         
 
     def set_B(self):
@@ -113,6 +126,24 @@ class EKF():
         self._B = np.array([[np.cos(theta_prev) * dk, 0],
                         [np.sin(theta_prev) * dk, 0],
                         [0,                      dk]])
+        
+    def set_Q_k(self):
+        self.set_pos_update()
+        pos = self.get_pos_reading()
+
+        x = pos[0]
+        y = pos[1]
+        theta = pos[2]
+
+        self._Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
+                        [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
+                        [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
+        
+    def set_time(self):
+        # TODO
+        # GET UNIX TIME HERE
+        pass
+
 
     ######   ######   #######   #######    ######    #######    ######
     #        #           #         #       #         #     #    #
@@ -121,7 +152,7 @@ class EKF():
     ######   ######      #         #       ######    #   ##     ######
         
     def get_A(self):
-        return np.eye(3)
+        return self._A
     
     def get_B(self, theta_prev, dk):
         self.set_B()
@@ -164,7 +195,12 @@ class EKF():
         return self._Q_k
     
     def get_dk(self):
-        return self._dk
+        prev_time = self.get_time()
+        self.set_time()
+        time = self.get_time()
+
+        dk = abs(prev_time - time)
+        return dk
     
     def get_theta(self):
         self.set_pos_update()
@@ -178,6 +214,9 @@ class EKF():
         error = ...
         return error
     
+    def get_time(self):
+        return self._time
+    
     """
     CALLBACKS
     """
@@ -186,6 +225,9 @@ class EKF():
     # DO SOME FUcKERY HERE
 
     def rtk_callback(self):
+        pass
+
+    def gnss_callback(self):
         pass
 
     def time_callback(self):
