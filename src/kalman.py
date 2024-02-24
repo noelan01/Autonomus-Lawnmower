@@ -1,11 +1,4 @@
 import numpy as np
-import rclpy
-
-from rclpy.node import Node
-from hqv_public_interface.msg import MowerGnssRtkRelativePositionENU
-from hqv_public_interface.msg import MowerGnssUnixTime
-from hqv_public_interface.msg import RemoteDriverDriveCommand
-from hqv_public_interface.msg import MowerImu
 
 ###################################################################
 """
@@ -19,7 +12,7 @@ https://www.youtube.com/watch?v=whSw42XddsU&ab_channel=BrianDouglas
 ###################################################################
 
 class EKF():
-    def __init__(self, init_state, init_input, init_P, init_noise, init_pos_reading):
+    def __init__(self, init_state, init_input, init_noise, init_pos_reading):
         self._state = init_state               # init_state = [x_prev, y_prev, theta_prev]
         self._input = init_input               # init_input = [v_prev, yaw_rate_prev]
         self._noise = init_noise
@@ -37,15 +30,6 @@ class EKF():
         self._F_k = np.eye(3)   # Funkar som A matrisen
         self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
     
-        ## SUBSCRIBERS.     OSÄKER PÅ DESSA. KOllA UPP
-        # gps data
-        self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
-        # tiden
-        self.time_subscriber = self.create_subscription(MowerGnssUnixTime, '/hqv_mower/gnss/unixtime', self.time_callback, 10)
-        # styrsignaler
-        self.control_input_subscriber = self.create_subscription(RemoteDriverDriveCommand, '/hqv_mower/traction/drive', self.control_input_callback, 10)
-        # imu data
-        self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
 
     """
     Update funtionen uppdaterar alla delar i kalmanfiltret.
@@ -148,10 +132,6 @@ class EKF():
                         [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
                         [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
         
-    def set_time(self):
-        # TODO
-        # GET UNIX TIME HERe        
-        self._time = ...
 
 
     ######   ######   #######   #######    ######    #######    ######
@@ -224,29 +204,11 @@ class EKF():
         return error
     
     def get_time(self):
+        # TODO
+        #Hämta tiden här
+
         return self._time
     
-    """
-    CALLBACKS
-    """
-    
-    # TODO
-    # Skriv callback functioner
-
-    def rtk_callback(self):
-        pass
-
-    def gnss_callback(self):
-        pass
-
-    def time_callback(self):
-        pass
-
-    def control_input_callback(self):
-        pass
-
-    def IMU_callback(self):
-        pass
     
 
 
