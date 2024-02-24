@@ -4,6 +4,8 @@ import rclpy
 from rclpy.node import Node
 from hqv_public_interface.msg import MowerGnssRtkRelativePositionENU
 from hqv_public_interface.msg import MowerGnssUnixTime
+from hqv_public_interface.msg import RemoteDriverDriveCommand
+from hqv_public_interface.msg import MowerImu
 
 ###################################################################
 """
@@ -34,10 +36,16 @@ class EKF():
         self._R_k = np.eye(3)   # Sensorbrus kovarians matris       justera vid behov
         self._F_k = np.eye(3)   # Funkar som A matrisen
         self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
-
-        ## OSÄKER PÅ DESSA. KOllA UPP
+    
+        ## SUBSCRIBERS.     OSÄKER PÅ DESSA. KOllA UPP
+        # gps data
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
+        # tiden
         self.time_subscriber = self.create_subscription(MowerGnssUnixTime, '/hqv_mower/gnss/unixtime', self.time_callback, 10)
+        # styrsignaler
+        self.control_input_subscriber = self.create_subscription(RemoteDriverDriveCommand, '/hqv_mower/traction/drive', self.control_input_callback, 10)
+        # imu data
+        self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
 
     """
     Update funtionen uppdaterar alla delar i kalmanfiltret.
@@ -60,6 +68,7 @@ class EKF():
         self._P = (np.eye(3) - K_k @ H_k) @ P_prev  # uppdatera cov
 
         return self.get_state()                     # returna uppdaterat state
+    
 
     ######   ######   #######   #######    ######    #######    ######
     #        #           #         #       #         #     #    #
@@ -141,8 +150,8 @@ class EKF():
         
     def set_time(self):
         # TODO
-        # GET UNIX TIME HERE
-        pass
+        # GET UNIX TIME HERe        
+        self._time = ...
 
 
     ######   ######   #######   #######    ######    #######    ######
@@ -222,7 +231,7 @@ class EKF():
     """
     
     # TODO
-    # DO SOME FUcKERY HERE
+    # Skriv callback functioner
 
     def rtk_callback(self):
         pass
@@ -231,6 +240,12 @@ class EKF():
         pass
 
     def time_callback(self):
+        pass
+
+    def control_input_callback(self):
+        pass
+
+    def IMU_callback(self):
         pass
     
 
