@@ -1,5 +1,12 @@
 import numpy as np
 
+# Endast för simulering
+import sys
+sys.path.append('./tests/')
+import sub_data
+sim_data = sub_data.Get_data()
+#
+
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
@@ -36,7 +43,8 @@ class EKF():
     Kalla på denna för att få den uppdaterade state estimationen.
     """    
     def update(self):
-        self.predict_state()            # 1. predict state
+        prev_state = self.get_state()
+        self.predict_state(prev_state)            # 1. predict state
         self.predict_cov()              # 2. predict cov
         self.set_gain()                 # 3. - 5. set optimal gain
 
@@ -104,12 +112,12 @@ class EKF():
         # Hämta positionsmätningar och uppdatera Z_k (yaw från imu?)
         # ENDAST GPS? ELLER KOMBINERA SENSORER??
 
-        rtk_available = ...        # checka om RTK tillgänglig
+        rtk_available = False        # checka om RTK tillgänglig
 
-        if rtk_available == True:           # väljer RTK om tillgänglig
+        if rtk_available:           # väljer RTK om tillgänglig
             self._Z_k = ...
         else:                               # annars GNSS
-            self._Z_k = ...
+            self._Z_k = sim_data.get_pos_reading()
         
 
     def set_B(self):
