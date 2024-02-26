@@ -4,8 +4,8 @@ import numpy as np
 
 sys.path.append('./src/')
 
-GPS_DATA1 = '/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests/gps_2018-11-29.json'
-GPS_DATA2 = "/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests/gps_2018-11-29.json"
+GPS_DATA1 = '/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests/gps_2018-11-29_new.json'
+GPS_DATA2 = '/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests/gps_2018-11-29_new.json'
 
 def read_data(jsonobject):
     with open(jsonobject, 'r',encoding='utf8') as infile:
@@ -20,7 +20,7 @@ gps_data = read_data(GPS_DATA1)
 
 class Get_data():
     def __init__(self):
-        self._time = 0
+        self._step = 0
 
     def time_to_float(self, time_string):
         time_lst = time_string.split(':')       # [h, m, s]
@@ -48,8 +48,16 @@ class Get_data():
         return time
     
     def get_pos_reading(self):
-        time = time_to_string(self._time)
-        pos = np.array([gps_data[time]['lat'], gps_data[time]['lat'], 0])
-        self._time += 0.2
-        return pos
+        time = gps_data['time'][self._step]
+        self._step += 1
+        pos = np.array([[gps_data[time]['lat']], [gps_data[time]['lon']], [0]])
+        #print("pos reading",pos)
+        return self.time_to_float(time), pos
+    
+    def get_control_input(self):
+        return np.array([[0],[0]])
+    
+    def get_sensor_error(self):
+        return np.array([[0],[0],[0]])
+    
     

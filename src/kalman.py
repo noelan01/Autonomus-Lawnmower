@@ -2,7 +2,7 @@ import numpy as np
 
 # Endast för simulering
 import sys
-sys.path.append('./tests/')
+sys.path.append('/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests')
 import sub_data
 sim_data = sub_data.Get_data()
 #
@@ -19,12 +19,14 @@ https://www.youtube.com/watch?v=whSw42XddsU&ab_channel=BrianDouglas
 ###################################################################
 
 class EKF():
-    def __init__(self, init_state, init_input, init_noise, init_pos_reading):
+    def __init__(self, init_state, init_input, init_noise, init_pos_reading, sim):
         self._state = init_state               # init_state = [x_prev, y_prev, theta_prev]
         self._input = init_input               # init_input = [v_prev, yaw_rate_prev]
         self._noise = init_noise
         self._Z_k = init_pos_reading
         self._time = 0
+        self._prev_time = 0
+        self._sensor_error = np.array([[0],[0],[0]])
 
         self._A = np.eye(3)
         self._B = None
@@ -32,10 +34,12 @@ class EKF():
         self._y_k = None        # diff mellan mätvärden och predikterade mätvärden
         
         self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # Predikterad kovarians matris av state estimering  JUSTERA
-        self._H_k = np.eye(3)   # Mätningsmatris                    justera vid behov
+        self._H_k = np.eye(3)   # Mätningsmatris
         self._R_k = np.eye(3)   # Sensorbrus kovarians matris       justera vid behov
         self._F_k = np.eye(3)   # Funkar som A matrisen
         self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
+
+        self._sim = sim
     
 
     """
@@ -43,8 +47,7 @@ class EKF():
     Kalla på denna för att få den uppdaterade state estimationen.
     """    
     def update(self):
-        prev_state = self.get_state()
-        self.predict_state(prev_state)            # 1. predict state
+        self.predict_state()            # 1. predict state
         self.predict_cov()              # 2. predict cov
         self.set_gain()                 # 3. - 5. set optimal gain
 
@@ -54,6 +57,10 @@ class EKF():
         y_k = self.get_y_k()
         P_prev = self.get_cov()
         H_k = self.get_H_k()
+
+        #print("K_k = ", K_k)
+        #print("y_k = ", y_k)
+        #print("K_k * y_k = ",K_k @ y_k)
 
         self._state = state_prev + K_k @ y_k        # uppdatera state
         
@@ -69,19 +76,29 @@ class EKF():
     ######   ######      #         #       ######    #   ##     ######
         
 
-    def predict_state(self, input_prev):
+    def predict_state(self):
         self.set_B()
         B = self.get_B()
         A = self.get_A()
         state_prev = self.get_state()
+
+        self.update_input()
         input_prev = self.get_input()
+
         noise = self.get_noise()
+
+        #print("A = ", A)
+        #print("state_prev = ", state_prev)
+        #print("B = ", B)
+        #print("input_prev = ", input_prev)
+        #print("noise = ", noise)
 
         self._state = A @ state_prev + B @ input_prev + noise
     
 
     def predict_cov(self):
         F_k = self.get_F_k()
+        self.set_Q_k()
         Q_k = self.get_Q_k()
         P_prev = self.get_P()
 
@@ -95,11 +112,17 @@ class EKF():
         P_k = self.get_cov()
 
         self.set_pos_update()
-        Z_k = self.get_pos_reading()                   # mätvärden [x_k, y_k, theta_k]
+        Z_k = self.get_pos_reading()                   # mätvärden [[x_k], [y_k], [theta_k]]
         
         X_k = self.get_state()
+
+        self.update_sensor_error()
         sensor_error = self.get_sensor_error()
 
+        #print("Z_k =", Z_k)
+        #print("H_k =", H_k)
+        #print("X_k =", X_k)
+        #print("sensor_error =", sensor_error)
         self._y_k = Z_k - H_k @ X_k + sensor_error
 
         S_k = H_k @ P_k @ np.transpose(H_k) + R_k
@@ -117,7 +140,10 @@ class EKF():
         if rtk_available:           # väljer RTK om tillgänglig
             self._Z_k = ...
         else:                               # annars GNSS
-            self._Z_k = sim_data.get_pos_reading()
+            if self._sim:
+                self._time, self._Z_k = sim_data.get_pos_reading()
+            else:
+                pass    # GET FROM ROS
         
 
     def set_B(self):
@@ -132,13 +158,34 @@ class EKF():
         self.set_pos_update()
         pos = self.get_pos_reading()
 
-        x = pos[0]
-        y = pos[1]
-        theta = pos[2]
+        x = pos[0][0]
+        y = pos[1][0]
+        theta = pos[2][0]
 
         self._Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
                         [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
                         [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
+        #print("Q_k = ",self._Q_k)
+        
+    """
+    def update_time(self):
+        self._prev_time = self.get_time()
+        if self._sim:
+            self._time = sim_data.update_time()
+        else:
+            pass    # GET FROM ROS
+    """
+    def update_input(self):
+        if self._sim:
+            self._input = sim_data.get_control_input()
+        else:
+            pass    # GET FROM ROS
+
+    def update_sensor_error(self):
+        if self._sim:
+            self._sensor_error = sim_data.get_sensor_error()
+        else:
+            pass    # GET FROM ROS
         
 
 
@@ -151,8 +198,7 @@ class EKF():
     def get_A(self):
         return self._A
     
-    def get_B(self, theta_prev, dk):
-        self.set_B()
+    def get_B(self):
         return self._B
     
     def get_P(self):
@@ -192,8 +238,7 @@ class EKF():
         return self._Q_k
     
     def get_dk(self):
-        prev_time = self.get_time()
-        self.set_time()
+        prev_time = self.get_prev_time()
         time = self.get_time()
 
         dk = abs(prev_time - time)
@@ -201,21 +246,16 @@ class EKF():
     
     def get_theta(self):
         self.set_pos_update()
-        if self._Z_k == None:
-            return 0
-        return self._Z_k[2]
+        return self._Z_k[2][0]
     
     def get_sensor_error(self):
-        # TODO
-        # hämta sensorerror fån ROS2
-        error = ...
-        return error
+        return self._sensor_error
     
     def get_time(self):
-        # TODO
-        #Hämta tiden här
-
         return self._time
+    
+    def get_prev_time(self):
+        return self._prev_time
     
     
 

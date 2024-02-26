@@ -4,6 +4,7 @@ import numpy as np
 
 sys.path.append('./src/')
 
+import sub_data
 import kalman
 
 
@@ -12,18 +13,18 @@ import kalman
 ########################################
 
 def simulation():
-    datapoints = 30
-    noise = 0
-    control_inputs = np.array([0, 0, 0])
-    time_init = "00:00:00.00"
-    time_step = 0.200
+    sim_data = sub_data.Get_data()
+    datapoints = 5
+    noise = np.array([[0],[0],[0]])
+    control_inputs = np.array([[0], [0]])
 
-    init_state = np.array([0, 0, 0])
-    init_input = np.array([0, 0])
-    init_noise = np.array ([0, 0])
-    init_pos_reading = np.array([0, 0, 0])
+    init_state = np.array([[0], [0], [0]])
+    init_input = np.array([[0], [0]])
+    init_noise = np.array ([[0], [0], [0]])
+    init_pos_reading = np.array([[0], [0], [0]])
+    sim = True
 
-    state_estimation = kalman.EKF(init_state, init_input, init_noise, init_pos_reading)
+    state_estimation = kalman.EKF(init_state, init_input, init_noise, init_pos_reading, sim)
     states = []
 
     for i in range(datapoints):
@@ -39,3 +40,5 @@ def simulation():
 
 if __name__ == "__main__":
     states = simulation()
+    print(states)
+
