@@ -1,0 +1,40 @@
+header:
+  stamp:
+    sec: 1708442644
+    nanosec: 356965051
+  frame_id: ''
+roll: 0.07330382615327835
+pitch: 0.019198620691895485
+yaw: 0
+hwtime: 0
+---
+header:
+  stamp:
+    sec: 1708442644
+    nanosec: 356965477
+  frame_id: ''
+roll: 0.07330382615327835
+pitch: 0.019198620691895485
+yaw: -2.4836037158966064
+hwtime: 0
+---
+header:
+  stamp:
+    sec: 1708442644
+    nanosec: 381997321
+  frame_id: ''
+roll: 0.07330382615327835
+pitch: 0.01745329238474369
+yaw: -2.4836037158966064
+hwtime: 0
+---
+header:
+  stamp:
+    sec: 1708442644
+    nanosec: 381997321
+  frame_id: ''
+roll: 0.07330382615327835
+pitch: 0.01745329238474369
+yaw: 0.0001
+hwtime: 0
+
