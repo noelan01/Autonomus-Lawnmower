@@ -26,16 +26,18 @@ class HQVMowerController(Node):
         self.drive = None
         
         self.speed = 0.0
+        self.angular = 2.0
         self.rate = 10
         self.msg_drive = RemoteDriverDriveCommand()
 
     def imu_callback(self, msg):
         self.yaw = msg
-        self.get_logger().info(f'Received position: {msg}')
+        self.get_logger().info(f'Received yaw: {msg}')
     
     def drive_callback(self, msg):
+        self.msg_drive.header.stamp = self.get_clock().now().to_msg()
         self.drive = msg
-        self.get_logger().info(f'Received drive: {msg} \n')
+        self.get_logger().info(f'\n Received speed: {msg.speed} \n angular speed: {msg.steering} \n')
 
     def move(self, speed, steering):
         self.msg_drive.header.stamp = self.get_clock().now().to_msg()
@@ -53,11 +55,11 @@ class HQVMowerController(Node):
         rate = self.get_rate()
         start_time = time.time()
         #drive forward for 3 seconds
-        while rclpy.ok() and time.time() - start_time < 15:
+        while rclpy.ok() and time.time() - start_time < 4:
             self.speed += 1.0
-            self.move(speed=self.speed, steering=0.0) #linear speed of 1, straight line expected
-            self.get_logger().info(f'Publishing message')
-            rclpy.spin_once(self, timeout_sec=0.1)  # Process any incoming messages/events
+            self.angular += 1.0
+            self.move(speed=self.speed, steering=self.angular) #linear speed of 1, straight line expected
+            self.get_logger().info(f'Publishing message \n time elapsed {time.time()-start_time} \n')
             rate.sleep()   #ensure 10hz publish rate
 
         # Stop the movement
@@ -75,7 +77,6 @@ def main():
     thread.start()
 
     hqv_mower_controller.drive_sequence()
-    drive_thread.join()
 
 
     rclpy.shutdown()
