@@ -26,14 +26,19 @@ class Lawnmower_Control(Node):
         
         # Subscribers
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
+        
         self.gnss_subscriber = self.create_subscription(MowerGnssPosition, '/hqv_mower/gnss/position', self.gnss_callback, 10)
+        
         self.time_subscriber = self.create_subscription(MowerGnssUnixTime, '/hqv_mower/gnss/unixtime', self.time_callback, 10)
+        
         self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
+        
         self.wheelspeed_left_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel0/speed', self.wheelspeed_left_callback, 10)
+        
         self.wheelspeed_right_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_right_callback, 10)
 
         # messages
-        self._drive_msg = RemoteDriverDriveCommand()
+        self._msg_drive = RemoteDriverDriveCommand()
 
         # other
         self._update_freq = 10.0
@@ -76,15 +81,15 @@ class Lawnmower_Control(Node):
     def time_callback(self):
         pass
 
-    def drive(self, linear, rotational):
+    def drive(self, linear_vel, yaw_rate):
         rate = self.create_rate(self._update_freq)
-        self._drive_msg.header.stamp = self.get_clock().now().to_msg()
-        self._drive_msg.speed = linear
-        self._drive_msg.steering = rotational
-        print(self._drive_msg)
+        self._msg_drive.header.stamp = self.get_clock().now().to_msg()
+        self._msg_drive.speed = linear_vel
+        self._msg_drive.steering = yaw_rate
+        print(self._msg_drive)
 
 
-        self.drive_publisher.publish(self._drive_msg)
+        self.drive_publisher.publish(self._msg_drive)
 
     def stop_drive(self):
         self.msg.speed = 0.0
