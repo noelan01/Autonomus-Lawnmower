@@ -48,22 +48,20 @@ class HQVMowerController(Node):
 
 
 
-def drive_sequence(hqv_mower_controller):
-    
-    thread = threading.Thread(target=rclpy.spin, args=(hqv_mower_controller,))
-    thread.start()
-    rate = hqv_mower_controller.get_rate()
-    start_time = time.time()
-    #drive forward for 3 seconds
-    while rclpy.ok() and time.time() - start_time < 15:
-        hqv_mower_controller.speed += 1.0
-        hqv_mower_controller.move(speed=hqv_mower_controller.speed, steering=0.0) #linear speed of 1, straight line expected
-        hqv_mower_controller.get_logger().info(f'Publishing message')
-        rclpy.spin_once(hqv_mower_controller, timeout_sec=0.1)  # Process any incoming messages/events
-        rate.sleep()   #ensure 10hz publish rate
+    def drive_sequence(self):
 
-    # Stop the movement
-    hqv_mower_controller.move(speed=0.0, steering=0.0)
+        rate = self.get_rate()
+        start_time = time.time()
+        #drive forward for 3 seconds
+        while rclpy.ok() and time.time() - start_time < 15:
+            self.speed += 1.0
+            self.move(speed=self.speed, steering=0.0) #linear speed of 1, straight line expected
+            self.get_logger().info(f'Publishing message')
+            rclpy.spin_once(self, timeout_sec=0.1)  # Process any incoming messages/events
+            rate.sleep()   #ensure 10hz publish rate
+
+        # Stop the movement
+        self.move(speed=0.0, steering=0.0)
 
 def ctrcl_shutdown(sig, frame):
     rclpy.shutdown()
@@ -72,7 +70,13 @@ def main():
     rclpy.init()
     signal.signal(signal.SIGINT, ctrcl_shutdown)
     hqv_mower_controller = HQVMowerController()
-    drive_sequence(hqv_mower_controller)
+
+    thread = threading.Thread(target=rclpy.spin, args=(hqv_mower_controller,))
+    thread.start()
+
+    hqv_mower_controller.drive_sequence()
+    drive_thread.join()
+
 
     rclpy.shutdown()
 
