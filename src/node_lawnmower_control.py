@@ -123,3 +123,6 @@ class Lawnmower_Control(Node):
     
     def get_yaw(self):
         return self._yaw
+    
+    def get_rtk(self):
+        return self._
