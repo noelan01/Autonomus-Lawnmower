@@ -25,8 +25,8 @@ class HQVMowerController(Node):
         self.yaw = None        
         self.drive = None
         
-        self.speed = 0.0
-        self.angular = 2.0
+        self.speed = 1.0
+        self.angular = 0.0
         self.rate = 10
         self.msg_drive = RemoteDriverDriveCommand()
 
@@ -56,8 +56,6 @@ class HQVMowerController(Node):
         start_time = time.time()
         #drive forward for 3 seconds
         while rclpy.ok() and time.time() - start_time < 4:
-            self.speed += 1.0
-            self.angular += 1.0
             self.move(speed=self.speed, steering=self.angular) #linear speed of 1, straight line expected
             self.get_logger().info(f'Publishing message \n time elapsed {time.time()-start_time} \n')
             rate.sleep()   #ensure 10hz publish rate

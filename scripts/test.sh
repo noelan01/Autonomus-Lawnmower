@@ -8,5 +8,5 @@
 source /opt/ros/galactic/setup.bash
 source /home/mower/Autonomus-Lawnmower/hrp-p2z-open-dist/x86_64/local_setup.bash
 
-python3 /home/mower/Autonomus-Lawnmower/src/drive_forward.py
+python3 /home/mower/Autonomus-Lawnmower/src/drive_forward_v2.py
 
