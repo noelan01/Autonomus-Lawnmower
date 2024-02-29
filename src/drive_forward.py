@@ -21,6 +21,7 @@ class HQVMowerController(Node):
         self.imu_subscription = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.imu_callback, 10)
 
         self.yaw = None
+        self.rate = self.create_rate(10)
 
         self.msg_drive = RemoteDriverDriveCommand()
 
@@ -29,10 +30,10 @@ class HQVMowerController(Node):
         self.get_logger().info(f'Received position: {msg}')
 
     def move(self, speed, steering):
-        self.msg.header.stamp = self.get_clock().now().to_msg()
-        self.msg.speed = speed
-        self.msg.steering = steering
-        self.drive_publisher.publish(self.msg)
+        self.msg_drive.header.stamp = self.get_clock().now().to_msg()
+        self.msg_drive.speed = speed
+        self.msg_drive.steering = steering
+        self.drive_publisher.publish(self.msg_drive)
 
     def drive_sequence(self):
         # Command to drive forward
@@ -54,7 +55,7 @@ def main():
     rclpy.init()
     hqv_mower_controller = HQVMowerController()
 
-    thread = threading.Thread(target=rclpy.spin, args=(hqv_mower_controller.drive_sequence,))
+    thread = threading.Thread(target=rclpy.spin, args=(hqv_mower_controller.drive_sequence(),))
     thread.start()
 
     rclpy.shutdown()
