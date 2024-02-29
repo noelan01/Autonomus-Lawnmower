@@ -43,7 +43,7 @@ class Lawnmower_Control(Node):
         self._msg_drive = RemoteDriverDriveCommand()
 
         # other
-        self._update_freq = 10.0
+        self._update_rate = 10.0
         self._x = None
         self._y = None
         self._x_init = None
@@ -56,9 +56,11 @@ class Lawnmower_Control(Node):
 
 
 
-    """
-    CALLBACKS
-    """
+    ######   ######   #        #        #####    ######   ######   #   ##   ######
+    #        #    #   #        #        #    #   #    #   #        # ##     #
+    #        ######   #        #        #####    ######   #        ##       ######
+    #        #    #   #        #        #    #   #    #   #        # ##          #
+    ######   #    #   ######   ######   #####    #    #   ######   #   ##   ######
     
     # TODO
     # Skriv callback functioner
@@ -84,19 +86,16 @@ class Lawnmower_Control(Node):
         pass
 
     def drive(self, linear_vel, yaw_rate):
-        rate = self.create_rate(self._update_freq)
         self._msg_drive.header.stamp = self.get_clock().now().to_msg()
         self._msg_drive.speed = linear_vel
         self._msg_drive.steering = yaw_rate
-        print(self._msg_drive)
-
 
         self.drive_publisher.publish(self._msg_drive)
 
     def stop_drive(self):
-        self.msg.speed = 0.0
-        self. msg.steering = 0.0
-        self.drive_publisher.publish(self.msg)
+        self._msg_drive.speed = 0.0
+        self._msg_drive.steering = 0.0
+        self.drive_publisher.publish(self._msg_drive)
         print("STOP")
 
     def IMU_callback(self, imu):
@@ -109,3 +108,18 @@ class Lawnmower_Control(Node):
 
     def wheelspeed_right_callback(self):
         pass
+
+    ######   ######   #######   #######    ######    #######    ######
+    #        #           #         #       #         #     #    #
+    #  ###   ###         #         #       ###       #######    ######
+    #    #   #           #         #       #         # ##            #
+    ######   ######      #         #       ######    #   ##     ######
+
+    # Kalla på dessa för att komma åt ros data från andra filer
+    # ex yaw = drive_node.get_yaw()
+
+    def get_rate(self):
+        return self.create_rate(self._update_rate)
+    
+    def get_yaw(self):
+        return self._yaw
