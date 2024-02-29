@@ -16,6 +16,8 @@ from hqv_public_interface.msg import MowerImu
 from hqv_public_interface.msg import MowerGnssPosition
 from hqv_public_interface.msg import MowerWheelSpeed
 
+rclpy.init(args=None)
+
 
 class Lawnmower_Control(Node):
     def __init__(self):
