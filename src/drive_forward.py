@@ -46,9 +46,10 @@ class HQVMowerController(Node):
     def get_rate(self):
         return self.create_rate(self.rate)
 
-def drive_sequence():
-    hqv_mower_controller = HQVMowerController()
 
+
+def drive_sequence(hqv_mower_controller):
+    
     thread = threading.Thread(target=rclpy.spin, args=(hqv_mower_controller,))
     thread.start()
     rate = hqv_mower_controller.get_rate()
@@ -70,8 +71,8 @@ def ctrcl_shutdown(sig, frame):
 def main():
     rclpy.init()
     signal.signal(signal.SIGINT, ctrcl_shutdown)
-
-    drive_sequence()
+    hqv_mower_controller = HQVMowerController()
+    drive_sequence(hqv_mower_controller)
 
     rclpy.shutdown()
 
