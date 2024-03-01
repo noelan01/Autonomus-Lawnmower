@@ -22,15 +22,21 @@ https://www.youtube.com/watch?v=whSw42XddsU&ab_channel=BrianDouglas
 ###################################################################
 
 class EKF():
-    def __init__(self, init_state, init_input, init_noise, init_pos_reading, sim):
-        self._state = init_state               # init_state = [x_prev, y_prev, theta_prev]
-        self._input = init_input               # init_input = [v_prev, yaw_rate_prev]
-        self._noise = init_noise
-        self._Z_k = init_pos_reading
+    def __init__(self, sim):
+        # init
+        self._state = np.array([[0],[0],[0]])   
+        self._input = np.array([[0],[0]])
+        self._noise = 0
         self._time = 0
-        self._prev_time = 0
+        self._Z_k = np.array([[0],[0],[0]])
         self._sensor_error = np.array([[0],[0],[0]])
 
+        # previous
+        self._Z_k_prev = np.array([[0],[0],[0]])
+        self._input_prev = np.array([[0],[0]])
+        self._prev_time = 0
+        
+        # other
         self._A = np.eye(3)
         self._B = None
         self._K_k = None
@@ -42,6 +48,7 @@ class EKF():
         self._F_k = np.eye(3)   # Funkar som A matrisen
         self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
 
+        # 1 if simulation. 0
         self._sim = sim
     
 
@@ -49,7 +56,13 @@ class EKF():
     Update funtionen uppdaterar alla delar i kalmanfiltret.
     Kalla på denna för att få den uppdaterade state estimationen.
     """    
-    def update(self):
+    def update(self, Z_k, control_input, sensor_error):
+        self._Z_k_prev = self._Z_k
+        self._Z_k = Z_k
+        self._input_prev = self._input
+        self._input = control_input
+        self._sensor_error = sensor_error
+        
         self.predict_state()            # 1. predict state
         self.predict_cov()              # 2. predict cov
         self.set_gain()                 # 3. - 5. set optimal gain
@@ -81,8 +94,7 @@ class EKF():
         A = self._A
         state_prev = self._state
 
-        self.update_input()
-        input_prev = self._input
+        input_prev = self._input_prev
 
         noise = self._noise
 
@@ -90,7 +102,7 @@ class EKF():
     
 
     def predict_cov(self):
-        F_k = self.get_F_k()
+        F_k = self._F_k
         self.set_Q_k()
         Q_k = self._Q_k
         P_prev = self._P
@@ -104,7 +116,6 @@ class EKF():
 
         P_k = self._P
 
-        self.set_pos_update()
         Z_k = self._Z_k                     # mätvärden [[x_k], [y_k], [theta_k]]
         
         X_k = self._state
@@ -119,32 +130,16 @@ class EKF():
         self._K_k = P_k @ np.transpose(H_k) @ np.linalg.inv(S_k)
     
 
-    def set_pos_update(self):
-        # TODO
-        # Hämta positionsmätningar och uppdatera Z_k (yaw från imu?)
-        # ENDAST GPS? ELLER KOMBINERA SENSORER??
-
-        rtk_available = False        # checka om RTK tillgänglig
-
-        if rtk_available:           # väljer RTK om tillgänglig
-            self._Z_k = ...
-        else:                               # annars GNSS
-            if self._sim:
-                self._time, self._Z_k = sim_data.get_pos_reading()
-            else:
-                pass    # GET FROM ROS
-        
-
     def set_B(self):
-        theta_prev = self.get_theta()
-        dk = self.get_dk()
+        theta_prev = self._Z_k[2][0]
+        #dk = self.get_dk()
+        dk = 0.025
 
         self._B = np.array([[np.cos(theta_prev) * dk, 0],
                         [np.sin(theta_prev) * dk, 0],
                         [0,                      dk]])
         
     def set_Q_k(self):
-        self.set_pos_update()
         pos = self._Z_k
 
         x = pos[0][0]
@@ -154,7 +149,6 @@ class EKF():
         self._Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
                         [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
                         [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
-        #print("Q_k = ",self._Q_k)
         
     """
     def update_time(self):
@@ -164,17 +158,13 @@ class EKF():
         else:
             pass    # GET FROM ROS
     """
-    def update_input(self):
-        if self._sim:
-            self._input = sim_data.get_control_input()
-        else:
-            pass    # GET FROM ROS
 
+    """
     def update_sensor_error(self):
         if self._sim:
             self._sensor_error = sim_data.get_sensor_error()
         else:
-            pass    # GET FROM ROS
+            pass"""
         
 
 
@@ -187,16 +177,14 @@ class EKF():
     def get_state(self):
         return self._state
     
+    """
     def get_dk(self):
         prev_time = self._prev_time
         time = self._time
 
         dk = abs(prev_time - time)
         return dk
-    
-    def get_theta(self):
-        self.set_pos_update()
-        return self._Z_k[2][0]
+    """
 
     
 
