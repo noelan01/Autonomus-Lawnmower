@@ -1,4 +1,7 @@
 import numpy as np
+import node_lawnmower_control
+
+drive_node = node_lawnmower_control.Lawnmower_Control()
 
 # Endast för simulering
 import sys
@@ -52,21 +55,17 @@ class EKF():
         self.set_gain()                 # 3. - 5. set optimal gain
 
 
-        state_prev = self.get_state()   # 6. & 7. Updatera state och cov
-        K_k = self.get_K_k()
-        y_k = self.get_y_k()
-        P_prev = self.get_cov()
-        H_k = self.get_H_k()
-
-        #print("K_k = ", K_k)
-        #print("y_k = ", y_k)
-        #print("K_k * y_k = ",K_k @ y_k)
+        state_prev = self._state   # 6. & 7. Updatera state och cov
+        K_k = self._K_k
+        y_k = self._y_k
+        P_prev = self._P
+        H_k = self._H_k
 
         self._state = state_prev + K_k @ y_k        # uppdatera state
         
         self._P = (np.eye(3) - K_k @ H_k) @ P_prev  # uppdatera cov
 
-        return self.get_state()                     # returna uppdaterat state
+        return self._state                     # returna uppdaterat state
     
 
     ######   ######   #######   #######    ######    #######    ######
@@ -78,20 +77,14 @@ class EKF():
 
     def predict_state(self):
         self.set_B()
-        B = self.get_B()
-        A = self.get_A()
-        state_prev = self.get_state()
+        B = self._B
+        A = self._A
+        state_prev = self._state
 
         self.update_input()
-        input_prev = self.get_input()
+        input_prev = self._input
 
-        noise = self.get_noise()
-
-        #print("A = ", A)
-        #print("state_prev = ", state_prev)
-        #print("B = ", B)
-        #print("input_prev = ", input_prev)
-        #print("noise = ", noise)
+        noise = self._noise
 
         self._state = A @ state_prev + B @ input_prev + noise
     
@@ -99,30 +92,26 @@ class EKF():
     def predict_cov(self):
         F_k = self.get_F_k()
         self.set_Q_k()
-        Q_k = self.get_Q_k()
-        P_prev = self.get_P()
+        Q_k = self._Q_k
+        P_prev = self._P
 
         self._P = F_k @ P_prev @ np.transpose(F_k) + Q_k
 
     
     def set_gain(self): 
-        H_k = self.get_H_k()
-        R_k = self.get_R_k()
+        H_k = self._H_k
+        R_k = self._R_k
 
-        P_k = self.get_cov()
+        P_k = self._P
 
         self.set_pos_update()
-        Z_k = self.get_pos_reading()                   # mätvärden [[x_k], [y_k], [theta_k]]
+        Z_k = self._Z_k                     # mätvärden [[x_k], [y_k], [theta_k]]
         
-        X_k = self.get_state()
+        X_k = self._state
 
         self.update_sensor_error()
-        sensor_error = self.get_sensor_error()
+        sensor_error = self._sensor_error
 
-        #print("Z_k =", Z_k)
-        #print("H_k =", H_k)
-        #print("X_k =", X_k)
-        #print("sensor_error =", sensor_error)
         self._y_k = Z_k - H_k @ X_k + sensor_error
 
         S_k = H_k @ P_k @ np.transpose(H_k) + R_k
@@ -156,7 +145,7 @@ class EKF():
         
     def set_Q_k(self):
         self.set_pos_update()
-        pos = self.get_pos_reading()
+        pos = self._Z_k
 
         x = pos[0][0]
         y = pos[1][0]
@@ -195,51 +184,12 @@ class EKF():
     #    #   #           #         #       #         # ##            #
     ######   ######      #         #       ######    #   ##     ######
         
-    def get_A(self):
-        return self._A
-    
-    def get_B(self):
-        return self._B
-    
-    def get_P(self):
-        return self._P
-    
-    def get_K_k(self):
-        return self._K_k
-    
     def get_state(self):
         return self._state
     
-    def get_cov(self):
-        return self._P
-    
-    def get_input(self):
-        return self._input
-    
-    def get_y_k(self):
-        return self._y_k
-    
-    def get_noise(self):
-        return self._noise
-    
-    def get_pos_reading(self):
-        return self._Z_k
-    
-    def get_H_k(self):
-        return self._H_k
-    
-    def get_R_k(self):
-        return self._R_k
-    
-    def get_F_k(self):
-        return self._F_k
-    
-    def get_Q_k(self):
-        return self._Q_k
-    
     def get_dk(self):
-        prev_time = self.get_prev_time()
-        time = self.get_time()
+        prev_time = self._prev_time
+        time = self._time
 
         dk = abs(prev_time - time)
         return dk
@@ -247,15 +197,18 @@ class EKF():
     def get_theta(self):
         self.set_pos_update()
         return self._Z_k[2][0]
+
     
-    def get_sensor_error(self):
-        return self._sensor_error
-    
-    def get_time(self):
-        return self._time
-    
-    def get_prev_time(self):
-        return self._prev_time
+
+
+
+
+
+
+
+
+
+
     
     
 
@@ -268,7 +221,7 @@ EXTENDED KALMAN FILTER
 Förra årets
 """
 ###################################################################
-
+"""
 class old_EKF:
     def __init__(self, initial_state, initial_input, initial_covariance, process_noise):
         self.state = initial_state
@@ -307,3 +260,5 @@ class old_EKF:
         K = self.P @ H.T @ np.linalg.inv(S)
         self.state += K @ y
         self.P = (np.eye(3) - K @ H) @ self.P
+
+"""
