@@ -3,7 +3,8 @@
 import kalman
 state_estimation = kalman.EKF(0)
 
-def regulation():
+
+def simulation():
     import math
     import numpy as np
     import matplotlib.pyplot as plt
@@ -167,7 +168,7 @@ def regulation():
     plt.plot(x_kalman,y_kalman)
     plt.show()
 
-regulation()
+simulation()
 
 
 
