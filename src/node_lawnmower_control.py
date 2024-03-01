@@ -35,9 +35,9 @@ class Lawnmower_Control(Node):
         
         self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
         
-        self.wheelspeed_left_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel0/speed', self.wheelspeed_left_callback, 10)
+        self.wheelspeed_0_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel0/speed', self.wheelspeed_0_callback, 10)
         
-        self.wheelspeed_right_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_right_callback, 10)
+        self.wheelspeed_1_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_1_callback, 10)
 
         # messages
         self._msg_drive = RemoteDriverDriveCommand()
@@ -53,6 +53,8 @@ class Lawnmower_Control(Node):
         self._gnss_x_init = None
         self._gnss_y_init = None
         self._yaw_init = 0
+        self._wheelspeed1 = 0
+        self.wheelspeed2 = 0
 
 
 
@@ -103,10 +105,10 @@ class Lawnmower_Control(Node):
             self._yaw_init = imu.yaw
         self._yaw = imu.yaw
 
-    def wheelspeed_left_callback(self):
+    def wheelspeed_0_callback(self):
         pass
 
-    def wheelspeed_right_callback(self):
+    def wheelspeed_1_callback(self):
         pass
 
     ######   ######   #######   #######    ######    #######    ######
