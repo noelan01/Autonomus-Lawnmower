@@ -66,7 +66,7 @@ def regulation():
     simTime = 20
     nrOfSteps = simTime/Ts
 
-    print(Kp)
+    #print(Kp)
 
     for k in range(1,800):
     #Updating x_ref
@@ -143,9 +143,10 @@ def regulation():
         Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
         control_inputs = np.array([[lin_vel[k]],[ang_vel[k]]])
         sensor_error = np.array([[rand1],[rand2],[rand3]])
-
+        no_sensor_error = np.array([[0],[0],[0]])
         #Filtering with the Kalman filter to get a better estimation of the position
         state = state_estimation.update(Z_k,control_inputs,sensor_error)
+        
         x_base_kalman.append(state[0].item())
         y_base_kalman.append(state[1].item())
         theta_kalman.append(state[2].item())
@@ -156,7 +157,9 @@ def regulation():
 
         x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k])+D)
         y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
-        print(lin_vel)
+        #print(x[k]-x_kalman[k])
+        #print(y-y_kalman)
+        
     #print(y)
     plt.figure()
     plt.plot(x,y)

@@ -141,14 +141,24 @@ class EKF():
         
     def set_Q_k(self):
         pos = self._Z_k
+        prev_pos = self._Z_k_prev
 
         x = pos[0][0]
         y = pos[1][0]
         theta = pos[2][0]
-
-        self._Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
+        
+        x_prev = prev_pos[0][0]
+        y_prev = prev_pos[1][0]
+        theta_prev = prev_pos[2][0]
+        """
+        Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
                         [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
                         [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
+        """
+        Q_k = np.array([[np.cov([x_prev,x]).item(),     1e-6,                          1e-6],
+                        [1e-6,                             np.cov([y_prev,y]).item(),  1e-6],
+                        [1e-6,                             1e-6,                          np.cov([theta_prev,theta]).item()]])
+        self._Q_k = Q_k
         
     """
     def update_time(self):
