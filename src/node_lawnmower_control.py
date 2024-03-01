@@ -3,7 +3,7 @@ import threading
 import sys
 import tty
 import termios
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import signal
 import json
 import numpy as np
