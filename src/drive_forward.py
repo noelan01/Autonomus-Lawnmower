@@ -34,7 +34,7 @@ class HQVMowerController(Node):
 
     def imu_callback(self, msg):
         self.yaw = msg
-        self.get_logger().info(f'Received yaw: {msg}')
+        self.get_logger().info(f' \n Received yaw: {msg} \n')
     
     def drive_callback(self, msg):
         self.msg_drive.header.stamp = self.get_clock().now().to_msg()
