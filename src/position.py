@@ -37,8 +37,10 @@ def regulation():
     x_base_kalman = [0]
     y_base_kalman = [0]
     theta_kalman =[0]
-    Kp = 50
-    Ki = 50
+    
+    
+    Kp = 20
+    Ki = 1
     Ts = 0.025
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
