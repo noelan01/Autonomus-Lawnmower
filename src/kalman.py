@@ -1,15 +1,15 @@
 import numpy as np
-import node_lawnmower_control
+#import node_lawnmower_control
 
-drive_node = node_lawnmower_control.Lawnmower_Control()
+#drive_node = node_lawnmower_control.Lawnmower_Control()
 
-# Endast för simulering
+"""# Endast för simulering
 import sys
 sys.path.append('/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests')
 import sub_data
 sim_data = sub_data.Get_data()
 #
-
+"""
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
@@ -120,7 +120,7 @@ class EKF():
         
         X_k = self._state
 
-        self.update_sensor_error()
+        
         sensor_error = self._sensor_error
 
         self._y_k = Z_k - H_k @ X_k + sensor_error

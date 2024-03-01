@@ -1,10 +1,15 @@
 
+#Importing the Kalman filter code
+import kalman
+state_estimation = kalman.EKF(0)
+
 def regulation():
     import math
     import numpy as np
     import matplotlib.pyplot as plt
     import cmath
     import random
+    
     
 
     #Starting with defining variables for the robot
@@ -15,6 +20,9 @@ def regulation():
     #Other variables
     x = [0]
     y = [0]
+    x_kalman = [0]
+    y_kalman = [0]
+
     theta = [0]
     delta_x = [0]
     delta_y = [0]
@@ -26,6 +34,9 @@ def regulation():
 
     x_base = [0]
     y_base = [0]
+    x_base_kalman = [0]
+    y_base_kalman = [0]
+    theta_kalman =[0]
     Kp = 50
     Ki = 50
     Ts = 0.025
@@ -111,6 +122,7 @@ def regulation():
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
         rand1 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
         rand2 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
+        rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
         theta_1_meas.append(acc_sum_delta_omega_1[k])
         theta_2_meas.append(acc_sum_delta_omega_2[k])
@@ -127,13 +139,29 @@ def regulation():
         y_base.append(y_base[k-1] + delta_s[k]*math.sin(theta[k-1]))
         theta.append(theta[k-1] + delta_theta[k])
 
+        #Variables to the Kalman function
+        Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
+        control_inputs = np.array([[lin_vel[k]],[ang_vel[k]]])
+        sensor_error = np.array([[rand1],[rand2],[rand3]])
+
+        #Filtering with the Kalman filter to get a better estimation of the position
+        state = state_estimation.update(Z_k,control_inputs,sensor_error)
+        x_base_kalman.append(state[0].item())
+        y_base_kalman.append(state[1].item())
+        theta_kalman.append(state[2].item())
+
         #Updating the chalking mechanism position
         x.append(x_base[k] - D*math.cos(theta[k]) + D) 
         y.append(y_base[k] - D*math.sin(theta[k])) 
-        print(ang_vel)
+
+        x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k])+D)
+        y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
+        print(lin_vel)
     #print(y)
     plt.figure()
     plt.plot(x,y)
+    plt.figure()
+    plt.plot(x_kalman,y_kalman)
     plt.show()
 
 regulation()
