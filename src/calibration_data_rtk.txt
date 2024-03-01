@@ -1,0 +1,47 @@
+header:
+  stamp:
+    sec: 1708442646
+    nanosec: 66423535
+  frame_id: ''
+east: 2.3545
+north: 1.981
+up: 1.6899
+accuracy_east: 0.009999999776482582
+accuracy_north: 0.009999999776482582
+accuracy_up: 0.009999999776482582
+---
+header:
+  stamp:
+    sec: 1708442646
+    nanosec: 263260145
+  frame_id: ''
+east: 2.3621
+north: 1.9792
+up: 1.69
+accuracy_east: 0.009999999776482582
+accuracy_north: 0.009999999776482582
+accuracy_up: 0.009999999776482582
+---
+header:
+  stamp:
+    sec: 1708442646
+    nanosec: 280166268
+  frame_id: ''
+east: 2.3621
+north: 1.9792
+up: 1.69
+accuracy_east: 0.009999999776482582
+accuracy_north: 0.009999999776482582
+accuracy_up: 0.009999999776482582
+---
+header:
+  stamp:
+    sec: 1708442646
+    nanosec: 462517229
+  frame_id: ''
+east: 2.3892
+north: 1.9716
+up: 1.6909
+accuracy_east: 0.009999999776482582
+accuracy_north: 0.009999999776482582
+accuracy_up: 0.009999999776482582
