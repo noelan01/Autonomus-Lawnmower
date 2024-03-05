@@ -3,7 +3,6 @@
 import kalman
 state_estimation = kalman.EKF(0)
 
-
 def simulation():
     import math
     import numpy as np
@@ -24,7 +23,7 @@ def simulation():
     x_kalman = [0]
     y_kalman = [0]
 
-    theta = [0]
+    theta =[0]
     delta_x = [0]
     delta_y = [0]
     delta_xe = [0]
@@ -37,9 +36,12 @@ def simulation():
     y_base = [0]
     x_base_kalman = [0]
     y_base_kalman = [0]
+    x_error = [0]
+    y_error = [0]
     theta_kalman =[0]
-    Kp = 50
-    Ki = 50
+    Kp = 15
+    Ki = 2
+    Kd = 0.08
     Ts = 0.025
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -53,6 +55,8 @@ def simulation():
     dtheta2_dt = [0]
     lin_vel = [0]
     ang_vel = [0]
+    err_sum_x = 0
+    err_sum_y = 0
 
     delta_omega = [0]
     delta_S = [0]
@@ -64,26 +68,29 @@ def simulation():
     x_printa = [0]*100
     
     #Defining simulation time
-    simTime = 20
+    simTime = 40
     nrOfSteps = simTime/Ts
 
     #print(Kp)
 
-    for k in range(1,800):
+    for k in range(1,int(nrOfSteps)):
     #Updating x_ref
-        x_ref.append(x_ref[k-1]+0.025)
+        x_ref.append(x_ref[k-1]+0.001)
         y_ref.append(y_ref[k-1])
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
 
+        err_sum_x = err_sum_x + delta_xe[k]
+        err_sum_y = err_sum_y + delta_ye[k] 
+
         #Increasing the error with the proportional gain
-        delta_x.append(delta_xe[k]*Kp+delta_xe[k-1]+Ki*Ts*delta_xe[k])
-        delta_y.append(delta_ye[k]*Kp+delta_xe[k-1]+Ki*Ts*delta_xe[k])
+        delta_x.append(delta_xe[k]*Kp+Ki*Ts*err_sum_x+Kd*(delta_xe[k]-delta_xe[k-1])/Ts)
+        delta_y.append(delta_ye[k]*Kp+Ki*Ts*err_sum_y+Kd*(delta_ye[k]-delta_ye[k-1])/Ts)
 
         #Calculating delta_omega(k) and delta_S(k)
         delta_omega.append(cmath.asin((delta_x[k]*math.sin(theta[k-1])-delta_y[k]*math.cos(theta[k-1]))/D).real)
-        delta_S.append(D*math.cos(delta_omega[k])-D+delta_x[k]*math.cos(theta[k-1])+delta_y[k]*math.sin(theta[k-1]))
+        delta_S.append(D*math.cos(delta_omega[k])+D+delta_x[k]*math.cos(theta[k-1])+delta_y[k]*math.sin(theta[k-1]))
 
         #Calculating delta_omega1(k) and delta_omega2(k)
         delta_omega1.append(1/r*(delta_S[k]+L*delta_omega[k]))
@@ -153,19 +160,26 @@ def simulation():
         theta_kalman.append(state[2].item())
 
         #Updating the chalking mechanism position
-        x.append(x_base[k] - D*math.cos(theta[k]) + D) 
+        x.append(x_base[k] - D*math.cos(theta[k])) 
         y.append(y_base[k] - D*math.sin(theta[k])) 
 
-        x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k])+D)
+        x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k]))
         y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
         #print(x[k]-x_kalman[k])
         #print(y-y_kalman)
+
+        x_error.append(x[k]-x_ref[k])
+        y_error.append(y[k]-y_ref[k])
+    print(lin_vel)
+    print(dtheta2_dt)
+    print(dtheta1_dt)
         
-    #print(y)
+    #print(lin_vel)
+    #print(x)
+    plt.figure()
+    plt.plot(theta)
     plt.figure()
     plt.plot(x,y)
-    plt.figure()
-    plt.plot(x_kalman,y_kalman)
     plt.show()
 
 simulation()
