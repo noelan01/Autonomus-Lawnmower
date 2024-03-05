@@ -3,7 +3,7 @@ import threading
 import sys
 import tty
 import termios
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import signal
 import json
 import numpy as np
@@ -41,6 +41,8 @@ class Lawnmower_Control(Node):
         self.wheelspeed_1_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_1_callback, 10)
         
         self.wheelcounter_0_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel0/counter', self.wheelcounter_0_callback, 10)
+
+        self.wheelcounter_1_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel1/counter', self.wheelcounter_1_callback, 10)
 
         # messages
         self._msg_drive = RemoteDriverDriveCommand()
@@ -91,7 +93,7 @@ class Lawnmower_Control(Node):
         self._gnss_x = gnss.latitude
         self._gnss_y = gnss.longitude
 
-    def time_callback(self):
+    def time_callback(self, time):
         pass
 
     def drive(self, linear_vel, yaw_rate):
@@ -117,9 +119,6 @@ class Lawnmower_Control(Node):
         
     def wheelspeed_1_callback(self, wheelspeed_1):
         self._wheelspeed1 = wheelspeed_1.speed
-
-    def wheelspeed_1_callback(self):
-        pass
     
     def wheelcounter_0_callback(self, counter):
         self._wheelcounter0 = counter.counter
@@ -143,4 +142,4 @@ class Lawnmower_Control(Node):
         return self._yaw
     
     def get_rtk(self):
-        return self._
+        pass
