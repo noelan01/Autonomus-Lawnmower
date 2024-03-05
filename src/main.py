@@ -6,6 +6,8 @@ import rclpy
 import threading
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
+import regulation
+regulator = regulation.Regulation()
 
 def ctrlc_shutdown(sig, frame):
     drive_node.stop_drive()
@@ -19,9 +21,11 @@ def main():
     thread.start()
 
     while rclpy.ok():    # send drive commands to Lawnmower_Control node
-        rate = drive_node.get_rate()
-        drive_node.drive(0.5, 0.0)
-        rate.sleep()
+        #rate = drive_node.get_rate()
+        #drive_node.drive(0.5, 0.0)
+        #rate.sleep()
+        regulator.update()
+
     print("End of main")
 
 
