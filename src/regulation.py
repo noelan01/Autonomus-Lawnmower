@@ -77,6 +77,8 @@ def regulation():
     x_to_print = [0]*801
     y_to_print = [0]*801
     PPR = 349
+    max_speed = 0.6
+    v = 0.5
 
     #Updating x_ref & y_ref
     x_ref = x_ref - 0.025
@@ -113,18 +115,12 @@ def regulation():
     dtheta1_dt = theta_1_increment/Ts
     dtheta2_dt = theta_2_increment/Ts
 
-    #Converting to linear and angular movement of the robot
-    lin_vel = abs(r/2*(dtheta1_dt+dtheta2_dt))
-    ang_vel = r/(2*L)*(dtheta1_dt-dtheta2_dt)
-
-    #Converting the linear and angular velocity to the signals
-
+    steering = (dtheta1_dt-dtheta2_dt)/(v*max_speed)
 
     #Publish angular and linear velocity to the lawnmower node
-    drive_node.drive(lin_vel,ang_vel)
-
-    #Sleep for Ts = 0.025 s
-    #time.sleep(0.025)
+    rate = drive_node.get_rate()
+    drive_node.drive(0.5,steering)
+    rate.sleep()
 
     wheel_1_counter = drive_node.get_wheelcounter0()
     wheel_2_counter = drive_node.get_wheelcounter1()

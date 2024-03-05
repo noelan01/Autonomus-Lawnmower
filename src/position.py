@@ -57,6 +57,7 @@ def simulation():
     ang_vel = [0]
     err_sum_x = 0
     err_sum_y = 0
+    s = [0]
 
     delta_omega = [0]
     delta_S = [0]
@@ -75,8 +76,8 @@ def simulation():
 
     for k in range(1,int(nrOfSteps)):
     #Updating x_ref
-        x_ref.append(x_ref[k-1]+0.001)
-        y_ref.append(y_ref[k-1])
+        x_ref.append(x_ref[k-1])
+        y_ref.append(y_ref[k-1]-0.0025)
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
@@ -107,6 +108,8 @@ def simulation():
         #Calculating the needed angular velocity of each wheel
         dtheta1_dt.append(theta_1_increment[k]/Ts)
         dtheta2_dt.append(theta_2_increment[k]/Ts)
+
+        s.append((dtheta2_dt[k]-dtheta1_dt[k])/dtheta2_dt[k])
 
         #Converting to linear and angular movement of the robot
         lin_vel.append(r/2*(dtheta1_dt[k]+dtheta2_dt[k]))
@@ -170,9 +173,10 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
-    print(lin_vel)
-    print(dtheta2_dt)
-    print(dtheta1_dt)
+    print(s)
+    #print(lin_vel)
+    #print(dtheta2_dt)
+    #print(dtheta1_dt)
         
     #print(lin_vel)
     #print(x)
