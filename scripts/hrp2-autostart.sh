@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #enable can UNCOMMENT
-print("ENABLING CAN \n")
+#print("ENABLING CAN \n")
 sudo ip link set can0 up type can bitrate 1000000
 sudo ifconfig can0 txqueuelen 5000
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import node_lawnmower_control
-from geopy import distance
+#from geopy import distance
 import signal
 import rclpy
 import threading
@@ -14,7 +14,7 @@ def ctrlc_shutdown(sig, frame):
 
 
 def main():
-    signal.signal(signal.SIGINT, ctrlc_shutdown())
+    signal.signal(signal.SIGINT, ctrlc_shutdown)
 
     thread = threading.Thread(target=rclpy.spin, args=(drive_node,))
     thread.start()
