@@ -142,4 +142,4 @@ class Lawnmower_Control(Node):
         return self._yaw
     
     def get_rtk(self):
-        return self._
+        pass
