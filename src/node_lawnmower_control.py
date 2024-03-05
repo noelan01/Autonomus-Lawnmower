@@ -15,6 +15,7 @@ from hqv_public_interface.msg import RemoteDriverDriveCommand
 from hqv_public_interface.msg import MowerImu
 from hqv_public_interface.msg import MowerGnssPosition
 from hqv_public_interface.msg import MowerWheelSpeed
+from hqv_public_interface.msg import MowerWheelCounter
 
 rclpy.init(args=None)
 
@@ -35,9 +36,13 @@ class Lawnmower_Control(Node):
         
         self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
         
-        self.wheelspeed_left_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel0/speed', self.wheelspeed_left_callback, 10)
+        self.wheelspeed_0_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel0/speed', self.wheelspeed_0_callback, 10)
         
-        self.wheelspeed_right_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_right_callback, 10)
+        self.wheelspeed_1_subscriber = self.create_subscription(MowerWheelSpeed, '/hqv_mower/wheel1/speed', self.wheelspeed_1_callback, 10)
+        
+        self.wheelcounter_0_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel0/counter', self.wheelcounter_0_callback, 10)
+
+        self.wheelcounter_1_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel1/counter', self.wheelcounter_1_callback, 10)
 
         # messages
         self._msg_drive = RemoteDriverDriveCommand()
@@ -53,6 +58,12 @@ class Lawnmower_Control(Node):
         self._gnss_x_init = None
         self._gnss_y_init = None
         self._yaw_init = 0
+        
+        self._wheelspeed0 = 0
+        self._wheelspeed1 = 0
+        
+        self._wheelcounter0 = 0
+        self._wheelcounter1 = 0
 
 
 
@@ -82,7 +93,7 @@ class Lawnmower_Control(Node):
         self._gnss_x = gnss.latitude
         self._gnss_y = gnss.longitude
 
-    def time_callback(self):
+    def time_callback(self, time):
         pass
 
     def drive(self, linear_vel, yaw_rate):
@@ -103,11 +114,17 @@ class Lawnmower_Control(Node):
             self._yaw_init = imu.yaw
         self._yaw = imu.yaw
 
-    def wheelspeed_left_callback(self):
-        pass
-
-    def wheelspeed_right_callback(self):
-        pass
+    def wheelspeed_0_callback(self, wheelspeed_0):
+        self._wheelspeed0 = wheelspeed_0.speed
+        
+    def wheelspeed_1_callback(self, wheelspeed_1):
+        self._wheelspeed1 = wheelspeed_1.speed
+    
+    def wheelcounter_0_callback(self, counter):
+        self._wheelcounter0 = counter.counter
+        
+    def wheelcounter_1_callback(self, counter):
+        self._wheelcounter1 = counter.counter
 
     ######   ######   #######   #######    ######    #######    ######
     #        #           #         #       #         #     #    #
