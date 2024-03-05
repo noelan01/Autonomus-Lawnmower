@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Form</title>
+</head>
+<body>
+    <form id="myForm">
+    <label for="width">Width:</label><br>
+    <input type="width" id="width" name="plane_width"><br>
+    <label for="length">Length:</label><br>
+    <input type="length" id="length" name="plane_length"><br>
+    <label for="centre circle">Centre circle radius:</label><br>
+    <input type="center_circle_radius" id="center_circle_radius" name="center_circle_radius"><br><br>
+    <button type="submit">Submit</button>
+    </form>
+
+    <script>
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting
+
+        const formData = new FormData(this);
+
+        // Convert formData to JSON
+        const jsonData = {};
+        formData.forEach(function(value, key) {
+        jsonData[key] = value;
+        });
+
+        // Send data to server
+        fetch('/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+        })
+        .then(response => response.text())
+        .then(data => {
+        console.log(data);
+        })
+        .catch(error => {
+        console.error('Error:', error);
+        });
+    });
+    </script>
+</body>
+</html>
