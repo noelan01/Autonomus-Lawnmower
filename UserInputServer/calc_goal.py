@@ -29,7 +29,7 @@ def get_paint_order():
                   "end": (0, 0)}
 
     # Calculate the number of steps for each side based on the length
-    n = 0.5
+    n = 5
     num_steps_longside = int(longside / n)
     num_steps_shortside = int(shortside / n)
 
@@ -41,6 +41,7 @@ def get_paint_order():
 
     # Combine all points
     points = np.concatenate([longside0_points, shortside0_points, longside1_points, shortside1_points])
+    points = np.round(points, decimals=2)
 
     print("Points in order:")
     for point in points:
