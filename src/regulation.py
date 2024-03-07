@@ -249,7 +249,7 @@ class Regulation():
 
         self.PPR = 349
 
-    def update(self, x_ref, y_ref):
+    def update(self):
         #Updating x_ref & y_ref
         self.x_ref = self.x_ref - 0.025
         self.y_ref = self.y_ref
@@ -290,9 +290,13 @@ class Regulation():
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
 
         #Publish angular and linear velocity to the lawnmower node
+        speed, steering = self.clamping(0.5, self.steering)
+
         rate = drive_node.get_rate()
-        drive_node.drive(0.5, self.steering)
+        drive_node.drive(speed, steering)
         rate.sleep()
+        
+        print("Drive commands:", "SPEED = ", speed, "STEERING = ", steering)
 
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         self.wheel_1_counter, self.wheel_2_counter = drive_node.get_wheelcounters()
@@ -352,3 +356,20 @@ class Regulation():
         self.delta_ye_old = self.delta_ye
         self.theta_1_meas_old = self.theta_1_meas
         self.theta_2_meas_old = self.theta_2_meas
+
+
+    def clamping(self, speed, steering):
+        speed = round(speed, 2)
+        steering = round(steering, 2)
+
+        if speed > 1:
+            speed = 1
+        elif speed < -1:
+            speed = -1
+
+        if steering > 2:
+            steering = 2
+        elif steering < -2:
+            steering = -2
+
+        return speed, steering
