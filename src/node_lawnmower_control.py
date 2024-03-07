@@ -155,7 +155,7 @@ class Lawnmower_Control(Node):
     #    #   #           #         #       #         # ##            #
     ######   ######      #         #       ######    #   ##     ######
 
-    # Kalla på dessa för att komma åt ros data från andra filer
+    # Getters are used to get the latest data from ROS topics
     # ex: yaw = drive_node.get_yaw()
 
     def get_rate(self):
