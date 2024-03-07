@@ -14,6 +14,12 @@ def ctrlc_shutdown(sig, frame):
     rclpy.shutdown()
 
 
+def constant_speed():
+    rate = drive_node.get_rate()
+    drive_node.drive(0.5, 0.0)
+    rate.sleep()
+
+
 def main():
     signal.signal(signal.SIGINT, ctrlc_shutdown)
 
@@ -21,9 +27,7 @@ def main():
     thread.start()
 
     while rclpy.ok():    # send drive commands to Lawnmower_Control node
-        #rate = drive_node.get_rate()
-        #drive_node.drive(0.5, 0.0)
-        #rate.sleep()
+        #constant_speed()
         regulator.update()
 
     print("End of main")
