@@ -41,8 +41,8 @@ def simulation():
     theta_kalman =[0]
     Kp = 15
     Ki = 2
-    Kd = 0.08
-    Ts = 0.025
+    Kd = 0
+    Ts = 0.1
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
     theta_1_meas = [0]
@@ -66,18 +66,18 @@ def simulation():
     delta_omega1 = [0]
     delta_omega2 = [0]
     PPR = 349
-    x_printa = [0]*100
+    
     
     #Defining simulation time
-    simTime = 40
+    simTime = 400
     nrOfSteps = simTime/Ts
 
     #print(Kp)
 
     for k in range(1,int(nrOfSteps)):
     #Updating x_ref
-        x_ref.append(x_ref[k-1])
-        y_ref.append(y_ref[k-1]-0.0025)
+        x_ref.append(x_ref[k-1]-0.005)
+        y_ref.append(y_ref[k-1])
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
@@ -106,10 +106,10 @@ def simulation():
         theta_2_increment.append(acc_sum_delta_omega_2[k]-theta_2_meas[k-1])
 
         #Calculating the needed angular velocity of each wheel
-        dtheta1_dt.append(theta_1_increment[k]/Ts)
-        dtheta2_dt.append(theta_2_increment[k]/Ts)
+        dtheta1_dt.append(-1*(theta_1_increment[k]/Ts))
+        dtheta2_dt.append(-1*(theta_2_increment[k]/Ts))
 
-        s.append((dtheta2_dt[k]-dtheta1_dt[k])/dtheta2_dt[k])
+        s.append((dtheta1_dt[k]-dtheta2_dt[k])/dtheta1_dt[k])
 
         #Converting to linear and angular movement of the robot
         lin_vel.append(r/2*(dtheta1_dt[k]+dtheta2_dt[k]))
@@ -131,12 +131,12 @@ def simulation():
         #theta_2_meas = wheel_2_counter*2*math.pi/PPR
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
-        rand2 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
+        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
+        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
-        theta_1_meas.append(acc_sum_delta_omega_1[k])
-        theta_2_meas.append(acc_sum_delta_omega_2[k])
+        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
+        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts)+rand2)
 
         #Calculating the angular difference between the two samples
         delta_theta_1.append(theta_1_meas[k]-theta_1_meas[k-1])
@@ -173,7 +173,11 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
+    #print(theta)
     print(s)
+    print(dtheta2_dt)
+    #print(theta_2_meas)
+    #print(delta_theta_2)
     #print(lin_vel)
     #print(dtheta2_dt)
     #print(dtheta1_dt)
