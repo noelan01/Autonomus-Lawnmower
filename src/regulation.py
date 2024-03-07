@@ -174,7 +174,7 @@ def regulation():
     theta_1_meas_old = theta_1_meas
     theta_2_meas_old = theta_2_meas
         
-regulation()
+#regulation()
 
 
 
@@ -212,7 +212,7 @@ class Regulation():
         self.Kd = 0.08
 
         #Put the sample time to the same as the update time of the drive publish node?
-        self.Ts = 0.1
+        self.Ts = 1/drive_node.get_updaterate()
         self.acc_sum_delta_omega_1 = 0
         self.acc_sum_delta_omega_2 = 0    
 

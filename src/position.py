@@ -1,17 +1,16 @@
 
+#Import packages
+import math
+import numpy as np
+import matplotlib.pyplot as plt
+import cmath
+import random
+    
 #Importing the Kalman filter code
 import kalman
 state_estimation = kalman.EKF(0)
 
 def simulation():
-    import math
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import cmath
-    import random
-    
-    
-
     #Starting with defining variables for the robot
     D = 0.4
     r = 0.752/(2*math.pi)

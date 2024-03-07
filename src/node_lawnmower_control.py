@@ -191,3 +191,6 @@ class Lawnmower_Control(Node):
     def get_time(self):
         return self._time_prev, self._time
     
+    def get_updaterate(self):
+        return self._update_rate
+    
