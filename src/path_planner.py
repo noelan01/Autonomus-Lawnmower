@@ -1,4 +1,5 @@
 import numpy as np
+import math
 
 class Path():
     def __init__(self):
@@ -37,13 +38,19 @@ class Path():
 
         self._path += new_path
 
+    def set_circle_path(self, radius, center, num_points):
+        circular_planner = CircularPathPlanner(radius, center, num_points)
+        circular_path = circular_planner.plan_path()
+        self._path += circular_path
+        self._num_points += len(circular_path)
+
     def update_point(self):
         self._current_point += 1
 
 
     def get_point(self):
         if self._current_point >= self._num_points:
-            print("REACHED GOAL", self._path[self._current_point])
+            print("REACHED GOAL")
             print("")
             return (None, None)
         else:
@@ -51,3 +58,19 @@ class Path():
             print("")
             return self._path[self._current_point]
         
+
+
+class CircularPathPlanner:
+    def __init__(self, radius, center=(0, 0), num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        for i in range(self.num_points):
+            theta = 2 * math.pi * i / self.num_points
+            x = self.center[0] + self.radius * math.cos(theta)
+            y = self.center[1] + self.radius * math.sin(theta)
+            path.append((x, y))
+        return path

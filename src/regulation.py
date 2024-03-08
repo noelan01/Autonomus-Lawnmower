@@ -192,7 +192,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = -np.pi
+        self.theta = - np.pi/2
         self.delta_x = 0
         self.delta_y = 0
         self.delta_xe = 0
@@ -210,9 +210,9 @@ class Regulation():
         self.theta_kalman = 0
 
         # PID PARAMETERS
-        self.Kp = 15
-        self.Ki = 2
-        self.Kd = 0.08
+        self.Kp = 20
+        self.Ki = 5
+        self.Kd = 0.05
 
         #Put the sample time to the same as the update time of the drive publish node?
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -254,6 +254,8 @@ class Regulation():
 
         self.PPR = 349
 
+        self.steering_prev = 0
+
     def update(self, x_ref, y_ref):
 
         #if abs(self.x) > 2 or abs(self.y) > 2:
@@ -277,7 +279,8 @@ class Regulation():
         #PID regulator
         self.delta_x = self.delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(self.delta_xe-self.delta_xe_old)/self.Ts
         self.delta_y = self.delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(self.delta_ye-self.delta_ye_old)/self.Ts
-
+        print("PID: X: ", self.delta_x, "Y: ", self.delta_y)
+        print("")
         #Calculating delta_omega(k) and delta_S(k)
         self.delta_omega = cmath.asin((self.delta_x*math.sin(self.theta_old)-self.delta_y*math.cos(self.theta_old))/self.D).real
         self.delta_S = self.D*math.cos(self.delta_omega)+self.D+self.delta_x*math.cos(self.theta_old)+self.delta_y*math.sin(self.theta_old)
@@ -308,10 +311,13 @@ class Regulation():
 
         #Converting the linear and angular velocity to the signals
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
+        #steering_scale = abs(self.steering - 2) / (2 * 2)
+
         speed = 0.2
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
 
+        time_prev, time = self.drive_node.get_time()
         print("Drive commands:", "SPEED = ", speed, "STEERING = ", steering)
         print("")
 
@@ -319,6 +325,7 @@ class Regulation():
         self.drive_node.drive(speed, steering)
         rate.sleep()
 
+        self.steering_prev = self.steering
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         self.wheel_1_counter, self.wheel_2_counter = self.drive_node.get_wheelcounters()
         self.wheel_1_counter_init, self.wheel_2_counter_init = self.drive_node.get_wheelcounters_init()
@@ -393,17 +400,27 @@ class Regulation():
         self.theta_1_meas_old = self.theta_1_meas
         self.theta_2_meas_old = self.theta_2_meas
 
-        return self.x_error, self.y_error
+        return self.x_error, self.y_error, self.x, self.y, self.theta, time
 
 
     def clamping(self, speed, steering):
         speed = round(speed, 2)
         steering = round(steering, 2)
 
-        if speed > 1:
-            speed = 1.0
+        if abs(speed) < 0.2:
+            speed = 0.2
+        elif speed > 1:
+            speed = 1
         elif speed < -1:
             speed = -1.0
+
+        diff = 0.1
+
+        if abs(steering - self.steering_prev) > diff:
+            if steering < self.steering_prev:
+                steering = self.steering_prev - diff
+            else:
+                steering = self.steering_prev + diff
 
         if steering > 2:
             steering = 2.0

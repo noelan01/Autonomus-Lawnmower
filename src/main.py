@@ -5,6 +5,7 @@ import signal
 import rclpy
 import threading
 import numpy as np
+import json
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
 import regulation
@@ -27,7 +28,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 0.0125:
+    if total_error < 0.1:
         path.update_point()
     
     point = path.get_point()
@@ -48,17 +49,38 @@ def main():
 
     rate = drive_node.get_rate()
     rate.sleep()
+    
+    # set ref path
+    #path.set_path(0.4, 0, 1.4, 0, 100)      # (x_0, y_0, x_n, y_n, ppm)
+    path.set_circle_path(1, (-1,0.4), 500)
 
-    path.set_path(0.4, 0, 3.4, 0, 8)      # (x_0, y_0, x_n, y_n, ppm)
-    #path.set_path(2, 0, 3, 1, 8)
+    
     next_point = path.get_point()
-
     print("PATH", path._path)
+
+    measured_pos = {}
+    ref_pos = {}
 
     while rclpy.ok():    # send drive commands to Lawnmower_Control node
         #constant_speed()
-        x_error, y_error = regulator.update(next_point[0], next_point[1])
+        x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+        print("TIME: ", time)
+
+        # Data logging
+        measured_pos[time] = [x, y, theta]
+        ref_pos[time] = [next_point[0], next_point[1]]
+
+        # calc next ref point
         next_point = goal(x_error, y_error)
+    
+    json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
+    json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
+ 
+    with open("../assets/data/following_path_08-03-24/circle.json", "w",) as outfile:
+        outfile.write(json_object)
+    
+    with open("../assets/data/following_path_08-03-24/ref_circle.json", "w",) as outfile:
+        outfile.write(json_object2)
 
     drive_node.destroy_node()
     print("End of main")
