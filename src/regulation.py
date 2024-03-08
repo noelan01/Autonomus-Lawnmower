@@ -1,7 +1,7 @@
 #This is the main program for controlling the odometry of the robot
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import cmath
 import random
 import rclpy
@@ -10,10 +10,10 @@ import kalman
 state_estimation = kalman.EKF(0)
 
 import node_lawnmower_control
-drive_node = node_lawnmower_control.Lawnmower_Control()
+#drive_node = node_lawnmower_control.Lawnmower_Control()
 
 
-
+"""
 def regulation():
 
     #Starting with defining variables for the robot
@@ -175,11 +175,13 @@ def regulation():
     theta_2_meas_old = theta_2_meas
         
 #regulation()
-
+"""
 
 
 class Regulation():
-    def __init__(self):
+    def __init__(self, drive_node):
+        self.drive_node = drive_node
+
         #Starting with defining variables for the robot
         self.D = 0.4
         self.r = 0.752/(2*math.pi)
@@ -207,17 +209,21 @@ class Regulation():
         self.x_error = 0
         self.y_error = 0
         self.theta_kalman = 0
+
+        # PID PARAMETERS
         self.Kp = 15
         self.Ki = 2
         self.Kd = 0.08
 
         #Put the sample time to the same as the update time of the drive publish node?
-        self.Ts = 1/drive_node.get_updaterate()
+        self.Ts = 1/self.drive_node.get_updaterate()
         self.acc_sum_delta_omega_1 = 0
         self.acc_sum_delta_omega_2 = 0    
 
         #Change these to the initial values of the counters
-        self.wheel_1_counter_init, self.wheel_2_counter_init = drive_node.get_wheelcounters_init()
+        self.wheel_1_counter_init, self.wheel_2_counter_init = self.drive_node.get_wheelcounters_init()
+
+        self.wheel_1_counter, self.wheel_2_counter = self.drive_node.get_wheelcounters()
 
         self.theta_1_meas = 0
         self.theta_2_meas = 0
@@ -243,16 +249,21 @@ class Regulation():
         self.delta_ye_old = 0
 
         #This angle should be set based on which coordinate we are moving towards
-        self.theta_old = 0
+        self.theta_old = self.theta
         self.theta_1_meas_old = 0
         self.theta_2_meas_old = 0
 
         self.PPR = 349
 
     def update(self):
+
+        #if abs(self.x) > 2 or abs(self.y) > 2:
+        #    self.drive_node.stop_drive()
+        #    rclpy.shutdown()
+
         #Updating x_ref & y_ref
-        self.x_ref = self.x_ref - 0.025
-        self.y_ref = self.y_ref
+        self.x_ref = self.x_ref
+        self.y_ref = self.y_ref + 0.25
         
         #Implementing the kinematic model of the robot
         self.delta_xe = self.x_ref - self.x
@@ -270,8 +281,8 @@ class Regulation():
         self.delta_S = self.D*math.cos(self.delta_omega)+self.D+self.delta_x*math.cos(self.theta_old)+self.delta_y*math.sin(self.theta_old)
 
         #Calculating delta_omega1(k) and delta_omega2(k)
-        self.delta_omega1 = 1/self.r*(self.delta_S+self.L*self.delta_omega)
-        self.delta_omega2 = 1/self.r*(self.delta_S-self.L*self.delta_omega)
+        self.delta_omega1 = 1/self.r*(self.delta_S + self.L*self.delta_omega)
+        self.delta_omega2 = 1/self.r*(self.delta_S - self.L*self.delta_omega)
 
         #Discrete time integration using backwards Euler
         self.acc_sum_delta_omega_1 = self.acc_sum_delta_omega_1 + self.Ts*self.delta_omega1
@@ -286,29 +297,41 @@ class Regulation():
         self.dtheta1_dt = -1*self.theta_1_increment/self.Ts
         self.dtheta2_dt = -1*self.theta_2_increment/self.Ts
 
+        print("DTHETA 0: ", self.dtheta1_dt, "DTHETA 0: ", self.dtheta1_dt)
+        print("")
+
         #Converting the linear and angular velocity to the signals
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
-
+        speed = 1
         #Publish angular and linear velocity to the lawnmower node
-        speed, steering = self.clamping(0.5, self.steering)
+        speed, steering = self.clamping(speed, self.steering)
 
-        rate = drive_node.get_rate()
-        drive_node.drive(speed, steering)
-        rate.sleep()
-        
         print("Drive commands:", "SPEED = ", speed, "STEERING = ", steering)
+        print("")
+
+        rate = self.drive_node.get_rate()
+        self.drive_node.drive(speed, steering)
+        rate.sleep()
 
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
-        self.wheel_1_counter, self.wheel_2_counter = drive_node.get_wheelcounters()
+        self.wheel_1_counter, self.wheel_2_counter = self.drive_node.get_wheelcounters()
+        self.wheel_1_counter_init, self.wheel_2_counter_init = self.drive_node.get_wheelcounters_init()
 
         self.wheel_1_counter = self.wheel_1_counter-self.wheel_1_counter_init
         self.wheel_2_counter = self.wheel_2_counter-self.wheel_2_counter_init
-
+        
+        print("WHEELCOUNTER 0: ", self.wheel_1_counter, "   WHEELCOUNTER 1: ", self.wheel_2_counter)
+        print("")
+        print("WHEELCOUNTER 0 init: ", self.wheel_1_counter_init, "   WHEELCOUNTER 1 init: ", self.wheel_2_counter_init)
+        print("")
 
         #Convert to angular displacement
         #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negatie sign and convert it back so that the model can still be used
         self.theta_1_meas = self.wheel_1_counter*2*math.pi/self.PPR*-1
         self.theta_2_meas = self.wheel_2_counter*2*math.pi/self.PPR*-1
+
+        print("ANGLULAR DIST 0: ", self.theta_1_meas, "ANGLULAR DIST 1: ", self.theta_2_meas)
+        print("")
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
         self.rand1 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
@@ -327,6 +350,8 @@ class Regulation():
         self.y_base = self.y_base + self.delta_s*math.sin(self.theta_old)
         self.theta = self.theta + self.delta_theta
 
+        print("THETA : ", self.theta)
+
             #Variables to the Kalman function
             #Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
             #control_inputs = np.array([[lin_vel[k]],[ang_vel[k]]])
@@ -340,8 +365,13 @@ class Regulation():
             #theta_kalman.append(state[2].item())
 
         #Updating the chalking mechanism position
-        self.x = self.x_base - self.D*math.cos(self.theta) 
+        self.x = self.x_base - self.D*math.cos(self.theta)
         self.y = self.y_base - self.D*math.sin(self.theta) 
+
+        print("X: ", self.x, "  Y: ", self.y)
+        print("")
+        print("")
+        print("")
 
             #x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k]))
             #y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
@@ -363,13 +393,13 @@ class Regulation():
         steering = round(steering, 2)
 
         if speed > 1:
-            speed = 1
+            speed = 1.0
         elif speed < -1:
-            speed = -1
+            speed = -1.0
 
         if steering > 2:
-            steering = 2
+            steering = 2.0
         elif steering < -2:
-            steering = -2
+            steering = -2.0
 
-        return speed, steering
+        return float(speed), float(steering)
