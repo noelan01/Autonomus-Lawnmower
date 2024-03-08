@@ -9,8 +9,7 @@ import rclpy
 import kalman
 state_estimation = kalman.EKF(0)
 
-import node_lawnmower_control
-#drive_node = node_lawnmower_control.Lawnmower_Control()
+import node_lawnmower_control 
 
 
 """
@@ -255,15 +254,18 @@ class Regulation():
 
         self.PPR = 349
 
-    def update(self):
+    def update(self, x_ref, y_ref):
 
         #if abs(self.x) > 2 or abs(self.y) > 2:
         #    self.drive_node.stop_drive()
         #    rclpy.shutdown()
 
         #Updating x_ref & y_ref
-        self.x_ref = self.x_ref -0.025
-        self.y_ref = self.y_ref
+        #self.x_ref = self.x_ref -0.025
+        #self.y_ref = self.y_ref
+
+        self.x_ref = x_ref
+        self.y_ref = y_ref
         
         #Implementing the kinematic model of the robot
         self.delta_xe = self.x_ref - self.x
@@ -306,7 +308,7 @@ class Regulation():
 
         #Converting the linear and angular velocity to the signals
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
-        speed = 1
+        speed = 0.2
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
 
@@ -390,6 +392,8 @@ class Regulation():
         self.delta_ye_old = self.delta_ye
         self.theta_1_meas_old = self.theta_1_meas
         self.theta_2_meas_old = self.theta_2_meas
+
+        return self.x_error, self.y_error
 
 
     def clamping(self, speed, steering):
