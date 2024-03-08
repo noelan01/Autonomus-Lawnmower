@@ -262,13 +262,8 @@ class Regulation():
         #    rclpy.shutdown()
 
         #Updating x_ref & y_ref
-<<<<<<< HEAD
         self.x_ref = self.x_ref -0.025
         self.y_ref = self.y_ref
-=======
-        self.x_ref = self.x_ref
-        self.y_ref = self.y_ref + 0.25
->>>>>>> 6a8a3388cf35e83f3beb9d44142dcbb6c132c371
         
         #Implementing the kinematic model of the robot
         self.delta_xe = self.x_ref - self.x
