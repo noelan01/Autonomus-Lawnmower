@@ -65,8 +65,17 @@ class Lawnmower_Control(Node):
         
         self._wheelcounter0 = 0
         self._wheelcounter1 = 0
-        self._wheelcounter0_init = None
-        self._wheelcounter1_init = None
+        self._wheelcounter0_init = 0
+        self._wheelcounter1_init = 0
+
+        # init flags
+        self._wheel0_init = 0
+        self._wheel1_init = 0
+        self._yaw_init_flag = 0
+
+        """
+            ADD INIT FLAGS FOR ALL INIT CALLBACKS
+        """
 
         self._time = 0
         self._time_prev = 0
@@ -124,8 +133,9 @@ class Lawnmower_Control(Node):
 
     # IMU
     def IMU_callback(self, imu):
-        if self._yaw_init == 0:
+        if self._yaw_init_flag == 0:
             self._yaw_init = imu.yaw
+            self._yaw_init_flag = 1
         self._yaw = imu.yaw
 
 
@@ -139,13 +149,16 @@ class Lawnmower_Control(Node):
     
     # Wheelcounters
     def wheelcounter_0_callback(self, counter):
-        if self._wheelcounter0_init == None:
+        if self._wheel0_init == 0:
             self._wheelcounter0_init = counter.counter
+            self._wheel0_init = 1
+            
         self._wheelcounter0 = counter.counter
         
     def wheelcounter_1_callback(self, counter):
-        if self._wheelcounter1_init == None:
+        if self._wheel1_init == 0:
             self._wheelcounter1_init = counter.counter
+            self._wheel1_init = 1
         self._wheelcounter1 = counter.counter
 
 
@@ -155,7 +168,7 @@ class Lawnmower_Control(Node):
     #    #   #           #         #       #         # ##            #
     ######   ######      #         #       ######    #   ##     ######
 
-    # Kalla på dessa för att komma åt ros data från andra filer
+    # Getters are used to get the latest data from ROS topics
     # ex: yaw = drive_node.get_yaw()
 
     def get_rate(self):
@@ -190,4 +203,7 @@ class Lawnmower_Control(Node):
     
     def get_time(self):
         return self._time_prev, self._time
+    
+    def get_updaterate(self):
+        return self._update_rate
     

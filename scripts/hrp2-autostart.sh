@@ -9,7 +9,7 @@ sudo ifconfig can0 txqueuelen 5000
 source /opt/ros/galactic/setup.bash
 
 # aarch64
-source /home/Autonomus-Lawnmower/hrp-p2z-open-dist/aarch64/local_setup.bash
+source /home/mower/Autonomus-Lawnmower/hrp-p2z-open-dist/aarch64/local_setup.bash
 
 # x86_x64
 # source /home/mower/Autonomus-Lawnmower/hrp-p2z-open-dist/x86_64/local_setup.bash
