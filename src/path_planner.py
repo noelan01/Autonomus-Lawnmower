@@ -19,7 +19,7 @@ class Path():
 
         distance = np.sqrt((x_0 - x_n)**2 + (y_0 - y_n)**2)
         num_points = int(distance * ppm)
-
+        print("NUM POINTS: ", num_points)
         if distance * ppm > num_points:
             num_points -= 1
 
@@ -33,6 +33,8 @@ class Path():
             next_point = (x_0 + x, y_0 + y)
             new_path.append(next_point)
 
+        new_path.append((x_n, y_n))
+
         self._path += new_path
 
     def update_point(self):
@@ -40,8 +42,8 @@ class Path():
 
 
     def get_point(self):
-        if self._current_point > self._num_points:
-            print("REACHED GOAL")
+        if self._current_point >= self._num_points:
+            print("REACHED GOAL", self._path[self._current_point])
             print("")
             return (None, None)
         else:

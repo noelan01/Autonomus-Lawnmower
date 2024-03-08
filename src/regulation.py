@@ -192,7 +192,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = 0
+        self.theta = -np.pi
         self.delta_x = 0
         self.delta_y = 0
         self.delta_xe = 0

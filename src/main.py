@@ -27,7 +27,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 0.5:
+    if total_error < 0.0125:
         path.update_point()
     
     point = path.get_point()
@@ -35,7 +35,6 @@ def goal(x_error,y_error):
     if point[0] == None or point[1] == None:
         drive_node.stop_drive()
         rclpy.shutdown()
-
     return point
 
 
@@ -50,7 +49,8 @@ def main():
     rate = drive_node.get_rate()
     rate.sleep()
 
-    path.set_path(0, 0, 2, 0, 1)
+    path.set_path(0.4, 0, 3.4, 0, 8)      # (x_0, y_0, x_n, y_n, ppm)
+    #path.set_path(2, 0, 3, 1, 8)
     next_point = path.get_point()
 
     print("PATH", path._path)
