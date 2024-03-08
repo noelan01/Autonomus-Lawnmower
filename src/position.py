@@ -76,7 +76,11 @@ def simulation():
     for k in range(1,int(nrOfSteps)):
     #Updating x_ref
         x_ref.append(x_ref[k-1])
+<<<<<<< HEAD
         y_ref.append(y_ref[k-1]-0.025)
+=======
+        y_ref.append(y_ref[k-1]+0.0005)
+>>>>>>> 6a8a3388cf35e83f3beb9d44142dcbb6c132c371
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
