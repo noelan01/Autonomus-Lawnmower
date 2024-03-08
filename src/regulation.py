@@ -251,7 +251,7 @@ class Regulation():
 
     def update(self):
         #Updating x_ref & y_ref
-        self.x_ref = self.x_ref - 0.025
+        self.x_ref = self.x_ref -0.025
         self.y_ref = self.y_ref
         
         #Implementing the kinematic model of the robot
@@ -261,7 +261,7 @@ class Regulation():
         self.err_sum_x = self.err_sum_x + self.delta_xe
         self.err_sum_y = self.err_sum_y + self.delta_ye 
 
-        #Increasing the error with the proportional gain
+        #PID regulator
         self.delta_x = self.delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(self.delta_xe-self.delta_xe_old)/self.Ts
         self.delta_y = self.delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(self.delta_ye-self.delta_ye_old)/self.Ts
 
@@ -274,17 +274,21 @@ class Regulation():
         self.delta_omega2 = 1/self.r*(self.delta_S-self.L*self.delta_omega)
 
         #Discrete time integration using backwards Euler
-        self.acc_sum_delta_omega_1 = self.acc_sum_delta_omega_1 + self.Ts*self.delta_omega1
-        self.acc_sum_delta_omega_2 = self.acc_sum_delta_omega_2 + self.Ts*self.delta_omega2
+        #self.acc_sum_delta_omega_1 = self.acc_sum_delta_omega_1 + self.Ts*self.delta_omega1
+        #self.acc_sum_delta_omega_2 = self.acc_sum_delta_omega_2 + self.Ts*self.delta_omega2
 
         #Measure the difference between the old wheel counter and the accumulated sum to find angular displacement
-        self.theta_1_increment = self.acc_sum_delta_omega_1-self.theta_1_meas
-        self.theta_2_increment = self.acc_sum_delta_omega_2-self.theta_2_meas
+        #self.theta_1_increment = self.acc_sum_delta_omega_1-self.theta_1_meas
+        #self.theta_2_increment = self.acc_sum_delta_omega_2-self.theta_2_meas
+
+        #Base the incremental position on the command instead of the wheel measure
+        #self.theta_1_increment = self.Ts*self.delta_omega1
+        #self.theta_2_increment = self.Ts*self.delta_omega2
 
         #Calculating the needed angular velocity of each wheel
         #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. The model has defined the opposite sign of positive angular velocity, which means we have to change it so that the model is the same as the lawnmower
-        self.dtheta1_dt = -1*self.theta_1_increment/self.Ts
-        self.dtheta2_dt = -1*self.theta_2_increment/self.Ts
+        self.dtheta1_dt = -1*self.delta_omega1
+        self.dtheta2_dt = -1*self.delta_omega2
 
         #Converting the linear and angular velocity to the signals
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
