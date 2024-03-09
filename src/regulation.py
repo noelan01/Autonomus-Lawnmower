@@ -279,8 +279,10 @@ class Regulation():
         #PID regulator
         self.delta_x = self.delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(self.delta_xe-self.delta_xe_old)/self.Ts
         self.delta_y = self.delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(self.delta_ye-self.delta_ye_old)/self.Ts
+        
         print("PID: X: ", self.delta_x, "Y: ", self.delta_y)
         print("")
+        
         #Calculating delta_omega(k) and delta_S(k)
         self.delta_omega = cmath.asin((self.delta_x*math.sin(self.theta_old)-self.delta_y*math.cos(self.theta_old))/self.D).real
         self.delta_S = self.D*math.cos(self.delta_omega)+self.D+self.delta_x*math.cos(self.theta_old)+self.delta_y*math.sin(self.theta_old)
@@ -314,6 +316,7 @@ class Regulation():
         #steering_scale = abs(self.steering - 2) / (2 * 2)
 
         speed = 0.2
+        
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
 

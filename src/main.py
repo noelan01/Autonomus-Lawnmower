@@ -39,6 +39,18 @@ def goal(x_error,y_error):
     return point
 
 
+def write_json(measured_pos, ref_pos):
+    json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
+    json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
+ 
+    with open("../assets/data/following_path_08-03-24/circle.json", "w",) as outfile:
+        outfile.write(json_object)
+    
+    with open("../assets/data/following_path_08-03-24/ref_circle.json", "w",) as outfile:
+        outfile.write(json_object2)
+
+
+
 def main():
     signal.signal(signal.SIGINT, ctrlc_shutdown)
 
@@ -73,14 +85,7 @@ def main():
         # calc next ref point
         next_point = goal(x_error, y_error)
     
-    json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
-    json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
- 
-    with open("../assets/data/following_path_08-03-24/circle.json", "w",) as outfile:
-        outfile.write(json_object)
-    
-    with open("../assets/data/following_path_08-03-24/ref_circle.json", "w",) as outfile:
-        outfile.write(json_object2)
+    write_json(measured_pos, ref_pos)
 
     drive_node.destroy_node()
     print("End of main")

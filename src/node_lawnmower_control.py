@@ -1,10 +1,8 @@
 import rclpy
-import threading
-import sys
+import threading    
 import tty
 import termios
 import signal
-import json
 import numpy as np
 
 from rclpy.node import Node
