@@ -52,16 +52,27 @@ class Differential_Drive():
 
 
     def update(self, x_ref, y_ref):
+        # 1. state estimation
         self.state_estimation(x_ref, y_ref)
+        
+        # 2. calculate speeds
         long_speed, rot_speed, theta_diff = self.vel_calc()
 
+        # 3. convert to wheelspeeds
         wheelspeed0, wheelspeed1 = self.wheelspeeds_calc(long_speed, rot_speed)
         
+        # 4. convert to lawnmower inputs 
         speed, steering = self.convert_speed(wheelspeed0, wheelspeed1)
 
+        # 5. clamping
         clamped_speed, clamped_steering = self.clamping(speed, steering, theta_diff)
+        
+        # publish control inputs
+        time = self.send_drive(clamped_speed, clamped_steering)
 
-        self.send_drive(clamped_speed, clamped_steering, self._x_error, self._y_error)
+        # return data
+        return self._x_error, self._y_error, self._x_chalk, self._y_chalk, self._theta, time
+
 
 
     def state_estimation(self, x_ref, y_ref):
@@ -156,7 +167,7 @@ class Differential_Drive():
             return speed, steering
 
 
-    def send_drive(self, speed, steering, x_error, y_error):
+    def send_drive(self, speed, steering):
         time_prev, time = self.drive_node.get_time()
 
         rate = self.drive_node.get_rate()
@@ -164,9 +175,7 @@ class Differential_Drive():
         rate.sleep()
 
         self.steering_prev = steering
-       
-
-        return x_error, y_error, self._x_chalk, self._y_chalk, self._theta, time
+        return time
 
 
     def clamping(self, speed, steering, theta_diff):

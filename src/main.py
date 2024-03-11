@@ -8,11 +8,16 @@ import numpy as np
 import json
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
+
 import regulation
 regulator = regulation.Regulation(drive_node)
 
+import differential_drive
+diff_drive = differential_drive.Differential_Drive(drive_node)
+
 import path_planner
 path = path_planner.Path()
+
 
 def ctrlc_shutdown(sig, frame):
     drive_node.stop_drive()
@@ -57,8 +62,6 @@ def main():
     thread = threading.Thread(target=rclpy.spin, args=(drive_node,))
     thread.start()
 
-    #regulator.__init__(drive_node)
-
     rate = drive_node.get_rate()
     rate.sleep()
     
@@ -74,8 +77,12 @@ def main():
     ref_pos = {}
 
     while rclpy.ok():    # send drive commands to Lawnmower_Control node
-        #constant_speed()
+        # Original regulator
         x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+
+        # New regulator
+        #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
+        
         print("TIME: ", time)
 
         # Data logging
