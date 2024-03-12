@@ -13,6 +13,9 @@ class Differential_Drive():
     def __init__(self, drive_node):
         self.drive_node = drive_node
 
+        # Timestep
+        self._t = 1/self.drive_node.get_updaterate()
+
         # Lawnmower parameters
         self._dc = 0.4                   # Distance to chalking mech [m]
         self._r = 0.752/(2*math.pi)      # Wheelradius [m]
@@ -50,7 +53,15 @@ class Differential_Drive():
         self._K_theta = 10
         self._K_long = 10
 
+        # Dynamic steering
+        self.speed_angle = np.pi/4
+        self.speed_gain = 1
 
+    
+    """
+        Updates control input every timestep
+        by calling other functions
+    """
     def update(self, x_ref, y_ref):
         # 1. state estimation
         self.state_estimation(x_ref, y_ref)
@@ -62,7 +73,7 @@ class Differential_Drive():
         wheelspeed0, wheelspeed1 = self.wheelspeeds_calc(long_speed, rot_speed)
         
         # 4. convert to lawnmower inputs 
-        speed, steering = self.convert_speed(wheelspeed0, wheelspeed1)
+        speed, steering = self.convert_speed(wheelspeed0, wheelspeed1, theta_diff)
 
         # 5. clamping
         clamped_speed, clamped_steering = self.clamping(speed, steering, theta_diff)
@@ -86,20 +97,23 @@ class Differential_Drive():
         wheel_0_counter -= wheel_0_counter_init
         wheel_1_counter -= wheel_1_counter_init
 
-        theta_0_meas = wheel_0_counter*2*math.pi/self._PPR*-1
-        theta_1_meas = wheel_1_counter*2*math.pi/self._PPR*-1
-
+        # Conversion to angle
+        theta_0_meas = wheel_0_counter*2*math.pi/self._PPR*-1   # MAYBE TAKE AWAY *-1 ??
+        theta_1_meas = wheel_1_counter*2*math.pi/self._PPR*-1   # MAYBE TAKE AWAY *-1 ??
+        
+        # Angle diff from previous step
         delta_theta_0 = theta_0_meas - self._theta_0_meas_prev
         delta_theta_1 = theta_1_meas - self._theta_1_meas_prev
 
-        delta_s = self._r/2*(delta_theta_0+delta_theta_1)
-        delta_theta = self._r/(2*self._L)*(delta_theta_0-delta_theta_1)
+        delta_s = (self._r/2) * (delta_theta_0+delta_theta_1)
+        delta_theta = self._r / (2*self._L) * (delta_theta_0 - delta_theta_1)
 
         self._x += delta_s*math.cos(self._theta_prev)
         self._y += delta_s*math.sin(self._theta_prev)
 
         self._theta += delta_theta
 
+        # Convert pos to chalk mech pos
         self._x_chalk = self._x - self._dc*math.cos(self._theta)
         self._y_chalk = self._y - self._dc*math.sin(self._theta)
 
@@ -121,6 +135,7 @@ class Differential_Drive():
         self._theta_0_meas_prev = theta_0_meas
         self._theta_1_meas_prev = theta_1_meas
 
+        # Saving ref pos
         self._x_ref = x_ref
         self._y_ref = y_ref
 
@@ -171,15 +186,30 @@ class Differential_Drive():
         return wheelspeed0, wheelspeed1
     
 
-    def convert_speed(self, wheel0, wheel1):
+    def convert_speed(self, wheel0, wheel1, theta_diff):
         if wheel1 > wheel0:                         # Left turn
             steering = (wheel1 - wheel0)/wheel1
         else:                                       # Right turn
-            steering = (wheel0 - wheel1)/wheel0
+            steering = -(wheel0 - wheel1)/wheel0
 
-            speed = 0.5     # change this to dynamic
+            speed = 0.5     # STATIC
+
+            speed = self.dynamic_speed(theta_diff)  # DYNAMIC
 
             return speed, steering
+        
+    
+    def dynamic_speed(self, theta_diff):
+        gain = self.speed_gain
+        angle = self.speed_angle
+
+        if np.abs(theta_diff) < angle:
+            speed = gain * (angle - np.abs(theta_diff))/ angle
+        
+        else:
+            speed = 0.2
+
+        return speed
 
 
     def send_drive(self, speed, steering):
@@ -227,3 +257,4 @@ class Differential_Drive():
                 steering = -2.0 
 
         return float(speed), float(steering)
+    
