@@ -6,7 +6,7 @@ import cmath
 import random
 
 import kalman
-state_estimation = kalman.EKF(0)
+skalman = kalman.EKF(0)
 
 
 class Differential_Drive():
@@ -70,6 +70,8 @@ class Differential_Drive():
         # publish control inputs
         time = self.send_drive(clamped_speed, clamped_steering)
 
+        print("TIME: ", time, "SPEED: ", speed, "STEERING: ", steering)
+
         # return data
         return self._x_error, self._y_error, self._x_chalk, self._y_chalk, self._theta, time
 
@@ -101,8 +103,15 @@ class Differential_Drive():
         self._x_chalk = self._x - self._dc*math.cos(self._theta)
         self._y_chalk = self._y - self._dc*math.sin(self._theta)
 
+        print("CHALK POS, X: ", self._x_chalk, "Y: ", self._y_chalk)
+        print("")
+
         self._x_error = self._x_chalk - x_ref
         self._y_error = self._y_chalk - y_ref
+
+        print("ERROR, X: ", self._x_error, "Y: ", self._y_error)
+        print("")
+
 
         # Update previous timestep
         self._x_prev = self._x
@@ -137,6 +146,9 @@ class Differential_Drive():
 
         long_speed = K_long * np.sqrt((x_ref-x)**2 + (y_ref-y)**2)
 
+        print("LONG SPEED: ", long_speed, "ROTATIONAL: ", rotational_speed)
+        print("")
+
         return long_speed, rotational_speed, theta_diff
 
 
@@ -152,6 +164,9 @@ class Differential_Drive():
 
         wheelspeed0 = phi_dot[0].item()
         wheelspeed1 = phi_dot[1].item()
+
+        print("WHEELSPEED0: ", wheelspeed0, "WHEELSPEED1: ", wheelspeed1)
+        print("")
 
         return wheelspeed0, wheelspeed1
     
@@ -205,7 +220,7 @@ class Differential_Drive():
                 steering = 0.9
             elif steering < -1:
                 steering = -0.9        
-        else:
+        else:                   # Max steering is [-2,2]
             if steering > 2:
                 steering = 2.0
             elif steering < -2:
