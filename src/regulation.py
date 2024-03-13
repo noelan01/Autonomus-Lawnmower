@@ -215,14 +215,13 @@ class Regulation():
         self.Ki = 2
         self.Kd = 0.08
 
-        #Put the sample time to the same as the update time of the drive publish node?
+        #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
         self.acc_sum_delta_omega_1 = 0
         self.acc_sum_delta_omega_2 = 0    
 
-        #Change these to the initial values of the counters
+        #Initial values of the counter since it is not resetted between each measurement
         self.wheel_1_counter_init, self.wheel_2_counter_init = self.drive_node.get_wheelcounters_init()
-
         self.wheel_1_counter, self.wheel_2_counter = self.drive_node.get_wheelcounters()
 
         self.theta_1_meas = 0
@@ -262,7 +261,7 @@ class Regulation():
         #    rclpy.shutdown()
 
         #Updating x_ref & y_ref
-        self.x_ref = self.x_ref -0.025
+        self.x_ref = self.x_ref - 0.025
         self.y_ref = self.y_ref
         
         #Implementing the kinematic model of the robot
@@ -334,13 +333,8 @@ class Regulation():
         self.theta_1_meas = self.wheel_1_counter*2*math.pi/self.PPR*-1
         self.theta_2_meas = self.wheel_2_counter*2*math.pi/self.PPR*-1
 
-        print("ANGLULAR DIST 0: ", self.theta_1_meas, "ANGLULAR DIST 1: ", self.theta_2_meas)
+        print("ANGULAR DIST 0: ", self.theta_1_meas, "ANGULAR DIST 1: ", self.theta_2_meas)
         print("")
-
-        #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        self.rand1 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        self.rand2 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        self.rand3 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
 
         #Calculating the angular difference between the two samples
         self.delta_theta_1 = self.theta_1_meas-self.theta_1_meas_old
@@ -355,6 +349,11 @@ class Regulation():
         self.theta = self.theta + self.delta_theta
 
         print("THETA : ", self.theta)
+
+        #Random noise as input to the Kalman filter
+        rand1 = random.uniform(-2*math.pi/self.PPR,2*math.pi/self.PPR) + random.uniform(-0.001,0.001)
+        rand2 = random.uniform(-2*math.pi/self.PPR,2*math.pi/self.PPR) + random.uniform(-0.001,0.001)
+        rand3 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
 
             #Variables to the Kalman function
             #Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
@@ -405,5 +404,10 @@ class Regulation():
             steering = 2.0
         elif steering < -2:
             steering = -2.0
+        elif steering > 1 and steering <= 2:
+            speed = 0.3
+        elif steering > 0.5 and steering <= 1:
+            speed = 0.5
+
 
         return float(speed), float(steering)

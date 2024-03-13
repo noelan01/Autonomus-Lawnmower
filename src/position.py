@@ -11,7 +11,7 @@ import kalman
 state_estimation = kalman.EKF(0)
 
 def simulation():
-    #Starting with defining variables for the robot
+    #Starting with defining variables of the robot
     D = 0.4
     r = 0.752/(2*math.pi)
     L = (43/2+3.2/2)/100
@@ -38,8 +38,8 @@ def simulation():
     x_error = [0]
     y_error = [0]
     theta_kalman =[0]
-    Kp = 15
-    Ki = 2
+    Kp = 20
+    Ki = 0
     Kd = 0
     Ts = 0.1
     acc_sum_delta_omega_1 = [0]
@@ -57,6 +57,8 @@ def simulation():
     err_sum_x = 0
     err_sum_y = 0
     s = [0]
+    test = [0]
+
 
     delta_omega = [0]
     delta_S = [0]
@@ -74,9 +76,10 @@ def simulation():
     #print(Kp)
 
     for k in range(1,int(nrOfSteps)):
-    #Updating x_ref
-        x_ref.append(x_ref[k-1])
-        y_ref.append(y_ref[k-1]-0.025)
+        #Updating x_ref & y_ref
+        x_ref.append(x_ref[k-1]+math.cos(2*math.pi*1/nrOfSteps))
+        y_ref.append(y_ref[k-1]+math.sin(2*math.pi*1/nrOfSteps))
+        
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
@@ -95,15 +98,6 @@ def simulation():
         #Calculating delta_omega1(k) and delta_omega2(k)
         delta_omega1.append(1/r*(delta_S[k]+L*delta_omega[k]))
         delta_omega2.append(1/r*(delta_S[k]-L*delta_omega[k]))
-        """
-        #Discrete time integration using backwards Euler
-        acc_sum_delta_omega_1.append(acc_sum_delta_omega_1[k-1] + Ts*delta_omega1[k])
-        acc_sum_delta_omega_2.append(acc_sum_delta_omega_2[k-1] + Ts*delta_omega2[k]) 
-
-        #Measure the difference between the old wheel counter and the accumulated sum to find angular displacement
-        theta_1_increment.append(Ts*delta_omega1[k])
-        theta_2_increment.append(Ts*delta_omega2[k])
-        """
         
         #Calculating the needed angular velocity of each wheel
         dtheta1_dt.append(-1*(delta_omega1[k]))
@@ -115,24 +109,9 @@ def simulation():
         lin_vel.append(r/2*(dtheta1_dt[k]+dtheta2_dt[k]))
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
-        #Publish angular and linear velocity to the lawnmower
-
-        #Publish lin_vel
-        #Publish ang_vel
-
-        #Sleep for Ts = 0.025 s
-        #time.sleep(0.025)
-
-        #wheel_1_counter = #Subscribe to HQV topic /hqv_mower/wheel0/speed
-        #wheel_2_counter = #Subscribe to HQV topic /hqv_mower/wheel1/speed
-
-        #Convert to angular displacement
-        #theta_1_meas = wheel_1_counter*2*math.pi/PPR
-        #theta_2_meas = wheel_2_counter*2*math.pi/PPR
-
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
-        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
+        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.1,0.1)
+        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.1,0.1)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
         theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts))
@@ -173,21 +152,14 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
-    #print(theta)
-    print(s)
-    #print(dtheta2_dt)
-    #print(theta_2_meas)
-    #print(delta_theta_2)
-    #print(lin_vel)
-    #print(dtheta2_dt)
-    #print(dtheta1_dt)
         
-    #print(lin_vel)
-    #print(x)
-    plt.figure()
-    plt.plot(theta)
+    print(x_ref)
+    #print(s)
+
     plt.figure()
     plt.plot(x,y)
+    plt.figure()
+    plt.plot(x_ref,y_ref)
     plt.show()
 
 simulation()
