@@ -56,6 +56,34 @@ def linear_regression(x_values,y_values):
     slope,intercept = np.polyfit(x_np,y_np,1)
     return slope,intercept
 
+#------------------------CALCULATE COORDINATE SYSTEMS OFFSET ANGLE-------------------------------------
+
+def get_offset(x_start_rtk,y_start_rtk,x_end_rtk,y_end_rtk): 
+    #---------EXCEPTIONS FOR SINGULARITIES----------
+    if x_end_rtk == x_start_rtk:
+        if y_start_rtk > y_end_rtk:
+            rtk_heading = np.pi
+        else:
+            rtk_heading = 0
+    elif y_end_rtk == y_start_rtk:
+        if x_start_rtk > x_end_rtk:
+            rtk_heading = 3*np.pi/2
+        else:
+            rtk_heading = np.pi/2
+    #-----------------------------
+    else: 
+        slope = (y_end_rtk-y_start_rtk) / (x_end_rtk-x_start_rtk)
+        if x_end_rtk>x_start_rtk:
+            rtk_heading = np.arctan2(1, slope) 
+        else:
+            rtk_heading = np.arctan2(1,slope) + np.pi 
+        
+    rtk_east = np.pi/2
+    offset_angle = rtk_heading-rtk_east
+    print("RTK Heading: ", np.degrees(rtk_heading))
+    return offset_angle
+
+print(np.degrees(get_offset(0,0,-1,0)))
 #------------------------CALCULATE IMU OFFSET-------------------------------------
 
 #offset between IMU angle and RTK heading
@@ -147,6 +175,5 @@ imu_angle = IMU_file_reader(IMU_file)
 imu_angle = np.mean(imu_angle)%(2*np.pi)
 
 
-plot_RTK_and_odometry_positions(RTK_north_values, RTK_east_values, odometry_x_values,odometry_y_values,imu_angle)
+#plot_RTK_and_odometry_positions(RTK_north_values, RTK_east_values, odometry_x_values,odometry_y_values,imu_angle)
 
-print(get_offset_imu())

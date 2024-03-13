@@ -1,14 +1,34 @@
-#referensstationen är satt som origo i ett fast globalt koordninatsystem på gräsmattan. x pekar norr, y pekar väst
-#Gräsklipparen är satt som ett dynamiskt lokalt koordinatsystem, x pekar frammåt, y pekar vänster
-#topic hqv_mower/gnss_rtk/rel_enu ger gräsklipparens position i norr/öst relativ referensstation, mower_xy_global. Tänk på att göra öst till väst
+#referensstationen är satt som origo i ett fast globalt koordninatsystem på gräsmattan. y pekar norr, x pekar öst
+
 import numpy as np
 import calibration_offset
 
-yaw_angle = 0
-offset_angle = calibration_offset.get_offset_imu()
+
+#offset_angle = calibration_offset.get_offset()
 #offset_angle = calibration_offset.get_offset_odo
 
 
+def rotation_matrix(angle):
+    return np.array([
+        [np.cos(angle), -np.sin(angle)],
+        [np.sin(angle),  np.cos(angle)],
+    ])
+
+def pos_global_to_local(x_rtk,y_rtk, x_init_rtk,y_init_rtk,offset_angle):
+
+    translated = np.array([x_rtk,y_rtk]) - np.array([x_init_rtk,y_init_rtk])
+    rotated = np.dot(rotation_matrix(offset_angle),translated)  
+    pos_xy_local = rotated
+    return pos_xy_local[0],pos_xy_local[1]
+
+
+print(pos_global_to_local(6,2,3,3,np.pi))
+
+
+
+
+
+'''
 def rotation_matrix(angle):
     return np.array([
         [np.cos(angle), -np.sin(angle), 0],
@@ -50,23 +70,4 @@ def goal_global_to_local(x_goal,y_goal,x_start,y_start,offset_angle):      #tar 
 
 
 
-
-
-#-------------- If RTK doesn't work and we need to use robots GNSS --------------
-def convert_to_xy(lat, lon, lat_start, lon_start):
-    x = (lat - lat_start) * 111139
-    y = (lon - lon_start) * 111139
-    return x, y 
-
-def mower_gnss_to_global():
-    pass
-
-
-
-
-print(goal_local_to_global(5,0,3,4,0))
-print(goal_global_to_local(5,4,3,3,0))
-
-
-
-
+'''
