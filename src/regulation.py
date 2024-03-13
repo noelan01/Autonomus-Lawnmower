@@ -255,7 +255,7 @@ class Regulation():
         self.theta_2_meas_old = 0
 
         #RTK info
-        self.x_init_rtk, self.y_start_rtk = 0 #Get the first point from Noels node 
+        self.x_init_rtk, self.y_init_rtk = 0 #Get the first point from Noels node 
         self.offset_angle = calibration_offset.get_offset(0,0,0,0)   #input points from Noels node
         self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
 
@@ -375,7 +375,7 @@ class Regulation():
 
         print("THETA : ", self.theta)
 
-        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk,self.y_rtk,self.x_init_rtk,self.y_init_rtk,self.offset_angle )
+        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk,self.y_rtk,self.x_init_rtk,self.y_init_rtk,self.offset_angle)
 
 
 
