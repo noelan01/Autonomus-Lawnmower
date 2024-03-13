@@ -1,5 +1,10 @@
 hrp-p2z-open-dist/x86_64/lib/python3.8/site-packages/hqv_public_interface/msg/__pycache__/
 hrp-p2z-open-dist/x86_64/share/hrp_pkg/launch/__pycache__/
 hrp-p2z-open-dist/aarch64/lib/python3.8/site-packages/hqv_public_interface/msg/__pycache__/
+<<<<<<< HEAD
 **/__pycache__/
 /tests/data/
+=======
+**/__pycache__/
+/tests/data/
+>>>>>>> 8f9ee8d48f93ca51ec10f4fb443df752e8ebca0a
