@@ -211,8 +211,8 @@ class Regulation():
 
         # PID PARAMETERS
         self.Kp = 20
-        self.Ki = 5
-        self.Kd = 0.05
+        self.Ki = 0
+        self.Kd = 0
 
         #Put the sample time to the same as the update time of the drive publish node?
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -280,8 +280,8 @@ class Regulation():
         self.delta_x = self.delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(self.delta_xe-self.delta_xe_old)/self.Ts
         self.delta_y = self.delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(self.delta_ye-self.delta_ye_old)/self.Ts
         
-        print("PID: X: ", self.delta_x, "Y: ", self.delta_y)
-        print("")
+        #print("PID: X: ", self.delta_x, "Y: ", self.delta_y)
+        #print("")
         
         #Calculating delta_omega(k) and delta_S(k)
         self.delta_omega = cmath.asin((self.delta_x*math.sin(self.theta_old)-self.delta_y*math.cos(self.theta_old))/self.D).real

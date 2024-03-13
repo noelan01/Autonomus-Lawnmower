@@ -26,7 +26,7 @@ class Differential_Drive():
         # Init state
         self._x_init = 0
         self._y_init = 0
-        self._theta_init = 0
+        self._theta_init = -np.pi/2
 
         # Current state
         self._x = self._x_init
@@ -55,7 +55,7 @@ class Differential_Drive():
 
         # Dynamic steering
         self.speed_angle = np.pi/4
-        self.speed_gain = 1
+        self.speed_gain = 0.5
 
     
     """
@@ -98,8 +98,8 @@ class Differential_Drive():
         wheel_1_counter -= wheel_1_counter_init
 
         # Conversion to angle
-        theta_0_meas = wheel_0_counter*2*math.pi/self._PPR*-1   # MAYBE TAKE AWAY *-1 ??
-        theta_1_meas = wheel_1_counter*2*math.pi/self._PPR*-1   # MAYBE TAKE AWAY *-1 ??
+        theta_0_meas = wheel_0_counter*2*math.pi/self._PPR   # MAYBE TAKE AWAY *-1 ??
+        theta_1_meas = wheel_1_counter*2*math.pi/self._PPR   # MAYBE TAKE AWAY *-1 ??
         
         # Angle diff from previous step
         delta_theta_0 = theta_0_meas - self._theta_0_meas_prev
@@ -163,7 +163,6 @@ class Differential_Drive():
 
         print("LONG SPEED: ", long_speed, "ROTATIONAL: ", rotational_speed)
         print("")
-
         return long_speed, rotational_speed, theta_diff
 
 
@@ -172,8 +171,8 @@ class Differential_Drive():
         track = self._track
 
         vel = np.array([[longitudonal], [rotational]])
-        A = np.array([r/2,      r/2],
-                     [-r/track, r/track])
+        A = np.array([[r/2,      r/2],
+                     [-r/track, r/track]])
         
         phi_dot = np.linalg.inv(A) @ vel
 
@@ -187,16 +186,18 @@ class Differential_Drive():
     
 
     def convert_speed(self, wheel0, wheel1, theta_diff):
-        if wheel1 > wheel0:                         # Left turn
-            steering = (wheel1 - wheel0)/wheel1
-        else:                                       # Right turn
-            steering = -(wheel0 - wheel1)/wheel0
+        if (wheel0 or wheel1) == 0.0:
+            steering = 0
+        else:
+            if wheel1 > wheel0:                         # Left turn
+                steering = (wheel1 - wheel0)/wheel1
+            else:                                       # Right turn
+                steering = -(wheel0 - wheel1)/wheel0
 
-            speed = 0.5     # STATIC
-
-            speed = self.dynamic_speed(theta_diff)  # DYNAMIC
-
-            return speed, steering
+        speed = 0.2     # STATIC
+        #speed = self.dynamic_speed(theta_diff)  # DYNAMIC
+        
+        return speed, steering
         
     
     def dynamic_speed(self, theta_diff):
