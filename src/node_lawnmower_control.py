@@ -1,10 +1,8 @@
 import rclpy
-import threading
-import sys
+import threading    
 import tty
 import termios
 import signal
-import json
 import numpy as np
 
 from rclpy.node import Node
@@ -47,7 +45,7 @@ class Lawnmower_Control(Node):
         self._msg_drive = RemoteDriverDriveCommand()
 
         # other
-        self._update_rate = 10.0
+        self._update_rate = 40.0
         self._rtk_x = None
         self._rtk_y = None
         self._rtk_x_init = None
@@ -118,7 +116,7 @@ class Lawnmower_Control(Node):
         self._msg_drive.header.stamp = self.get_clock().now().to_msg()
 
         self._time_prev = self._time
-        self._time = self.get_clock().now()
+        self._time = self.get_clock().now().nanoseconds
 
         self._msg_drive.speed = speed
         self._msg_drive.steering = steering
