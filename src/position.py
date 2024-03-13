@@ -17,30 +17,30 @@ def simulation():
     L = (43/2+3.2/2)/100
     
     #Other variables
-    x = [0]
+    x = [9.15]
     y = [0]
     x_kalman = [0]
     y_kalman = [0]
 
-    theta =[0]
+    theta =[-math.pi/2]
     delta_x = [0]
     delta_y = [0]
     delta_xe = [0]
     delta_ye = [0]
 
-    x_ref = [0]
+    x_ref = [9.15]
     y_ref = [0]
 
-    x_base = [0]
+    x_base = [9.15]
     y_base = [0]
     x_base_kalman = [0]
     y_base_kalman = [0]
     x_error = [0]
     y_error = [0]
     theta_kalman =[0]
-    Kp = 20
-    Ki = 0
-    Kd = 0
+    Kp = 12
+    Ki = 11
+    Kd = 0.05
     Ts = 0.1
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -57,7 +57,8 @@ def simulation():
     err_sum_x = 0
     err_sum_y = 0
     s = [0]
-    test = [0]
+    tot_error = [0]
+
 
 
     delta_omega = [0]
@@ -76,9 +77,10 @@ def simulation():
     #print(Kp)
 
     for k in range(1,int(nrOfSteps)):
+        inc = 2*math.pi*k/nrOfSteps
         #Updating x_ref & y_ref
-        x_ref.append(x_ref[k-1]+math.cos(2*math.pi*1/nrOfSteps))
-        y_ref.append(y_ref[k-1]+math.sin(2*math.pi*1/nrOfSteps))
+        x_ref.append(9.15*math.cos(inc))
+        y_ref.append(9.15*math.sin(inc))
         
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
@@ -114,8 +116,8 @@ def simulation():
         rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.1,0.1)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
-        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts))
-        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts))
+        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
+        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts)+rand2)
 
         #Calculating the angular difference between the two samples
         delta_theta_1.append(theta_1_meas[k]-theta_1_meas[k-1])
@@ -152,14 +154,18 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
+        tot_error.append(math.sqrt(x_error[k]**2+y_error[k]**2))
         
-    print(x_ref)
+    print(dtheta1_dt)
     #print(s)
 
     plt.figure()
-    plt.plot(x,y)
+    plt.plot(x,y,label = "Actual trajectory")
+    plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    plt.legend(loc="upper left")
     plt.figure()
-    plt.plot(x_ref,y_ref)
+    plt.plot(tot_error,label="total error")
+    plt.legend(loc="upper left")
     plt.show()
 
 simulation()
