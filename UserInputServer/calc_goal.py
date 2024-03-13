@@ -40,7 +40,9 @@ def get_paint_order():
     shortside1_points = np.linspace(shortside1["start"], shortside1["end"], num_steps_shortside + 2)[0:]
 
     # Combine all points
-    points = np.concatenate([longside0_points, shortside0_points, longside1_points, shortside1_points])
+    # points = np.concatenate([longside0_points, shortside0_points, longside1_points, shortside1_points])
+
+    points = np.concatenate([longside0_points[0:300]])
     points = np.round(points, decimals=2)
 
 
