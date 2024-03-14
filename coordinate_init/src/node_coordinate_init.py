@@ -106,7 +106,6 @@ class Coordinate_Node(Node):
         self._msg_point1.data = [float(east), float(north)]
         self.point1_publisher.publish(self._msg_point1)
 
-
     def pub_point2(self, east, north):
         self._msg_point2.data = [float(east), float(north)]
         self.point2_publisher.publish(self._msg_point2)
@@ -118,7 +117,6 @@ class Coordinate_Node(Node):
     def pub_ongoing(self, ongoing):
         self._msg_ongoing.data = ongoing
         self.init_ongoing_publisher.publish(self._msg_ongoing)
-
 
     def pub_done(self, done):
         self._msg_done.data = done
