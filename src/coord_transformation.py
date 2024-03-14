@@ -1,7 +1,7 @@
 #referensstationen är satt som origo i ett fast globalt koordninatsystem på gräsmattan. y pekar norr, x pekar öst
 
 import numpy as np
-import calibration_offset
+#import calibration_offset
 
 
 #offset_angle = calibration_offset.get_offset()
@@ -22,7 +22,7 @@ def pos_global_to_local(x_rtk,y_rtk, x_init_rtk,y_init_rtk,offset_angle):
     return pos_xy_local[0],pos_xy_local[1]
 
 
-print(pos_global_to_local(6,2,3,3,np.pi))
+#print(pos_global_to_local(6,2,3,3,np.pi))
 
 
 

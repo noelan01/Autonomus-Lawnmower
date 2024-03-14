@@ -5,11 +5,10 @@ import tty
 import termios
 import signal
 from statistics import mean
+import numpy as np
 
 import node_coordinate_init
 coord_node = node_coordinate_init.Coordinate_Node()
-
-
 
 keep_going = True
 
@@ -98,6 +97,33 @@ class Points_Init():
 
     def is_done(self):
         return self._done
+
+#------------------------CALCULATE COORDINATE SYSTEMS OFFSET ANGLE-------------------------------------
+
+def get_offset(x_start_rtk,y_start_rtk,x_end_rtk,y_end_rtk): 
+    #---------EXCEPTIONS FOR SINGULARITIES----------
+    if x_end_rtk == x_start_rtk:
+        if y_start_rtk > y_end_rtk:
+            rtk_heading = np.pi
+        else:
+            rtk_heading = 0
+    elif y_end_rtk == y_start_rtk:
+        if x_start_rtk > x_end_rtk:
+            rtk_heading = 3*np.pi/2
+        else:
+            rtk_heading = np.pi/2
+    #-----------------------------
+    else: 
+        slope = (y_end_rtk-y_start_rtk) / (x_end_rtk-x_start_rtk)
+        if x_end_rtk>x_start_rtk:
+            rtk_heading = np.arctan2(1, slope) 
+        else:
+            rtk_heading = np.arctan2(1,slope) + np.pi 
+        
+    rtk_east = np.pi/2
+    offset_angle = rtk_heading-rtk_east
+    #print("RTK Heading: ", np.degrees(rtk_heading))
+    return offset_angle
     
 
 
@@ -140,6 +166,10 @@ def main():
 
             coord_node.pub_point1(east1, north1)
             coord_node.pub_point2(east2, north2)
+
+            angle_offset = get_offset(east1, north1, east2, north2)
+
+            coord_node.pub_rtk_angle_offset(angle_offset)
 
         coord_node.pub_done(points.is_done())
 

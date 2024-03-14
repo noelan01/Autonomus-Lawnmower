@@ -74,23 +74,22 @@ def main():
 
     measured_pos = {}
     ref_pos = {}
+    angle_offset = 0
 
     while rclpy.ok():
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
 
             if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
-                pos1 = drive_node.get_coord_init_pos1
-                pos2 = drive_node.get_coord_init_pos2
-                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
-                
-            else:
-                pass
+                pos1 = drive_node.get_coord_init_pos1()
+                pos2 = drive_node.get_coord_init_pos2()
+                print("Positions set. Pos1: ", pos1.data, "Pos2: ", pos2.data)
+
+                angle_offset = drive_node.get_rtk_angle_offset()
+                print("Angle_offset: ", angle_offset)
 
             rate = drive_node.get_rate()
             drive_node.drive(0.0, 0.0)
             rate.sleep()
-
-
 
         else:
             # Original regulator

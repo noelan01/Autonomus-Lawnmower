@@ -15,6 +15,7 @@ from hqv_public_interface.msg import MowerWheelCounter
 from hqv_public_interface.msg import MowerGnssPosAcc
 from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import Bool
+from std_msgs.msg import Float64
 
 rclpy.init(args=None)
 
@@ -51,8 +52,11 @@ class Lawnmower_Control(Node):
 
         self.coord_init_pos2_subscriber = self.create_subscription(Float64MultiArray, '/pos_init/position2', self.coord_init_pos2_callback, 10)
 
+        self.rtk_angle_offset_subscriber = self.create_subscription(Float64, '/pos_init/angle_offset', self.rtk_angle_offset_callback, 10)
+
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
+        self._msg_angle_offset = Float64()
 
         # other
         self._update_rate = 40.0
@@ -87,6 +91,8 @@ class Lawnmower_Control(Node):
         self._coord_init_pos1 = [0,0]
         self._coord_init_pos2 = [0,0]
 
+        self._rtk_angle_offset = 0
+
         """
             ADD INIT FLAGS FOR ALL INIT CALLBACKS
         """
@@ -111,7 +117,7 @@ class Lawnmower_Control(Node):
         self._rtk_x = rtk.east
         self._rtk_y = rtk.north
 
-        
+
     # GNSS
     def gnss_callback(self, gnss):
         if (self._gnss_x_init and self._gnss_y_init) is None:
@@ -179,7 +185,7 @@ class Lawnmower_Control(Node):
     def coord_init_ongoing_callback(self, msg):
         self._coord_init_ongoing = msg.data
 
-    def coord_init_done_callback(self, msg)
+    def coord_init_done_callback(self, msg):
         self._coord_init_done = msg.data
 
     def coord_init_pos1_callback(self, msg):
@@ -187,6 +193,9 @@ class Lawnmower_Control(Node):
 
     def coord_init_pos2_callback(self, msg):
         self._coord_init_pos2 = msg.data
+
+    def rtk_angle_offset_callback(self, msg):
+        self._rtk_angle_offset = msg.data
 
 
     ######   ######   #######   #######    ######    #######    ######
@@ -246,5 +255,7 @@ class Lawnmower_Control(Node):
     def get_coord_init_pos2(self):
         return self._coord_init_pos2
 
+    def get_rtk_angle_offset(self):
+        return self._rtk_angle_offset
     
     

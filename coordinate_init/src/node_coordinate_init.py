@@ -12,6 +12,7 @@ from hqv_public_interface.msg import MowerGnssPosition
 from hqv_public_interface.msg import MowerGnssPosAcc
 from std_msgs.msg import Float64MultiArray
 from std_msgs.msg import Bool
+from std_msgs.msg import Float64
 
 rclpy.init(args=None)
 
@@ -26,6 +27,8 @@ class Coordinate_Node(Node):
 
         self.init_ongoing_publisher = self.create_publisher(Bool, '/pos_init/ongoing', 100)
         self.init_done_publisher = self.create_publisher(Bool, '/pos_init/done', 100)
+
+        self.rtk_angle_offset_publisher = self.create_publisher(Float64, '/pos_init/angle_offset', 100)
 
         
         # Subscribers
@@ -42,6 +45,7 @@ class Coordinate_Node(Node):
         self._msg_point2 = Float64MultiArray()
         self._msg_ongoing = Bool()
         self._msg_done = Bool()
+        self._msg_angle_offset = Float64()
 
         self._update_rate = 1
 
@@ -107,6 +111,9 @@ class Coordinate_Node(Node):
         self._msg_point2.data = [float(east), float(north)]
         self.point2_publisher.publish(self._msg_point2)
 
+    def pub_rtk_angle_offset(self, angle):
+        self._msg_angle_offset.data = float(angle)
+        self.rtk_angle_offset_publisher.publish(self._msg_angle_offset)
 
     def pub_ongoing(self, ongoing):
         self._msg_ongoing.data = ongoing

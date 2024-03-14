@@ -11,7 +11,7 @@ state_estimation = kalman.EKF(0)
 
 import node_lawnmower_control 
 import coord_transformation
-import calibration_offset
+#import calibration_offset
 
 
 """
@@ -255,8 +255,10 @@ class Regulation():
         self.theta_2_meas_old = 0
 
         #RTK info
-        self.x_init_rtk, self.y_init_rtk = 0 #Get the first point from Noels node 
-        self.offset_angle = calibration_offset.get_offset(0,0,0,0)   #input points from Noels node
+        pos1 = self.drive_node.get_coord_init_pos1() #Get the first point from Noels node 
+        self.x_init_rtk = pos1[0]
+        self.y_init_rtk = pos1[1]
+        self.offset_angle = self.drive_node.get_rtk_angle_offset()
         self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
 
         self.PPR = 349
