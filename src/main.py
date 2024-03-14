@@ -79,11 +79,10 @@ def main():
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
 
             if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
-                pos1 = ...
-                pos2 = ...
-
+                pos1 = drive_node.get_coord_init_pos1
+                pos2 = drive_node.get_coord_init_pos2
                 print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
-
+                
             else:
                 pass
 
