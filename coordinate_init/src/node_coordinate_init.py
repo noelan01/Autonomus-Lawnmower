@@ -6,12 +6,12 @@ import signal
 import numpy as np
 
 from rclpy.node import Node
-from hqv_public_interface.msg   import MowerGnssRtkRelativePositionENU
-from hqv_public_interface.msg   import MowerImu
-from hqv_public_interface.msg   import MowerGnssPosition
-from hqv_public_interface.msg   import MowerGnssPosAcc
-from std_msgs.msg               import Float64MultiArray
-from std_msgs.msg               import Bool
+from hqv_public_interface.msg import MowerGnssRtkRelativePositionENU
+from hqv_public_interface.msg import MowerImu
+from hqv_public_interface.msg import MowerGnssPosition
+from hqv_public_interface.msg import MowerGnssPosAcc
+from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool
 
 rclpy.init(args=None)
 
@@ -24,7 +24,8 @@ class Coordinate_Node(Node):
         self.point1_publisher = self.create_publisher(Float64MultiArray, '/pos_init/position1', 100)
         self.point2_publisher = self.create_publisher(Float64MultiArray, '/pos_init/position2', 100)
 
-        self.init_publisher = self.create_publisher(Bool, '/pos_init/ongoing', 100)
+        self.init_ongoing_publisher = self.create_publisher(Bool, '/pos_init/ongoing', 100)
+        self.init_done_publisher = self.create_publisher(Bool, '/pos_init/done', 100)
 
         
         # Subscribers
@@ -40,8 +41,9 @@ class Coordinate_Node(Node):
         self._msg_point1 = Float64MultiArray()
         self._msg_point2 = Float64MultiArray()
         self._msg_ongoing = Bool()
+        self._msg_done = Bool()
 
-        self._update_rate = 2
+        self._update_rate = 1
 
         # RTK
         self._rtk_east = 0
@@ -108,7 +110,12 @@ class Coordinate_Node(Node):
 
     def pub_ongoing(self, ongoing):
         self._msg_ongoing.data = ongoing
-        self.init_publisher.publish(self._msg_ongoing)
+        self.init_ongoing_publisher.publish(self._msg_ongoing)
+
+
+    def pub_done(self, done):
+        self._msg_done.data = done
+        self.init_done_publisher.publish(self._msg_done)
 
     
 

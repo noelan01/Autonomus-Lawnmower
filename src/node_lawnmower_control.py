@@ -13,6 +13,8 @@ from hqv_public_interface.msg import MowerGnssPosition
 from hqv_public_interface.msg import MowerWheelSpeed
 from hqv_public_interface.msg import MowerWheelCounter
 from hqv_public_interface.msg import MowerGnssPosAcc
+from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool
 
 rclpy.init(args=None)
 
@@ -40,6 +42,14 @@ class Lawnmower_Control(Node):
         self.wheelcounter_0_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel0/counter', self.wheelcounter_0_callback, 10)
 
         self.wheelcounter_1_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel1/counter', self.wheelcounter_1_callback, 10)
+
+        self.coord_init_ongoing_subscriber = self.create_subscription(Bool, '/pos_init/ongoing', self.coord_init_ongoing_callback, 10)
+
+        self.coord_init_done_subscriber = self.create_subscription(Bool, '/pos_init/done', self.coord_init_done_callback, 10)
+
+        self.coord_init_pos1_subscriber = self.create_subscription(Float64MultiArray, '/pos_init/position1', self.coord_init_pos1_callback, 10)
+
+        self.coord_init_pos2_subscriber = self.create_subscription(Float64MultiArray, '/pos_init/position2', self.coord_init_pos2_callback, 10)
 
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
@@ -70,6 +80,12 @@ class Lawnmower_Control(Node):
         self._wheel0_init = 0
         self._wheel1_init = 0
         self._yaw_init_flag = 0
+
+        # Coordinate system init
+        self._coord_init_ongoing = True
+        self._coord_init_done = False
+        self._coord_init_pos1 = [0,0]
+        self._coord_init_pos2 = [0,0]
 
         """
             ADD INIT FLAGS FOR ALL INIT CALLBACKS
@@ -159,6 +175,19 @@ class Lawnmower_Control(Node):
             self._wheel1_init = 1
         self._wheelcounter1 = counter.counter
 
+    # Coordinate system init
+    def coord_init_ongoing_callback(self, msg):
+        self._coord_init_ongoing = msg.data
+
+    def coord_init_done_callback(self, msg)
+        self._coord_init_done = msg.data
+
+    def coord_init_pos1_callback(self, msg):
+        self._coord_init_pos1 = msg.data
+
+    def coord_init_pos2_callback(self, msg):
+        self._coord_init_pos2 = msg.data
+
 
     ######   ######   #######   #######    ######    #######    ######
     #        #           #         #       #         #     #    #
@@ -204,4 +233,18 @@ class Lawnmower_Control(Node):
     
     def get_updaterate(self):
         return self._update_rate
+
+    def get_coord_init_ongoing(self):
+        return self._coord_init_ongoing
+
+    def get_coord_init_done(self):
+        return self._coord_init_done
+
+    def get_coord_init_pos1(self):
+        return self._coord_init_pos1
+
+    def get_coord_init_pos2(self):
+        return self._coord_init_pos2
+
+    
     

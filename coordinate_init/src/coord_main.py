@@ -41,10 +41,12 @@ class Points_Init():
         elif key == 'a':
             print("Point 1:     east: ", east, "north: ", north)
             self.append_point(1, east, north)
+            self._done = False
 
         elif key == 'b':
             print("Point 2:     east: ", east, "north: ", north)
             self.append_point(2, east, north)
+            self._done = False
 
         elif key == 'e':
             print("erase points")
@@ -53,6 +55,7 @@ class Points_Init():
 
         elif key == 'q':
             print("QUIT COORD INIT")
+            self._done = True
             keep_going = False
 
 
@@ -66,10 +69,19 @@ class Points_Init():
 
 
     def point_mean(self):
-        east1 = mean(self._east_1_list)
-        north1 = mean(self._north_1_list)
-        east2 = mean(self._east_2_list)
-        north2 = mean(self._north_2_list)
+        if (len(self._east_1_list) and len(self._north_1_list)) >= 1:
+            east1 = mean(self._east_1_list)
+            north1 = mean(self._north_1_list)
+        else:
+            east1 = 0
+            north1 = 0
+
+        if (len(self._east_2_list) and len(self._north_2_list)) >= 1:
+            east2 = mean(self._east_2_list)
+            north2 = mean(self._north_2_list)
+        else:
+            east2 = 0
+            north2 = 0
 
         return east1, north1, east2, north2
     
@@ -128,6 +140,8 @@ def main():
 
             coord_node.pub_point1(east1, north1)
             coord_node.pub_point2(east2, north2)
+
+        coord_node.pub_done(points.is_done())
 
         rate.sleep
 

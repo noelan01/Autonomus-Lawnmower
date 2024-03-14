@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import node_lawnmower_control
+import regulation
 import signal
 import rclpy
 import threading
@@ -8,8 +9,6 @@ import numpy as np
 import json
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
-
-import regulation
 regulator = regulation.Regulation(drive_node)
 
 import differential_drive
@@ -76,23 +75,41 @@ def main():
     measured_pos = {}
     ref_pos = {}
 
-    while rclpy.ok():    # send drive commands to Lawnmower_Control node
-        # Original regulator
-        x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+    while rclpy.ok():
+        if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
 
-        # New regulator
-        #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
-        
-        print("TIME: ", time)
+            if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
+                pos1 = ...
+                pos2 = ...
 
-        # Data logging
-        measured_pos[time] = [x, y, theta]
-        ref_pos[time] = [next_point[0], next_point[1]]
+                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
 
-        # calc next ref point
-        next_point = goal(x_error, y_error)
+            else:
+                pass
+
+            rate = drive_node.get_rate()
+            drive_node.drive(0.0, 0.0)
+            rate.sleep()
+
+
+
+        else:
+            # Original regulator
+            x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+
+            # New regulator
+            #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
+            
+            print("TIME: ", time)
+
+            # Data logging
+            measured_pos[time] = [x, y, theta]
+            ref_pos[time] = [next_point[0], next_point[1]]
+
+            # calc next ref point
+            next_point = goal(x_error, y_error)
     
-    write_json(measured_pos, ref_pos)
+    #write_json(measured_pos, ref_pos)
 
     drive_node.destroy_node()
     print("End of main")
