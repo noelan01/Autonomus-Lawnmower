@@ -11,6 +11,7 @@ from hqv_public_interface.msg   import MowerImu
 from hqv_public_interface.msg   import MowerGnssPosition
 from hqv_public_interface.msg   import MowerGnssPosAcc
 from std_msgs.msg               import Float64MultiArray
+from std_msgs.msg               import Bool
 
 rclpy.init(args=None)
 
@@ -20,8 +21,11 @@ class Coordinate_Node(Node):
         super().__init__('Coordinate_node')
 
         # Publishers
-        self.point1_publisher = self.create_publisher(Float64MultiArray, '/pos/position1', 100)
-        self.point2_publisher = self.create_publisher(Float64MultiArray, '/pos/position2', 100)
+        self.point1_publisher = self.create_publisher(Float64MultiArray, '/pos_init/position1', 100)
+        self.point2_publisher = self.create_publisher(Float64MultiArray, '/pos_init/position2', 100)
+
+        self.init_publisher = self.create_publisher(Bool, '/pos_init/ongoing', 100)
+
         
         # Subscribers
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
@@ -32,24 +36,29 @@ class Coordinate_Node(Node):
                 
         self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
 
-        #self._msg_drive = RemoteDriverDriveCommand()
+        # msg
         self._msg_point1 = Float64MultiArray()
         self._msg_point2 = Float64MultiArray()
+        self._msg_ongoing = Bool()
 
         self._update_rate = 2
 
         # RTK
-        self._rtk_east = None
-        self._rtk_north = None
+        self._rtk_east = 0
+        self._rtk_north = 0
 
         # GNSS
-        self._gnss_long = None
-        self._gnss_lat = None
-        self._gnss_accuracy_horizontal = None
-        self._gnss_accuracy_vertical = None
+        self._gnss_long = 0
+        self._gnss_lat = 0
+        self._gnss_accuracy_horizontal = 0
+        self._gnss_accuracy_vertical = 0
 
         # IMU
         self._yaw = 0
+        self._yaw_init = 0
+
+        # Flags
+        self._yaw_init_flag = 0
 
 
     ######   ######   #        #        #####    ######   ######   #   ##   ######
@@ -75,24 +84,31 @@ class Coordinate_Node(Node):
         self._gnss_accuracy_vertical = accuracy.vertical
 
 
+    # IMU
+    def IMU_callback(self, imu):
+        if self._yaw_init_flag == 0:
+            self._yaw_init = imu.yaw
+            self._yaw_init_flag = 1
+        self._yaw = imu.yaw
+
+
     """
         Publishers
     """
 
-    def pub_point1(self, point):
-        self._msg_point1.header.stamp = self.get_clock().now().to_msg()
-
-        self._msg_point1.msg = point
-
+    def pub_point1(self, east, north):
+        self._msg_point1.data = [float(east), float(north)]
         self.point1_publisher.publish(self._msg_point1)
 
 
-    def pub_point2(self, point):
-        self._msg_point2.header.stamp = self.get_clock().now().to_msg()
-
-        self._msg_point2.msg = point
-
+    def pub_point2(self, east, north):
+        self._msg_point2.data = [float(east), float(north)]
         self.point2_publisher.publish(self._msg_point2)
+
+
+    def pub_ongoing(self, ongoing):
+        self._msg_ongoing.data = ongoing
+        self.init_publisher.publish(self._msg_ongoing)
 
     
 

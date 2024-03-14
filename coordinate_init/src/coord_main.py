@@ -9,18 +9,24 @@ from statistics import mean
 import node_coordinate_init
 coord_node = node_coordinate_init.Coordinate_Node()
 
+
+
 keep_going = True
 
 
-class Points():
+class Points_Init():
     def __init__(self):
-        self._east_1 = []
-        self._north_1 = []
-        self._east_2 = []
-        self._north_2 = []
+        self._east_1_list = []
+        self._north_1_list = []
+        self._east_2_list = []
+        self._north_2_list = []
 
-        self._point1 = 0
-        self._point2 = 0
+        self._east1 = 0
+        self._north1 = 0 
+        self._east2 = 0
+        self._north2 = 0
+
+        self._done = False
 
 
     def point_set(self, east, north):
@@ -29,19 +35,21 @@ class Points():
 
         if key == 'd':
             print("done")
-            self._point1, self._point2 = self.point_mean()
+            self._east1, self._north1, self._east2, self._north2 = self.point_mean()
+            self._done = True
             
         elif key == 'a':
-            print("east: ", east, "north: ", north)
+            print("Point 1:     east: ", east, "north: ", north)
             self.append_point(1, east, north)
 
         elif key == 'b':
-            print("east: ", east, "north: ", north)
+            print("Point 2:     east: ", east, "north: ", north)
             self.append_point(2, east, north)
 
         elif key == 'e':
             print("erase points")
             self.clear_points()
+            self._done = False
 
         elif key == 'q':
             print("QUIT COORD INIT")
@@ -50,29 +58,34 @@ class Points():
 
     def append_point(self, point, east, north):
         if point == 1:
-            self._east_1.append(east)
-            self._north_1.append(north)
+            self._east_1_list.append(east)
+            self._north_1_list.append(north)
         elif point == 2:
-            self._east_2.append(east)
-            self._north_2.append(north)
+            self._east_2_list.append(east)
+            self._north_2_list.append(north)
 
 
     def point_mean(self):
-        point1 = [mean(self._east_1), mean(self._north_1)]
-        point2 = [mean(self._east_2), mean(self._north_2)]
+        east1 = mean(self._east_1_list)
+        north1 = mean(self._north_1_list)
+        east2 = mean(self._east_2_list)
+        north2 = mean(self._north_2_list)
 
-        return point1, point2
+        return east1, north1, east2, north2
     
 
     def clear_points(self):
-        self._east_1 = []
-        self._north_1 = []
-        self._east_2 = []
-        self._north_2 = []
+        self._east_1_list = []
+        self._north_1_list = []
+        self._east_2_list = []
+        self._north_2_list = []
 
 
     def get_points(self):
-        return self._point1, self._point2
+        return self._east1, self._north1, self._east2, self._north2
+
+    def is_done(self):
+        return self._done
     
 
 
@@ -93,6 +106,8 @@ def ctrlc_shutdown(sig, frame):
 
 
 def main():
+    points = Points_Init()
+
     signal.signal(signal.SIGINT, ctrlc_shutdown)
 
     thread = threading.Thread(target=rclpy.spin, args=(coord_node,))
@@ -101,22 +116,26 @@ def main():
     rate = coord_node.get_rate()
     rate.sleep()
 
-
-    print("q - quit\na - point 1\nb - point 2\ne - erase points")
+    print("q - quit\ne - erase points\nd - done\na - point 1\nb - point 2\n")
     while keep_going:
+        coord_node.pub_ongoing(True)
 
-        east, north = coord_node.get_rtk()    
-        Points.point_set(east, north)
+        east, north = coord_node.get_rtk()
+        points.point_set(east, north)
 
-        point1, point2 = Points.get_points()
+        if points.is_done() == True:
+            east1, north1, east2, north2 = points.get_points()
 
-        coord_node.pub_point1(point1)
-        coord_node.pub_point2(point2)
+            coord_node.pub_point1(east1, north1)
+            coord_node.pub_point2(east2, north2)
 
         rate.sleep
 
+    coord_node.pub_ongoing(False)
+
     coord_node.destroy_node()
     print("End of coordinate node")
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

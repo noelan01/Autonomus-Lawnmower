@@ -1,10 +1,50 @@
-hrp-p2z-open-dist/x86_64/lib/python3.8/site-packages/hqv_public_interface/msg/__pycache__/
-hrp-p2z-open-dist/x86_64/share/hrp_pkg/launch/__pycache__/
-hrp-p2z-open-dist/aarch64/lib/python3.8/site-packages/hqv_public_interface/msg/__pycache__/
-<<<<<<< HEAD
-**/__pycache__/
-/tests/data/
-=======
-**/__pycache__/
-/tests/data/
->>>>>>> 8f9ee8d48f93ca51ec10f4fb443df752e8ebca0a
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Rope
+.ropeproject
+
+# Django stuff:
+*.log
+*.pot
+
+# Sphinx documentation
+docs/_build/
