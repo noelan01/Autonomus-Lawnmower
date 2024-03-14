@@ -10,6 +10,8 @@ import kalman
 state_estimation = kalman.EKF(0)
 
 import node_lawnmower_control 
+import coord_transformation
+import calibration_offset
 
 
 """
@@ -252,6 +254,11 @@ class Regulation():
         self.theta_1_meas_old = 0
         self.theta_2_meas_old = 0
 
+        #RTK info
+        self.x_init_rtk, self.y_init_rtk = 0 #Get the first point from Noels node 
+        self.offset_angle = calibration_offset.get_offset(0,0,0,0)   #input points from Noels node
+        self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
+
         self.PPR = 349
 
         self.steering_prev = 0
@@ -367,6 +374,10 @@ class Regulation():
         self.theta = self.theta + self.delta_theta
 
         print("THETA : ", self.theta)
+
+        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk,self.y_rtk,self.x_init_rtk,self.y_init_rtk,self.offset_angle)
+
+
 
             #Variables to the Kalman function
             #Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
