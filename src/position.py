@@ -5,42 +5,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cmath
 import random
+import path_planner
+path = path_planner.Path()
     
 #Importing the Kalman filter code
 import kalman
 state_estimation = kalman.EKF(0)
 
+#This is the code that simulates the lawnmower
 def simulation():
     #Starting with defining variables of the robot
-    D = 0.4
     r = 0.752/(2*math.pi)
     L = (43/2+3.2/2)/100
+    D = 0.4
     
     #Other variables
-    x = [9.15]
+    x = [0]
     y = [0]
     x_kalman = [0]
     y_kalman = [0]
 
-    theta =[-math.pi/2]
+    theta =[-math.pi]
     delta_x = [0]
     delta_y = [0]
     delta_xe = [0]
     delta_ye = [0]
 
-    x_ref = [9.15]
+    x_ref = [0]
     y_ref = [0]
 
-    x_base = [9.15]
-    y_base = [0]
+    x_base = [D*math.cos(theta[0])]
+    y_base = [D*math.sin(theta[0])]
     x_base_kalman = [0]
     y_base_kalman = [0]
     x_error = [0]
     y_error = [0]
     theta_kalman =[0]
-    Kp = 12
-    Ki = 11
-    Kd = 0.05
+    Kp = 15
+    Ki = 10
+    Kd = 0.01
     Ts = 0.1
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -57,7 +60,7 @@ def simulation():
     err_sum_x = 0
     err_sum_y = 0
     s = [0]
-    tot_error = [0]
+    tot_error = 0
 
 
 
@@ -71,25 +74,51 @@ def simulation():
     
     
     #Defining simulation time
-    simTime = 400
-    nrOfSteps = simTime/Ts
+    simTime = 20
+    nrOfSteps = int(simTime/Ts)
+    
 
-    #print(Kp)
+    #Set path. Add multiple paths to get certain geometries
+    path.set_path(0, 0, 90, 0, nrOfSteps) #(x_0,y_0,x,y,ppm)
+    path.set_path(90, 0, 90, 120, nrOfSteps)
+    path.set_path(90,120,0,120,nrOfSteps)
+    path.set_path(0,120,0,0,nrOfSteps)
 
-    for k in range(1,int(nrOfSteps)):
-        inc = 2*math.pi*k/nrOfSteps
-        #Updating x_ref & y_ref
-        x_ref.append(9.15*math.cos(inc))
-        y_ref.append(9.15*math.sin(inc))
-        
+    #Defining the reached goal variable to false to begin the simulation
+    reached_goal = False
+
+    #The first iteration of the while loop, k needs to equal 1
+    k = 1
+    #Vector of simulation time used for plots
+    t = np.linspace(0,simTime,len(path._path))
+
+    while reached_goal == False:
+        #For circular path
+        #inc = 2*math.pi*k/nrOfSteps
+        #x_ref.append(9.15*math.cos(inc))
+        #y_ref.append(9.15*math.sin(inc))
+
+        #Updating the point when we are close enough to the previous point
+        if tot_error <0.1:
+            path.update_point()
+
+        next_point = path.get_point()
+        x_ref.append(next_point[0])
+        y_ref.append(next_point[1])
+
+        #When there are no more points in the path planner list, we end the simulation
+        if next_point[0] == None or next_point[1] == None:
+            reached_goal = True
+            break
+
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
 
         err_sum_x = err_sum_x + delta_xe[k]
         err_sum_y = err_sum_y + delta_ye[k] 
-
-        #Increasing the error with the proportional gain
+        
+        #Increasing the error with the PID-controller
         delta_x.append(delta_xe[k]*Kp+Ki*Ts*err_sum_x+Kd*(delta_xe[k]-delta_xe[k-1])/Ts)
         delta_y.append(delta_ye[k]*Kp+Ki*Ts*err_sum_y+Kd*(delta_ye[k]-delta_ye[k-1])/Ts)
 
@@ -102,18 +131,31 @@ def simulation():
         delta_omega2.append(1/r*(delta_S[k]-L*delta_omega[k]))
         
         #Calculating the needed angular velocity of each wheel
+
         dtheta1_dt.append(-1*(delta_omega1[k]))
         dtheta2_dt.append(-1*(delta_omega2[k]))
 
+
+        #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
+        if dtheta1_dt[k]>6.5:
+            dtheta1_dt[k] = 6.5
+        elif dtheta1_dt[k]<-6.5:
+            dtheta1_dt[k] = -6.5
+        if dtheta2_dt[k]>6.5:
+            dtheta2_dt[k] =6.5
+        elif dtheta2_dt[k]<-6.5:
+            dtheta2_dt[k] = -6.5
+            
+        #Calculating the steering variable to see the output
         s.append((dtheta1_dt[k]-dtheta2_dt[k])/dtheta1_dt[k])
 
-        #Converting to linear and angular movement of the robot
+        #Converting to linear and angular movement of the robot to use in the Kalman filter
         lin_vel.append(r/2*(dtheta1_dt[k]+dtheta2_dt[k]))
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.1,0.1)
-        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.1,0.1)
+        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
+        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
         theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
@@ -154,18 +196,30 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
-        tot_error.append(math.sqrt(x_error[k]**2+y_error[k]**2))
+        tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
+        k += 1
         
-    print(dtheta1_dt)
+    print(lin_vel)
     #print(s)
 
     plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
     plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
+    plt.title("Trajectory following")
+    plt.legend(loc="upper left")
+    plt.xlabel("x [m]")
+    plt.ylabel("y [m]")
+    plt.figure()
+    #plt.plot(t,tot_error,label="Total error")
+    plt.title("Error measurement")
+    plt.xlabel("Simulation time [s]")
+    plt.ylabel("Total error [m]")
     plt.legend(loc="upper left")
     plt.figure()
-    plt.plot(tot_error,label="total error")
-    plt.legend(loc="upper left")
+    plt.plot(theta)
+    plt.ylabel("Theta [rad]")
+    plt.xlabel("Number of samples")
     plt.show()
 
 simulation()
