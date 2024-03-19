@@ -1,10 +1,8 @@
 import rclpy
-import threading
-import sys
+import threading    
 import tty
 import termios
 import signal
-import json
 import numpy as np
 
 from rclpy.node import Node
@@ -15,6 +13,9 @@ from hqv_public_interface.msg import MowerGnssPosition
 from hqv_public_interface.msg import MowerWheelSpeed
 from hqv_public_interface.msg import MowerWheelCounter
 from hqv_public_interface.msg import MowerGnssPosAcc
+from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Bool
+from std_msgs.msg import Float64
 
 rclpy.init(args=None)
 
@@ -43,11 +44,22 @@ class Lawnmower_Control(Node):
 
         self.wheelcounter_1_subscriber = self.create_subscription(MowerWheelCounter, '/hqv_mower/wheel1/counter', self.wheelcounter_1_callback, 10)
 
+        self.coord_init_ongoing_subscriber = self.create_subscription(Bool, '/pos_init/ongoing', self.coord_init_ongoing_callback, 10)
+
+        self.coord_init_done_subscriber = self.create_subscription(Bool, '/pos_init/done', self.coord_init_done_callback, 10)
+
+        self.coord_init_pos1_subscriber = self.create_subscription(Float64MultiArray, '/pos_init/position1', self.coord_init_pos1_callback, 10)
+
+        self.coord_init_pos2_subscriber = self.create_subscription(Float64MultiArray, '/pos_init/position2', self.coord_init_pos2_callback, 10)
+
+        self.rtk_angle_offset_subscriber = self.create_subscription(Float64, '/pos_init/angle_offset', self.rtk_angle_offset_callback, 10)
+
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
+        self._msg_angle_offset = Float64()
 
         # other
-        self._update_rate = 10.0
+        self._update_rate = 40.0
         self._rtk_x = None
         self._rtk_y = None
         self._rtk_x_init = None
@@ -65,8 +77,25 @@ class Lawnmower_Control(Node):
         
         self._wheelcounter0 = 0
         self._wheelcounter1 = 0
-        self._wheelcounter0_init = None
-        self._wheelcounter1_init = None
+        self._wheelcounter0_init = 0
+        self._wheelcounter1_init = 0
+
+        # init flags
+        self._wheel0_init = 0
+        self._wheel1_init = 0
+        self._yaw_init_flag = 0
+
+        # Coordinate system init
+        self._coord_init_ongoing = True
+        self._coord_init_done = False
+        self._coord_init_pos1 = [0,0]
+        self._coord_init_pos2 = [0,0]
+
+        self._rtk_angle_offset = 0
+
+        """
+            ADD INIT FLAGS FOR ALL INIT CALLBACKS
+        """
 
         self._time = 0
         self._time_prev = 0
@@ -88,7 +117,7 @@ class Lawnmower_Control(Node):
         self._rtk_x = rtk.east
         self._rtk_y = rtk.north
 
-        
+
     # GNSS
     def gnss_callback(self, gnss):
         if (self._gnss_x_init and self._gnss_y_init) is None:
@@ -109,7 +138,7 @@ class Lawnmower_Control(Node):
         self._msg_drive.header.stamp = self.get_clock().now().to_msg()
 
         self._time_prev = self._time
-        self._time = self.get_clock().now()
+        self._time = self.get_clock().now().nanoseconds
 
         self._msg_drive.speed = speed
         self._msg_drive.steering = steering
@@ -124,8 +153,9 @@ class Lawnmower_Control(Node):
 
     # IMU
     def IMU_callback(self, imu):
-        if self._yaw_init == 0:
+        if self._yaw_init_flag == 0:
             self._yaw_init = imu.yaw
+            self._yaw_init_flag = 1
         self._yaw = imu.yaw
 
 
@@ -139,14 +169,33 @@ class Lawnmower_Control(Node):
     
     # Wheelcounters
     def wheelcounter_0_callback(self, counter):
-        if self._wheelcounter0_init == None:
+        if self._wheel0_init == 0:
             self._wheelcounter0_init = counter.counter
+            self._wheel0_init = 1
+            
         self._wheelcounter0 = counter.counter
         
     def wheelcounter_1_callback(self, counter):
-        if self._wheelcounter1_init == None:
+        if self._wheel1_init == 0:
             self._wheelcounter1_init = counter.counter
+            self._wheel1_init = 1
         self._wheelcounter1 = counter.counter
+
+    # Coordinate system init
+    def coord_init_ongoing_callback(self, msg):
+        self._coord_init_ongoing = msg.data
+
+    def coord_init_done_callback(self, msg):
+        self._coord_init_done = msg.data
+
+    def coord_init_pos1_callback(self, msg):
+        self._coord_init_pos1 = msg.data
+
+    def coord_init_pos2_callback(self, msg):
+        self._coord_init_pos2 = msg.data
+
+    def rtk_angle_offset_callback(self, msg):
+        self._rtk_angle_offset = msg.data
 
 
     ######   ######   #######   #######    ######    #######    ######
@@ -155,7 +204,7 @@ class Lawnmower_Control(Node):
     #    #   #           #         #       #         # ##            #
     ######   ######      #         #       ######    #   ##     ######
 
-    # Kalla på dessa för att komma åt ros data från andra filer
+    # Getters are used to get the latest data from ROS topics
     # ex: yaw = drive_node.get_yaw()
 
     def get_rate(self):
@@ -190,4 +239,23 @@ class Lawnmower_Control(Node):
     
     def get_time(self):
         return self._time_prev, self._time
+    
+    def get_updaterate(self):
+        return self._update_rate
+
+    def get_coord_init_ongoing(self):
+        return self._coord_init_ongoing
+
+    def get_coord_init_done(self):
+        return self._coord_init_done
+
+    def get_coord_init_pos1(self):
+        return self._coord_init_pos1
+
+    def get_coord_init_pos2(self):
+        return self._coord_init_pos2
+
+    def get_rtk_angle_offset(self):
+        return self._rtk_angle_offset
+    
     
