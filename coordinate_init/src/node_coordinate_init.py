@@ -40,7 +40,7 @@ class Coordinate_Node(Node):
                 
         self.IMU_subscriber = self.create_subscription(MowerImu, '/hqv_mower/imu0/orientation', self.IMU_callback, 10)
 
-        # msg
+        # msgs
         self._msg_point1 = Float64MultiArray()
         self._msg_point2 = Float64MultiArray()
         self._msg_ongoing = Bool()
@@ -98,9 +98,12 @@ class Coordinate_Node(Node):
         self._yaw = imu.yaw
 
 
-    """
-        Publishers
-    """
+    ######   #    #   #####    #        #   ######   #    #   ######   ######   ######
+    #    #   #    #   #    #   #        #   #        #    #   #        #    #   #
+    ######   #    #   #####    #        #   ######   ######   ###      ######   ######
+    #        #    #   #    #   #        #        #   #    #   #        # ##          #
+    #        ######   #####    ######   #   ######   #    #   ######   #   ##   ######
+        
 
     def pub_point1(self, east, north):
         self._msg_point1.data = [float(east), float(north)]
