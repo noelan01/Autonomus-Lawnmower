@@ -32,7 +32,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 0.1:
+    if total_error < 1:
         path.update_point()
     
     point = path.get_point()
@@ -65,8 +65,8 @@ def main():
     rate.sleep()
     
     # set ref path
-    #path.set_path(-0.4, 0, 2, 0, 100)      # (x_0, y_0, x_n, y_n, ppm)
-    path.set_circle_path(1, (-1,0.4), 500)
+    path.set_path(0, 0, 10, 0, 2)      # (x_0, y_0, x_n, y_n, ppm)
+    #path.set_circle_path(1, (-1,0.4), 500)
 
     
     next_point = path.get_point()
@@ -77,12 +77,12 @@ def main():
     angle_offset = 0
 
     while rclpy.ok():
+        
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
-
             if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
                 pos1 = drive_node.get_coord_init_pos1()
                 pos2 = drive_node.get_coord_init_pos2()
-                print("Positions set. Pos1: ", pos1.data, "Pos2: ", pos2.data)
+                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
 
                 angle_offset = drive_node.get_rtk_angle_offset()
                 print("Angle_offset: ", angle_offset)
@@ -92,6 +92,7 @@ def main():
             rate.sleep()
 
         else:
+            print("-----------------------------------------------")
             # Original regulator
             x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
 
