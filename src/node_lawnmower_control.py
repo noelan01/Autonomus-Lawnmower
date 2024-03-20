@@ -60,16 +60,16 @@ class Lawnmower_Control(Node):
 
         # other
         self._update_rate = 40.0
-        self._rtk_x = None
-        self._rtk_y = None
-        self._rtk_x_init = None
-        self._rtk_y_init = None
-        self._gnss_x = None
-        self._gnss_y = None
-        self._gnss_x_init = None
-        self._gnss_y_init = None
-        self._gnss_accuracy_horizontal = None
-        self._gnss_accuracy_vertical = None
+        self._rtk_x = 0
+        self._rtk_y = 0
+        self._rtk_x_init = 0
+        self._rtk_y_init = 0
+        self._gnss_x = 0
+        self._gnss_y = 0
+        self._gnss_x_init = 0
+        self._gnss_y_init = 0
+        self._gnss_accuracy_horizontal = 0
+        self._gnss_accuracy_vertical = 0
         self._yaw_init = 0
         
         self._wheelspeed0 = 0

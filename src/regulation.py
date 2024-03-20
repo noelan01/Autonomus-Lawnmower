@@ -158,7 +158,7 @@ class Regulation():
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
         #steering_scale = abs(self.steering - 2) / (2 * 2)
 
-        speed = 0.2
+        speed = 1.0
         
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
@@ -211,7 +211,7 @@ class Regulation():
 
         print("THETA : ", self.theta)
 
-        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk,self.y_rtk,self.x_init_rtk,self.y_init_rtk,self.offset_angle)
+        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk, self.y_rtk, self.x_init_rtk, self.y_init_rtk, self.offset_angle)
 
 
 
@@ -228,12 +228,14 @@ class Regulation():
             #theta_kalman.append(state[2].item())
 
         #Updating the chalking mechanism position
-        self.x = self.x_base - self.D*math.cos(self.theta)
-        self.y = self.y_base - self.D*math.sin(self.theta) 
+        x = self.x_base - self.D*math.cos(self.theta)
+        y = self.y_base - self.D*math.sin(self.theta)
 
-        print("X: ", self.x, "  Y: ", self.y)
-        print("")
-        print("")
+        self.x = self.x_rotated_rtk - self.D*math.cos(self.theta)
+        self.y = self.y_rotated_rtk - self.D*math.sin(self.theta)
+
+        print("RTK X: ", self.x, "  Y: ", self.y)
+        print("ODOMETRY X: ", x, "  Y: ", y)
         print("")
 
             #x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k]))
