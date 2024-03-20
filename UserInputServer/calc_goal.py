@@ -70,47 +70,49 @@ def get_paint_order(full_pitch):
     plt.grid(True)
     plt.show()
 
-
-def generate_route(radius, points_per_meter, midpoint, startpoint):
+def generate_route(radius, points_per_meter, midpoint_x, midpoint_y, start_angle):
     num_points = int(2 * np.pi * radius * points_per_meter)
     theta = np.linspace(0, 2*np.pi, num_points)
-    x = midpoint[0] + radius * np.cos(theta)
-    y = midpoint[1] + radius * np.sin(theta)
+    x = midpoint_x + radius * np.cos(theta)
+    y = midpoint_y + radius * np.sin(theta)
 
-    # Calculate the distance between the startpoint and each point on the circle
-    distances = np.sqrt((x - startpoint[0])**2 + (y - startpoint[1])**2)
+    # Find the index of the point on the circle closest to the start angle
+    start_index = np.argmin(np.abs(theta - start_angle))
 
-    # Find the index of the point on the circle closest to the startpoint
-    start_index = np.argmin(distances)
-
-    # Shift the x and y coordinates to start from the chosen startpoint
+    # Shift the x and y coordinates to start from the chosen start angle
     x = np.roll(x, -start_index)
     y = np.roll(y, -start_index)
 
-    return x, y
+    # Return the points as a list of tuples
+    return [(xi, yi) for xi, yi in zip(x, y)]
 
 # Parameters
 radius = 9.15  # radius of the circle
-points_per_meter = 1  # number of points per meter on the circle
-midpoint = (0, 0)  # midpoint at the center of the circle
-startpoint = (radius, 0)  # start point on the outline of the circle
+points_per_meter = 100  # number of points per meter on the circle
+midpoint_x, midpoint_y = 0, 0  # x and y coordinates of the midpoint
+start_angle = np.pi / 2  # angle in radians for the start point (90 degrees)
 
 # Generate route
-x, y = generate_route(radius, points_per_meter, midpoint, startpoint)
+points = generate_route(radius, points_per_meter, midpoint_x, midpoint_y, start_angle)
 
 # Plot the circle and the route
-plt.plot(x, y, label='Route', marker='.')
-circle = plt.Circle(midpoint, radius, color='r', fill=False, label='Circle')
+x, y = zip(*points)  # Unzipping the points into separate x and y coordinates
+plt.plot(x, y, label='Route')
+circle = plt.Circle((midpoint_x, midpoint_y), radius, color='r', fill=False, label='Circle')
 plt.gca().add_artist(circle)
-plt.scatter(*midpoint, color='g', label='Midpoint')
-plt.scatter(*startpoint, color='b', label='Startpoint')
-plt.axis('equal')
+plt.scatter(midpoint_x, midpoint_y, color='g', label='Midpoint')
+plt.scatter(x[0], y[0], color='b', label='Startpoint')
+plt.gca().set_aspect('equal')  # Set aspect ratio to be equal
+plt.xlim(midpoint_x - radius - 1, midpoint_x + radius + 1)  # Adjust x-axis limits
+plt.ylim(midpoint_y - radius - 1, midpoint_y + radius + 1)  # Adjust y-axis limits
 plt.xlabel('X')
 plt.ylabel('Y')
 plt.title('Route Planning for Circle')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+
 
 
 get_paint_order(full_pitch=False)
