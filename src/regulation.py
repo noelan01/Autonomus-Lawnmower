@@ -28,7 +28,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = - np.pi/2
+        self.theta = - np.pi
         self.delta_x = 0
         self.delta_y = 0
         self.delta_xe = 0
@@ -158,7 +158,7 @@ class Regulation():
         self.steering = (self.dtheta1_dt-self.dtheta2_dt)/self.dtheta1_dt
         #steering_scale = abs(self.steering - 2) / (2 * 2)
 
-        speed = 1.0
+        speed = 0.5
         
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
@@ -211,8 +211,13 @@ class Regulation():
 
         print("THETA : ", self.theta)
 
-        self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk, self.y_rtk, self.x_init_rtk, self.y_init_rtk, self.offset_angle)
+        self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
+        self.offset_angle = self.drive_node.get_rtk_angle_offset()
+        print("rkt: x:", self.x_rtk, "y: ", self.y_rtk)
+        print("offset angle: ", self.offset_angle)
 
+        self.x_rotated_rtk, self.y_rotated_rtk = pos_global_to_local(self.x_rtk, self.y_rtk, self.x_init_rtk, self.y_init_rtk, self.offset_angle)
+        print(self.x_rotated_rtk, self.y_rotated_rtk)
 
 
             #Variables to the Kalman function
@@ -234,7 +239,7 @@ class Regulation():
         self.x = self.x_rotated_rtk - self.D*math.cos(self.theta)
         self.y = self.y_rotated_rtk - self.D*math.sin(self.theta)
 
-        print("RTK X: ", self.x, "  Y: ", self.y)
+        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
         print("ODOMETRY X: ", x, "  Y: ", y)
         print("")
 
@@ -280,3 +285,18 @@ class Regulation():
             steering = -2.0
 
         return float(speed), float(steering)
+    
+def rotation_matrix(angle):
+    return np.array([
+        [np.cos(angle), -np.sin(angle)],
+        [np.sin(angle),  np.cos(angle)],
+    ])
+    
+
+def pos_global_to_local(x_rtk,y_rtk, x_init_rtk,y_init_rtk,offset_angle):
+
+    translated = np.array([x_rtk,y_rtk]) - np.array([x_init_rtk,y_init_rtk])
+    print(translated)
+    rotated = np.dot(rotation_matrix(offset_angle),translated)  
+    pos_xy_local = rotated
+    return pos_xy_local[0],pos_xy_local[1]

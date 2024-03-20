@@ -1,5 +1,8 @@
 #!/bin/bash
 
+killall main
+killall hrp
+
 #enable can UNCOMMENT
 #print("ENABLING CAN \n")
 sudo ip link set can0 up type can bitrate 1000000
