@@ -211,6 +211,9 @@ class Regulation():
 
         print("THETA : ", self.theta)
 
+        # Update RTK pos
+        self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
+
         self.x_rotated_rtk, self.y_rotated_rtk = coord_transformation.pos_global_to_local(self.x_rtk, self.y_rtk, self.x_init_rtk, self.y_init_rtk, self.offset_angle)
 
 
