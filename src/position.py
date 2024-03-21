@@ -34,8 +34,8 @@ def simulation():
     x_ref = [0]
     y_ref = [0]
 
-    x_base = [D*math.cos(theta[0])]
-    y_base = [D*math.sin(theta[0])]
+    x_base = [0]
+    y_base = [0]
     x_base_kalman = [0]
     y_base_kalman = [0]
     x_error = [0]
@@ -74,7 +74,7 @@ def simulation():
     
     
     #Defining simulation time
-    simTime = 20
+    simTime = 10
     nrOfSteps = int(simTime/Ts)
     
 
@@ -99,8 +99,7 @@ def simulation():
         #y_ref.append(9.15*math.sin(inc))
 
         #Updating the point when we are close enough to the previous point
-        if tot_error <0.1:
-            path.update_point()
+        path.update_point()
 
         next_point = path.get_point()
         x_ref.append(next_point[0])
@@ -135,7 +134,6 @@ def simulation():
         dtheta1_dt.append(-1*(delta_omega1[k]))
         dtheta2_dt.append(-1*(delta_omega2[k]))
 
-
         #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
         if dtheta1_dt[k]>6.5:
             dtheta1_dt[k] = 6.5
@@ -154,8 +152,8 @@ def simulation():
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
-        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
+        rand1 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
+        rand2 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
         theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
