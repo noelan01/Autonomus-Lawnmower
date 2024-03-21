@@ -22,7 +22,7 @@ def pos_global_to_local(x_rtk,y_rtk, x_init_rtk,y_init_rtk,offset_angle):
     return pos_xy_local[0],pos_xy_local[1]
 
 
-#print(pos_global_to_local(6,2,3,3,np.pi))
+#print(pos_global_to_local(-8.47,-4.79,-5.97,-1.66,2.22))
 
 
 
