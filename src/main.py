@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import node_lawnmower_control
+import regulation
 import signal
 import rclpy
 import threading
@@ -8,8 +9,6 @@ import numpy as np
 import json
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
-
-import regulation
 regulator = regulation.Regulation(drive_node)
 
 import differential_drive
@@ -33,7 +32,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 0.1:
+    if total_error < 1:
         path.update_point()
     
     point = path.get_point()
@@ -66,8 +65,8 @@ def main():
     rate.sleep()
     
     # set ref path
-    #path.set_path(-0.4, 0, 2, 0, 100)      # (x_0, y_0, x_n, y_n, ppm)
-    path.set_circle_path(1, (-1,0.4), 500)
+    path.set_path(0.5, 0, 10, 0, 2)      # (x_0, y_0, x_n, y_n, ppm)
+    #path.set_circle_path(1, (-1,0.4), 500)
 
     
     next_point = path.get_point()
@@ -75,24 +74,42 @@ def main():
 
     measured_pos = {}
     ref_pos = {}
+    angle_offset = 0
 
-    while rclpy.ok():    # send drive commands to Lawnmower_Control node
-        # Original regulator
-        x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
-
-        # New regulator
-        #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
+    while rclpy.ok():
         
-        print("TIME: ", time)
+        if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
+            if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
+                pos1 = drive_node.get_coord_init_pos1()
+                pos2 = drive_node.get_coord_init_pos2()
+                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
 
-        # Data logging
-        measured_pos[time] = [x, y, theta]
-        ref_pos[time] = [next_point[0], next_point[1]]
+                angle_offset = drive_node.get_rtk_angle_offset()
+                print("Angle_offset: ", angle_offset)
 
-        # calc next ref point
-        next_point = goal(x_error, y_error)
+            rate = drive_node.get_rate()
+            drive_node.drive(0.0, 0.0)
+            rate.sleep()
+
+            print(drive_node.get_rtk_angle_offset())
+        else:
+            print("-----------------------------------------------")
+            # Original regulator
+            x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+
+            # New regulator
+            #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
+            
+            print("TIME: ", time)
+
+            # Data logging
+            measured_pos[time] = [x, y, theta]
+            ref_pos[time] = [next_point[0], next_point[1]]
+
+            # calc next ref point
+            next_point = goal(x_error, y_error)
     
-    write_json(measured_pos, ref_pos)
+    #write_json(measured_pos, ref_pos)
 
     drive_node.destroy_node()
     print("End of main")
