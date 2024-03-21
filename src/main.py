@@ -91,7 +91,6 @@ def main():
             drive_node.drive(0.0, 0.0)
             rate.sleep()
 
-            print(drive_node.get_rtk_angle_offset())
         else:
             print("-----------------------------------------------")
             # Original regulator

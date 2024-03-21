@@ -212,13 +212,14 @@ class Regulation():
         print("THETA : ", self.theta)
 
         self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
+        self.x_init_rtk, self.y_init_rtk = self.drive_node.get_coord_init_pos1()
         self.offset_angle = self.drive_node.get_rtk_angle_offset()
+
+        print("rkt init: x:", self.x_init_rtk, "y: ", self.y_init_rtk)
         print("rkt: x:", self.x_rtk, "y: ", self.y_rtk)
         print("offset angle: ", self.offset_angle)
 
         self.x_rotated_rtk, self.y_rotated_rtk = pos_global_to_local(self.x_rtk, self.y_rtk, self.x_init_rtk, self.y_init_rtk, self.offset_angle)
-        print(self.x_rotated_rtk, self.y_rotated_rtk)
-
 
             #Variables to the Kalman function
             #Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
