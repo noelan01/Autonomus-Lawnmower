@@ -84,6 +84,8 @@ class Lawnmower_Control(Node):
         self._wheel0_init = 0
         self._wheel1_init = 0
         self._yaw_init_flag = 0
+        self._rtk_init_flag = 0
+        self._gnss_init_flag = 0
 
         # Coordinate system init
         self._coord_init_ongoing = True
@@ -96,6 +98,7 @@ class Lawnmower_Control(Node):
         """
             ADD INIT FLAGS FOR ALL INIT CALLBACKS
         """
+        
 
         self._time = 0
         self._time_prev = 0
@@ -110,9 +113,10 @@ class Lawnmower_Control(Node):
     
     # RTK
     def rtk_callback(self, rtk):
-        if (self._rtk_x_init and self._rtk_y_init) is None:
+        if self._rtk_init_flag == 0:
             self._rtk_x_init = rtk.east
             self._rtk_y_init = rtk.north
+            self._rtk_init_flag = 1
 
         self._rtk_x = rtk.east
         self._rtk_y = rtk.north
@@ -120,9 +124,10 @@ class Lawnmower_Control(Node):
 
     # GNSS
     def gnss_callback(self, gnss):
-        if (self._gnss_x_init and self._gnss_y_init) is None:
+        if self._gnss_init_flag==0:
             self._gnss_x_init = gnss.latitude
             self._gnss_y_init = gnss.longitude
+            self._gnss_init_flag = 1
 
         self._gnss_x = gnss.latitude
         self._gnss_y = gnss.longitude
