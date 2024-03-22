@@ -7,8 +7,10 @@ import cmath
 import random
 import path_planner
 import RouteSequencePlanner
+
+#Create variables so the classes can be reached
 path = path_planner.Path()
-Route = RouteSequencePlanner.sequencePlanner()
+route = RouteSequencePlanner.sequencePlanner()
 
     
 #Importing the Kalman filter code
@@ -19,7 +21,6 @@ state_estimation = kalman.EKF(0)
 def simulation():
     #Starting with defining variables of the robot
 
-    Route.print()
     r = 0.752/(2*math.pi)
     L = (43/2+3.2/2)/100
     D = 0.4
@@ -82,12 +83,9 @@ def simulation():
     simTime = 10
     nrOfSteps = int(simTime/Ts)
     
-
-    #Set path. Add multiple paths to get certain geometries
-    path.set_path(0, 0, 90, 0, nrOfSteps) #(x_0,y_0,x,y,ppm)
-    path.set_path(90, 0, 90, 120, nrOfSteps)
-    path.set_path(90,120,0,120,nrOfSteps)
-    path.set_path(0,120,0,0,nrOfSteps)
+    #Decide which path you want the lawnmower to follow by importing the modules from the routeSequenceplanner
+    route.outerLines(path)
+    route.goalArea(path)
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -95,7 +93,7 @@ def simulation():
     #The first iteration of the while loop, k needs to equal 1
     k = 1
     #Vector of simulation time used for plots
-    t = np.linspace(0,simTime,len(path._path))
+    #t = np.linspace(0,simTime,len(path._path))
 
     while reached_goal == False:
         #For circular path
