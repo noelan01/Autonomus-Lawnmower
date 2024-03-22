@@ -6,7 +6,10 @@ import matplotlib.pyplot as plt
 import cmath
 import random
 import path_planner
+import RouteSequencePlanner
 path = path_planner.Path()
+Route = RouteSequencePlanner.sequencePlanner()
+
     
 #Importing the Kalman filter code
 import kalman
@@ -15,6 +18,8 @@ state_estimation = kalman.EKF(0)
 #This is the code that simulates the lawnmower
 def simulation():
     #Starting with defining variables of the robot
+
+    Route.print()
     r = 0.752/(2*math.pi)
     L = (43/2+3.2/2)/100
     D = 0.4
