@@ -211,6 +211,7 @@ class Regulation():
 
         print("THETA : ", self.theta)
 
+        # get coord inits
         self.x_rtk, self.y_rtk = self.drive_node.get_rtk()
         self.x_init_rtk, self.y_init_rtk = self.drive_node.get_coord_init_pos1()
         self.offset_angle = self.drive_node.get_rtk_angle_offset()
