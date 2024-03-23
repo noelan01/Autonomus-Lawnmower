@@ -13,7 +13,7 @@ coord_node = node_coordinate_init.Coordinate_Node()
 
 keep_going = True
 
-JSON_PATH = "coordinate_init/lib/init_positions.json"
+JSON_PATH = "coordinate_init/config/init_positions.json"
 
 
 
