@@ -1,3 +1,5 @@
+import json
+
 #This is the program that controls the sequence in which the robot will move over the field
 
 #Fix so that the lengths used are the lengths from the front end website
@@ -15,6 +17,13 @@ class sequencePlanner:
         self.penaltyAreaWidth = 22+self.goalAreaWidth
         self.goalWidth = 7.32
         self.ppm = 100
+        self.file_path = "../UserInputServer/data.json"
+
+    def load_pitch_data(self):
+        with open(self.file_path, 'r') as file:
+            data = json.load(file)
+        self.goalLine = round(float(data["shortside"]), 4)
+        self.sideLine = round(float(data["longside"]), 4)
         
     
     def outerLines(self,path):

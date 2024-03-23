@@ -54,8 +54,8 @@ class Path():
             print("")
             return (None, None)
         else:
-            print("DESIRED POINT: ", self._path[self._current_point])
-            print("")
+            # print("DESIRED POINT: ", self._path[self._current_point])
+            # print("")
             return self._path[self._current_point]
         
 
