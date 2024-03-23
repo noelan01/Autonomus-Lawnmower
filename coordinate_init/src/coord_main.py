@@ -200,7 +200,7 @@ def main():
     rate = coord_node.get_rate()
     rate.sleep()
 
-    print("q - quit\ne - erase points\nd - done\nj - JSON points\na - point 1\nb - point 2\n")
+    print("q - quit\ne - erase points\nd - done\nj - JSON file\na - point 1\nb - point 2\n")
     while keep_going:
         coord_node.pub_ongoing(True)
 
