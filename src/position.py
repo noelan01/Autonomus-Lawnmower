@@ -81,16 +81,23 @@ def simulation():
     simTime = 100
     nrOfSteps = int(simTime/Ts)
     
-    #Decide which path you want the lawnmower to follow by importing the modules from the routeSequenceplanner
+    #Outer lines
     route.outerLines(path)
+
+    #Lower goal area
     route.lowerGoalArea(path)
+
+    #Lower penalty area
     route.lowerPenaltyArea(path)
 
     #Transport path to reach mid line
     route.transportMidLine(path)
 
+    #Midline and mid circle
     route.midLine(path)
-    #route.test(path)
+
+    #Transport from midLine to upper goal area
+    route.driveToUpperLineFromMid(path)
 
 
     #Defining the reached goal variable to false to begin the simulation

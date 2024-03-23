@@ -47,3 +47,8 @@ class sequencePlanner:
         path.set_circle_path(self.radius,(self.goalLine/2,self.sideLine/2),3000)
         path.set_path(self.goalLine/2-self.radius,self.sideLine/2,self.goalLine,self.sideLine/2,self.ppm)
 
+    def driveToUpperLineFromMid(self,path):
+        path.set_path(self.goalLine,self.sideLine/2,self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine,self.ppm)
+
+    
+
