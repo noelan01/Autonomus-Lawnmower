@@ -68,8 +68,6 @@ def simulation():
     s = [0]
     tot_error = 0
 
-
-
     delta_omega = [0]
     delta_S = [0]
     delta_s = [0]
@@ -80,12 +78,20 @@ def simulation():
     
     
     #Defining simulation time
-    simTime = 10
+    simTime = 100
     nrOfSteps = int(simTime/Ts)
     
     #Decide which path you want the lawnmower to follow by importing the modules from the routeSequenceplanner
     route.outerLines(path)
-    route.goalArea(path)
+    route.lowerGoalArea(path)
+    route.lowerPenaltyArea(path)
+
+    #Transport path to reach mid line
+    route.transportMidLine(path)
+
+    route.midLine(path)
+    #route.test(path)
+
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -98,9 +104,9 @@ def simulation():
     while reached_goal == False:
         #For circular path
         #inc = 2*math.pi*k/nrOfSteps
-        #x_ref.append(9.15*math.cos(inc))
-        #y_ref.append(9.15*math.sin(inc))
-
+        #x_ref.append(45-9.15*math.cos(inc))
+        #y_ref.append(60-9.15*math.sin(inc))
+        
         #Updating the point when we are close enough to the previous point
         path.update_point()
 
@@ -222,15 +228,12 @@ def simulation():
     plt.ylabel("Theta [rad]")
     plt.xlabel("Number of samples")
     plt.show()
-
+    return theta,Ts,r,L
 simulation()
 
 
 
-
-
-    
-
-
-
+def rotate90deg(theta, r, L,):
+    dtheta1_dt = 0.1
+    dtheta2_dt = -0.1
     

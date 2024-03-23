@@ -70,7 +70,7 @@ class CircularPathPlanner:
         path = []
         for i in range(self.num_points):
             theta = 2 * math.pi * i / self.num_points
-            x = self.center[0] + self.radius * math.cos(theta)
+            x = self.center[0] - self.radius * math.cos(theta)
             y = self.center[1] + self.radius * math.sin(theta)
             path.append((x, y))
         return path
