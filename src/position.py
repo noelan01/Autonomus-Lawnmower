@@ -99,6 +99,12 @@ def simulation():
     #Transport from midLine to upper goal area
     route.driveToUpperLineFromMid(path)
 
+    #Upper penalty area
+    route.upperPenaltyArea(path)
+
+    #upper goal area
+    route.upperGoalArea(path)
+
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -213,29 +219,28 @@ def simulation():
         tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
         k += 1
         
-    print(lin_vel)
-    #print(s)
+    #print(lin_vel)
+    print(s)
 
-    plt.figure()
+    #plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
-    plt.plot(x_ref,y_ref, label = "Desired trajectory")
-    plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
+    #plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
     plt.title("Trajectory following")
     plt.legend(loc="upper left")
     plt.xlabel("x [m]")
     plt.ylabel("y [m]")
-    plt.figure()
-    #plt.plot(t,tot_error,label="Total error")
-    plt.title("Error measurement")
-    plt.xlabel("Simulation time [s]")
-    plt.ylabel("Total error [m]")
-    plt.legend(loc="upper left")
-    plt.figure()
-    plt.plot(theta)
-    plt.ylabel("Theta [rad]")
-    plt.xlabel("Number of samples")
     plt.show()
-    return theta,Ts,r,L
+    #plt.figure()
+    #plt.plot(t,tot_error,label="Total error")
+    #plt.title("Error measurement")
+    #plt.xlabel("Simulation time [s]")
+    #plt.ylabel("Total error [m]")
+    #plt.legend(loc="upper left")
+    #plt.figure()
+    #plt.plot(theta)
+    #plt.ylabel("Theta [rad]")
+    #plt.xlabel("Number of samples")
 simulation()
 
 

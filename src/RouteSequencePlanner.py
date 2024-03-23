@@ -50,5 +50,17 @@ class sequencePlanner:
     def driveToUpperLineFromMid(self,path):
         path.set_path(self.goalLine,self.sideLine/2,self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine,self.ppm)
 
+    def upperPenaltyArea(self,path):
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine,self.ppm)
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine-self.penaltyAreaHeight,self.ppm)
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine-self.penaltyAreaHeight,self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine-self.penaltyAreaHeight,self.ppm)
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine-self.penaltyAreaHeight,self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine,self.ppm)
+
+    def upperGoalArea(self,path):
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,self.sideLine,self.goalLine/2+self.goalAreaWidth/2,self.sideLine,self.ppm)
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2,self.sideLine,self.goalLine/2+self.goalAreaWidth/2,self.sideLine-self.goalAreaHeight,self.ppm)
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2,self.sideLine-self.goalAreaHeight,self.goalLine/2-self.goalAreaWidth/2,self.sideLine-self.goalAreaHeight,self.ppm)
+        path.set_path(self.goalLine/2-self.goalAreaWidth/2,self.sideLine-self.goalAreaHeight,self.goalLine/2-self.goalAreaWidth/2,self.sideLine,self.ppm)
+
     
 
