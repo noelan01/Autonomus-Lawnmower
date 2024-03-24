@@ -70,6 +70,31 @@ class Path():
         self._path += upper_arc_path
         self._num_points += len(upper_arc_path)
 
+    def set_bottom_right_corner(self,radius,center,num_points):
+        bottom_right_corner_planner = bottomRightCornerPath(radius, center, num_points)
+        bottom_right_corner_path = bottom_right_corner_planner.plan_path()
+        self._path += bottom_right_corner_path
+        self._num_points += len(bottom_right_corner_path)
+
+    def set_bottom_left_corner(self,radius,center,num_points):
+        bottom_left_corner_planner = bottomLeftCornerPath(radius, center, num_points)
+        bottom_left_corner_path = bottom_left_corner_planner.plan_path()
+        self._path += bottom_left_corner_path
+        self._num_points += len(bottom_left_corner_path)
+
+    def set_upper_right_corner(self,radius,center,num_points):
+        upper_right_corner_planner = upperRightCornerPath(radius, center, num_points)
+        upper_right_corner_path = upper_right_corner_planner.plan_path()
+        self._path += upper_right_corner_path
+        self._num_points += len(upper_right_corner_path)
+
+    def set_upper_left_corner(self,radius,center,num_points):
+        upper_left_corner_planner = upperLeftCornerPath(radius, center, num_points)
+        upper_left_corner_path = upper_left_corner_planner.plan_path()
+        self._path += upper_left_corner_path
+        self._num_points += len(upper_left_corner_path)
+
+
         
 
 
@@ -122,4 +147,68 @@ class upperArcPathPlanner:
                 y = self.center[1] - self.radius*math.sin(theta)
                 path.append((x,y))
 
+        return path
+    
+class bottomRightCornerPath:
+    def __init__(self, radius, center=(0, 0), num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        for i in range(self.num_points):
+            theta = 2 * math.pi * i / self.num_points
+            if theta<=math.pi/2:
+                x = self.center[0] - self.radius * math.cos(theta)
+                y = self.center[1] + self.radius * math.sin(theta)
+            path.append((x, y))
+        return path
+    
+class bottomLeftCornerPath:
+    def __init__(self, radius, center=(0, 0), num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        for i in range(self.num_points):
+            theta = 2 * math.pi * i / self.num_points
+            if theta<=math.pi/2:
+                x = self.center[0] + self.radius * math.sin(theta)
+                y = self.center[1] + self.radius * math.cos(theta)
+            path.append((x, y))
+        return path
+    
+class upperRightCornerPath:
+    def __init__(self, radius, center=(0, 0), num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        for i in range(self.num_points):
+            theta = 2 * math.pi * i / self.num_points
+            if theta<=math.pi/2:
+                x = self.center[0] - self.radius * math.sin(theta)
+                y = self.center[1] - self.radius * math.cos(theta)
+            path.append((x, y))
+        return path
+    
+class upperLeftCornerPath:
+    def __init__(self, radius, center=(0, 0), num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        for i in range(self.num_points):
+            theta = 2 * math.pi * i / self.num_points
+            if theta<=math.pi/2:
+                x = self.center[0] + self.radius * math.cos(theta)
+                y = self.center[1] - self.radius * math.sin(theta)
+            path.append((x, y))
         return path

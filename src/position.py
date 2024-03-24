@@ -84,12 +84,11 @@ def simulation():
     #Outer lines
     route.outerLines(path)
 
-    #Lower goal area
+    #Lower penalty area
     route.lowerPenaltyArea(path)
-    
     route.lowerArc(path)
     
-    #Lower penalty area
+    #Lower goal area
     route.lowerGoalArea(path)
 
     #Transport path to reach mid line
@@ -103,11 +102,17 @@ def simulation():
 
     #Upper penalty area
     route.upperPenaltyArea(path)
-
     route.upperArc(path)
 
     #upper goal area
     route.upperGoalArea(path)
+
+    #Corner flags
+    route.upperLeftCorner(path)
+    route.lowerLeftCorner(path)
+    route.bottomRightCorner(path)
+    route.upperRightCorner(path)
+
 
 
     #Defining the reached goal variable to false to begin the simulation
@@ -224,7 +229,7 @@ def simulation():
 
     #plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
-    plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    #plt.plot(x_ref,y_ref, label = "Desired trajectory")
     #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
     plt.title("Trajectory following")
     plt.legend(loc="upper left")
