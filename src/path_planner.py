@@ -58,6 +58,19 @@ class Path():
             print("")
             return self._path[self._current_point]
         
+    def set_lower_arc_path(self,radius,center,num_points):
+        lower_arc_planner = lowerArcPathPlanner(radius, center, num_points)
+        lower_arc_path = lower_arc_planner.plan_path()
+        self._path += lower_arc_path
+        self._num_points += len(lower_arc_path)
+    
+    def set_upper_arc_path(self,radius,center,num_points):
+        upper_arc_planner = upperArcPathPlanner(radius, center, num_points)
+        upper_arc_path = upper_arc_planner.plan_path()
+        self._path += upper_arc_path
+        self._num_points += len(upper_arc_path)
+
+        
 
 
 class CircularPathPlanner:
@@ -73,4 +86,40 @@ class CircularPathPlanner:
             x = self.center[0] - self.radius * math.cos(theta)
             y = self.center[1] + self.radius * math.sin(theta)
             path.append((x, y))
+        return path
+
+class lowerArcPathPlanner:
+    def __init__(self,radius, center=(0,0),num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        lowerArcAngle = math.acos(5.5/9.15)
+        for i in range(self.num_points):
+            theta = 2*math.pi*i/self.num_points
+            if theta>math.pi/2-lowerArcAngle and theta<(math.pi/2+lowerArcAngle):
+                x = self.center[0] - self.radius*math.cos(theta)
+                y = self.center[1] + self.radius*math.sin(theta)
+                path.append((x,y))
+
+        return path
+    
+class upperArcPathPlanner:
+    def __init__(self,radius, center=(0,0),num_points=100):
+        self.radius = radius
+        self.center = center
+        self.num_points = num_points
+
+    def plan_path(self):
+        path = []
+        lowerArcAngle = math.acos(5.5/9.15)
+        for i in range(self.num_points):
+            theta = 2*math.pi*i/self.num_points
+            if theta>math.pi/2-lowerArcAngle and theta<(math.pi/2+lowerArcAngle):
+                x = self.center[0] - self.radius*math.cos(theta)
+                y = self.center[1] - self.radius*math.sin(theta)
+                path.append((x,y))
+
         return path
