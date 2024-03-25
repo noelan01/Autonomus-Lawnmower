@@ -88,11 +88,12 @@ def simulation():
     #Outer lines
     route.outerLines(path)
 
-    #Lower goal area
-    route.lowerGoalArea(path)
-
     #Lower penalty area
     route.lowerPenaltyArea(path)
+    route.lowerArc(path)
+    
+    #Lower goal area
+    route.lowerGoalArea(path)
 
     #Transport path to reach mid line
     route.transportMidLine(path)
@@ -105,9 +106,17 @@ def simulation():
 
     #Upper penalty area
     route.upperPenaltyArea(path)
+    route.upperArc(path)
 
     #upper goal area
     route.upperGoalArea(path)
+
+    #Corner flags
+    route.upperLeftCorner(path)
+    route.lowerLeftCorner(path)
+    route.bottomRightCorner(path)
+    route.upperRightCorner(path)
+
 
 
     #Defining the reached goal variable to false to begin the simulation
@@ -119,11 +128,7 @@ def simulation():
     #t = np.linspace(0,simTime,len(path._path))
 
     while reached_goal == False:
-        #For circular path
-        #inc = 2*math.pi*k/nrOfSteps
-        #x_ref.append(45-9.15*math.cos(inc))
-        #y_ref.append(60-9.15*math.sin(inc))
-        
+
         #Updating the point when we are close enough to the previous point
         path.update_point()
 
@@ -224,7 +229,7 @@ def simulation():
         k += 1
         
     #print(lin_vel)
-    # print(s)
+    #print(delta_ye)
 
     #plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
