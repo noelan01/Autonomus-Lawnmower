@@ -52,6 +52,10 @@ def simulation():
     Ki = 10
     Kd = 0.01
     Ts = 0.1
+
+    #Time constant for inner system
+    T = 0.1
+
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
     theta_1_meas = [0]
@@ -62,6 +66,8 @@ def simulation():
     delta_theta_2 = [0]
     dtheta1_dt = [0]
     dtheta2_dt = [0]
+    dtheta1_out_dt = [0]
+    dtheta2_out_dt = [0]
     lin_vel = [0]
     ang_vel = [0]
     err_sum_x = 0
@@ -87,9 +93,10 @@ def simulation():
 
     #Outer lines
     route.outerLines(path)
-
+    
     #Lower penalty area
     route.lowerPenaltyArea(path)
+    
     route.lowerArc(path)
     
     #Lower goal area
@@ -100,7 +107,7 @@ def simulation():
 
     #Midline and mid circle
     route.midLine(path)
-
+    
     #Transport from midLine to upper goal area
     route.driveToUpperLineFromMid(path)
 
@@ -117,8 +124,6 @@ def simulation():
     route.bottomRightCorner(path)
     route.upperRightCorner(path)
     
-
-
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -162,7 +167,6 @@ def simulation():
         delta_omega2.append(1/r*(delta_S[k]-L*delta_omega[k]))
         
         #Calculating the needed angular velocity of each wheel
-
         dtheta1_dt.append(-1*(delta_omega1[k]))
         dtheta2_dt.append(-1*(delta_omega2[k]))
 
@@ -184,12 +188,15 @@ def simulation():
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
-        rand2 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
+        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(0,0.01)
+        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(0,0.01)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
-        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
-        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts)+rand2)
+        dtheta1_out_dt.append(dtheta1_dt[k]*Ts/(T+Ts)+dtheta1_out_dt[k-1]*T/(T+Ts)+rand1)
+        dtheta2_out_dt.append(dtheta2_dt[k]*Ts/(T+Ts)+dtheta2_out_dt[k-1]*T/(T+Ts)+rand2)
+
+        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_out_dt[k]*Ts))
+        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_out_dt[k]*Ts))
 
         #Calculating the angular difference between the two samples
         delta_theta_1.append(theta_1_meas[k]-theta_1_meas[k-1])
@@ -229,7 +236,7 @@ def simulation():
         tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
         k += 1
         
-    print(lin_vel)
+    print(dtheta1_out_dt)
     #print(delta_ye)
 
     #plt.figure()
