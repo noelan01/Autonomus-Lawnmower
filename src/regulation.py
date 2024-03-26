@@ -117,6 +117,17 @@ class Regulation():
         dtheta0_dt = -1*delta_omega0
         dtheta1_dt = -1*delta_omega1
 
+        if dtheta0_dt > 6.5:        # clamping left
+            dtheta0_dt = 6.5
+        elif dtheta0_dt < -6.5:
+            dtheta0_dt = -6.5
+
+        if dtheta1_dt > 6.5:        # clamping right
+            dtheta1_dt = 6.5
+        elif dtheta1_dt < -6.5:
+            dtheta1_dt = -6.5
+
+
         print("DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
         print("")
 
@@ -128,7 +139,8 @@ class Regulation():
             self.steering = -(dtheta0_dt-dtheta1_dt)/dtheta0_dt
 
 
-        speed = 0.5
+        speed = (dtheta0_dt + dtheta1_dt)/2
+        print("calculated speed: ", speed)
         
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
@@ -151,7 +163,6 @@ class Regulation():
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
         
         print("WHEELCOUNTER 0: ", wheel_0_counter, "   WHEELCOUNTER 1: ", wheel_1_counter)
-        print("")
         print("WHEELCOUNTER 0 init: ", wheel_0_counter_init, "   WHEELCOUNTER 1 init: ", wheel_1_counter_init)
         print("")
 
@@ -196,16 +207,23 @@ class Regulation():
         use_kalman = False
 
         if use_kalman == True:
-            yaw_angle = ...
+            yaw_angle = self.theta
+            wheelspeed0, wheelspeed1 = self.drive_node.get_wheelspeeds()
+
+            v = (wheelspeed0 + wheelspeed1)/2
+            yaw_rate = (wheelspeed1 - wheelspeed0)/self.L
+
+            rtk_error_x, rtk_error_y = self.drive_node.get_rtk_accuracy()
+
             z_k = np.array([[x_rotated],
                             [y_rotated],
                             [yaw_angle]])
             
-            control_input = np.array([[],
-                                      []])
+            control_input = np.array([[v],
+                                      [yaw_rate]])
             
-            sensor_error = np.array([[0],
-                                     [0],
+            sensor_error = np.array([[rtk_error_x],
+                                     [rtk_error_y],
                                      [0]])
 
             skalman_state = skalman.update(z_k, control_input, sensor_error)

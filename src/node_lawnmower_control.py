@@ -62,6 +62,8 @@ class Lawnmower_Control(Node):
         self._update_rate = 40.0
         self._rtk_x = 0
         self._rtk_y = 0
+        self._rtk_x_accuracy = 0
+        self._rtk_y_accuracy = 0
         self._rtk_x_init = 0
         self._rtk_y_init = 0
         self._gnss_x = 0
@@ -115,6 +117,9 @@ class Lawnmower_Control(Node):
 
         self._rtk_x = msg.east
         self._rtk_y = msg.north
+
+        self._rtk_x_accuracy = msg.accuracy_east
+        self._rtk_y_accuracy = msg.accuracy_north
 
 
     # GNSS
@@ -226,6 +231,9 @@ class Lawnmower_Control(Node):
     
     def get_rtk(self):
         return self._rtk_x, self._rtk_y
+    
+    def get_rtk_accuracy(self):
+        return self._rtk_x_accuracy, self._rtk_y_accuracy
     
     def get_gnss_pos(self):
         return self._gnss_x, self._gnss_y
