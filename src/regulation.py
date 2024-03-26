@@ -37,9 +37,9 @@ class Regulation():
         self.theta_kalman = 0
 
         # PID PARAMETERS
-        self.Kp = 20
-        self.Ki = 0
-        self.Kd = 0
+        self.Kp = 10
+        self.Ki = 5
+        self.Kd = 0.001
 
         #Put the sample time to the same as the update time of the drive publish node?
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -118,7 +118,8 @@ class Regulation():
         dtheta1_dt = -1*delta_omega1
         
         max_speed = 6.5
-
+        #print("pre clamping DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
+        """
         if dtheta0_dt > max_speed:        # clamping left
             dtheta0_dt = max_speed
         elif dtheta0_dt < -max_speed:
@@ -128,21 +129,29 @@ class Regulation():
             dtheta1_dt = max_speed
         elif dtheta1_dt < -max_speed:
             dtheta1_dt = -max_speed
-
+        """
 
         print("DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
         print("")
 
-        #Converting the linear and angular velocity to the signals
+        dtheta_sum = dtheta0_dt + dtheta1_dt
+        l_ratio = dtheta0_dt/dtheta_sum
+        r_ratio = dtheta1_dt/dtheta_sum
 
-        if dtheta1_dt > dtheta0_dt:                             # left turn
-            self.steering = (dtheta1_dt-dtheta0_dt)/dtheta1_dt
+        print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
+
+        #Converting the linear and angular velocity to the signals
+        max_steering = 1
+
+        if l_ratio > r_ratio:                             # left turn
+            self.steering = max_steering * (l_ratio-r_ratio)
         else:                                                   # right turn
-            self.steering = -(dtheta0_dt-dtheta1_dt)/dtheta0_dt
+            self.steering = -max_steering * (r_ratio-l_ratio)
 
 
         speed = (dtheta0_dt + dtheta1_dt)/2
         print("calculated speed: ", speed)
+        speed= 0.2
         
         #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
