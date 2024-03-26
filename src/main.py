@@ -34,6 +34,7 @@ def goal(x_error,y_error):
 
     if total_error < 1:
         path.update_point()
+        regulator.reset_error_sum()
     
     point = path.get_point()
     

@@ -59,7 +59,7 @@ class Lawnmower_Control(Node):
         self._msg_angle_offset = Float64()
 
         # other
-        self._update_rate = 40.0
+        self._update_rate = 10.0
         self._rtk_x = 0
         self._rtk_y = 0
         self._rtk_x_accuracy = 0

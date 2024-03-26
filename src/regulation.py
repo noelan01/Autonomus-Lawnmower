@@ -37,9 +37,15 @@ class Regulation():
         self.theta_kalman = 0
 
         # PID PARAMETERS
-        self.Kp = 10
-        self.Ki = 5
-        self.Kd = 0.001
+        # x
+        self.Kp_x = 5
+        self.Ki_x = 0
+        self.Kd_x = 0
+
+        # y
+        self.Kp_y = 10
+        self.Ki_y = 5
+        self.Kd_y = 0.001
 
         #Put the sample time to the same as the update time of the drive publish node?
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -67,14 +73,6 @@ class Regulation():
 
     def update(self, x_ref, y_ref):
 
-        #if abs(self.x) > 2 or abs(self.y) > 2:
-        #    self.drive_node.stop_drive()
-        #    rclpy.shutdown()
-
-        #Updating x_ref & y_ref
-        #x_ref = x_ref -0.025
-        #y_ref = y_ref
-
         x_ref = x_ref
         y_ref = y_ref
         
@@ -86,11 +84,15 @@ class Regulation():
         self.err_sum_y = self.err_sum_y + delta_ye 
 
         #PID regulator
-        delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
-        delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
+
+        delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
+        delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
+
+        #delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
+        #delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
         
         #print("PID: X: ", delta_x, "Y: ", delta_y)
-        #print("")
+        print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
         
         #Calculating delta_omega(k) and delta_S(k)
         delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
@@ -100,36 +102,12 @@ class Regulation():
         delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
         delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
 
-        #Discrete time integration using backwards Euler
-        #self.acc_sum_delta_omega_1 = self.acc_sum_delta_omega_1 + self.Ts*delta_omega0
-        #self.acc_sum_delta_omega_2 = self.acc_sum_delta_omega_2 + self.Ts*delta_omega1
-
-        #Measure the difference between the old wheel counter and the accumulated sum to find angular displacement
-        #theta_0_increment = self.acc_sum_delta_omega_1-theta_0_meas
-        #theta_1_increment = self.acc_sum_delta_omega_2-theta_1_meas
-
-        #Base the incremental position on the command instead of the wheel measure
-        #theta_0_increment = self.Ts*delta_omega0
-        #theta_1_increment = self.Ts*delta_omega1
-
         #Calculating the needed angular velocity of each wheel
-        #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. The model has defined the opposite sign of positive angular velocity, which means we have to change it so that the model is the same as the lawnmower
+        #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. 
+        #The model has defined the opposite sign of positive angular velocity, 
+        #which means we have to change it so that the model is the same as the lawnmower
         dtheta0_dt = -1*delta_omega0
         dtheta1_dt = -1*delta_omega1
-        
-        max_speed = 6.5
-        #print("pre clamping DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
-        """
-        if dtheta0_dt > max_speed:        # clamping left
-            dtheta0_dt = max_speed
-        elif dtheta0_dt < -max_speed:
-            dtheta0_dt = -max_speed
-
-        if dtheta1_dt > max_speed:        # clamping right
-            dtheta1_dt = max_speed
-        elif dtheta1_dt < -max_speed:
-            dtheta1_dt = -max_speed
-        """
 
         print("DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
         print("")
@@ -141,25 +119,37 @@ class Regulation():
         print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
 
         #Converting the linear and angular velocity to the signals
-        max_steering = 1
 
-        if l_ratio > r_ratio:                             # left turn
-            self.steering = max_steering * (l_ratio-r_ratio)
-        else:                                                   # right turn
-            self.steering = -max_steering * (r_ratio-l_ratio)
+        jonas_steering = False
+
+        if jonas_steering == True:
+            if dtheta0_dt == -dtheta1_dt:
+                if dtheta0_dt > dtheta1_dt:
+                    steering = 2
+                else:
+                    steering = -2
+            else:
+                self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
+        else:
+            max_steering = 1
+            if l_ratio > r_ratio:                                   # left turn
+                self.steering = max_steering * (l_ratio-r_ratio)
+            else:                                                   # right turn
+                self.steering = - max_steering * (r_ratio-l_ratio)
+            
 
 
-        speed = (dtheta0_dt + dtheta1_dt)/2
+        speed = (dtheta0_dt + dtheta1_dt)*self.r/2
+
         print("calculated speed: ", speed)
-        speed= 0.2
         
-        #Publish angular and linear velocity to the lawnmower node
         speed, steering = self.clamping(speed, self.steering)
 
         time_prev, time = self.drive_node.get_time()
         print("Drive commands:", "SPEED = ", speed, "STEERING = ", steering)
         print("")
 
+        #Publish angular and linear velocity to the lawnmower node
         rate = self.drive_node.get_rate()
         self.drive_node.drive(speed, steering)
         rate.sleep()
@@ -169,6 +159,8 @@ class Regulation():
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         wheel_0_counter, wheel_1_counter = self.drive_node.get_wheelcounters()
         wheel_0_counter_init, wheel_1_counter_init = self.drive_node.get_wheelcounters_init()
+
+        wheelspeed0, wheelspeed1 = self.drive_node.get_wheelspeeds()
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
@@ -215,11 +207,11 @@ class Regulation():
 
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
 
+        # EKF
         use_kalman = False
 
         if use_kalman == True:
             yaw_angle = self.theta
-            wheelspeed0, wheelspeed1 = self.drive_node.get_wheelspeeds()
 
             v = (wheelspeed0 + wheelspeed1)/2
             yaw_rate = (wheelspeed1 - wheelspeed0)/self.L
@@ -258,11 +250,6 @@ class Regulation():
         print("ODOMETRY X: ", x, "  Y: ", y)
         print("")
 
-            #x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k]))
-            #y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
-            #print(x[k]-x_kalman[k])
-            #print(y-y_kalman)
-
         x_error = self.x-x_ref
         y_error = self.y-y_ref
         
@@ -273,6 +260,17 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
 
         return x_error, y_error, self.x, self.y, self.theta, time
+    
+
+    def PID(self, error, kp, ki, kd):
+        delta = error*kp+ki*self.Ts*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
+        return delta
+
+    
+
+    def reset_error_sum(self):
+        self.err_sum_x = 0
+        self.err_sum_y = 0
 
 
     def clamping(self, speed, steering):
@@ -300,6 +298,14 @@ class Regulation():
             steering = -2.0
 
         return float(speed), float(steering)
+    
+
+
+
+
+"""
+    HELPERS
+"""    
     
 def rotation_matrix(angle):
     return np.array([
