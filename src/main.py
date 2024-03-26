@@ -34,6 +34,7 @@ def goal(x_error,y_error):
 
     if total_error < 1:
         path.update_point()
+        regulator.reset_error_sum()
     
     point = path.get_point()
     
@@ -65,7 +66,7 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0.5, 0, 10, 0, 2)      # (x_0, y_0, x_n, y_n, ppm)
+    path.set_path(0.5, 0, 50, 0, 200)      # (x_0, y_0, x_n, y_n, ppm)
     #path.set_circle_path(1, (-1,0.4), 500)
 
     
@@ -91,7 +92,6 @@ def main():
             drive_node.drive(0.0, 0.0)
             rate.sleep()
 
-            print(drive_node.get_rtk_angle_offset())
         else:
             print("-----------------------------------------------")
             # Original regulator

@@ -6,13 +6,18 @@ import termios
 import signal
 from statistics import mean
 import numpy as np
+import json
 
 import node_coordinate_init
 coord_node = node_coordinate_init.Coordinate_Node()
 
 keep_going = True
 
+JSON_PATH = "coordinate_init/config/init_positions.json"
 
+
+
+#------------------------READ POINTS CLASS-------------------------------------
 class Points_Init():
     def __init__(self):
         self._east_1_list = []
@@ -26,6 +31,7 @@ class Points_Init():
         self._north2 = 0
 
         self._done = False
+        self._read_json = False
 
 
     def point_set(self, east, north):
@@ -35,6 +41,7 @@ class Points_Init():
         if key == 'd':
             print("done")
             self._east1, self._north1, self._east2, self._north2 = self.point_mean()
+            self.write()
             self._done = True
             
         elif key == 'a':
@@ -51,6 +58,15 @@ class Points_Init():
             print("erase points")
             self.clear_points()
             self._done = False
+
+        elif key == 'j':
+            print("read from JSON file")
+            try:
+                self.read()
+                self._read_json = True
+                print("JSON file read succesfully")
+            except:
+                print("JSON file NOT read")
 
         elif key == 'q':
             print("QUIT COORD INIT")
@@ -84,6 +100,33 @@ class Points_Init():
 
         return east1, north1, east2, north2
     
+    
+    def read(self):
+        with open(JSON_PATH, 'r') as f1:
+            data = json.load(f1)
+
+        self._east1 =   data["point 1"]["east"]
+        self._north1 =  data["point 1"]["north"]
+        self._east2 =   data["point 2"]["east"]
+        self._north2 =  data["point 2"]["north"]
+
+        f1.close()
+
+
+    def write(self):
+        json_data = {"point 1": {"east": self._east1,
+                                 "north": self._north1},
+                    "point 2": {"east": self._east2,
+                                "north": self._north2}}
+
+        json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
+ 
+        with open(JSON_PATH, "w",) as outfile:
+            outfile.write(json_object)
+
+        print("JSON file written")
+
+    
 
     def clear_points(self):
         self._east_1_list = []
@@ -97,6 +140,10 @@ class Points_Init():
 
     def is_done(self):
         return self._done
+    
+    def read_json(self):
+        return self._read_json
+    
 
 #------------------------CALCULATE COORDINATE SYSTEMS OFFSET ANGLE-------------------------------------
 
@@ -123,8 +170,7 @@ def get_offset(x_start_rtk,y_start_rtk,x_end_rtk,y_end_rtk):
     rtk_east = np.pi/2
     offset_angle = rtk_heading-rtk_east
     #print("RTK Heading: ", np.degrees(rtk_heading))
-    return offset_angle
-    
+    return offset_angle    
 
 
 def GetchUnix():
@@ -154,14 +200,14 @@ def main():
     rate = coord_node.get_rate()
     rate.sleep()
 
-    print("q - quit\ne - erase points\nd - done\na - point 1\nb - point 2\n")
+    print("q - quit\ne - erase points\nd - done\nj - JSON file\na - point 1\nb - point 2\n")
     while keep_going:
         coord_node.pub_ongoing(True)
 
         east, north = coord_node.get_rtk()
         points.point_set(east, north)
 
-        if points.is_done() == True:
+        if points.is_done() or points.read_json() == True:
             east1, north1, east2, north2 = points.get_points()
 
             coord_node.pub_point1(east1, north1)
