@@ -27,7 +27,7 @@ def simulation():
     D = 0.4
     
     #Other variables
-    x = [0]
+    x = [0.06]
     y = [0]
     x_kalman = [0]
     y_kalman = [0]
@@ -93,7 +93,7 @@ def simulation():
 
     #Outer lines
     route.outerLines(path)
-    
+    """
     #Lower penalty area
     route.lowerPenaltyArea(path)
     
@@ -123,7 +123,7 @@ def simulation():
     route.lowerLeftCorner(path)
     route.bottomRightCorner(path)
     route.upperRightCorner(path)
-    
+    """
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -136,7 +136,8 @@ def simulation():
     while reached_goal == False:
 
         #Updating the point when we are close enough to the previous point
-        path.update_point()
+        if tot_error <0.5:
+            path.update_point()
 
         next_point = path.get_point()
         x_ref.append(next_point[0])
@@ -236,7 +237,8 @@ def simulation():
         tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
         k += 1
         
-    print(dtheta1_out_dt)
+    print(delta_xe)
+    print(lin_vel)
     #print(delta_ye)
 
     #plt.figure()

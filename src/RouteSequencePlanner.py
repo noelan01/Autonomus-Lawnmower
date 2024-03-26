@@ -18,7 +18,7 @@ class sequencePlanner:
         self.goalWidth = 7.32
         self.arcFromMid = math.sqrt(self.radius**2-5.5**2)
         self.lowerArcAngle = math.acos(5.5/self.radius)
-        self.ppm = 100
+        self.ppm = 50
         
         self.file_path = "UserInputServer/data.json"
 
@@ -34,9 +34,9 @@ class sequencePlanner:
     def outerLines(self,path):
         #Algorithm for painting the outer lines
         path.set_path(0, 0, self.goalLine,0,self.ppm)
-        path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm)
-        path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm)
-        path.set_path(0, self.sideLine, 0, 0, self.ppm)
+        #path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm)
+        #path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm)
+        #path.set_path(0, self.sideLine, 0, 0, self.ppm)
 
     def lowerPenaltyArea(self,path):
         #Algorithm for painting the downer goal area of the field
