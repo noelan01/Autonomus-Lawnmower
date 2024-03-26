@@ -5,16 +5,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cmath
 import random
+import path_planner
+import RouteSequencePlanner
+
+#Create variables so the classes can be reached
+path = path_planner.Path()
+route = RouteSequencePlanner.sequencePlanner()
+
+
     
 #Importing the Kalman filter code
 import kalman
 state_estimation = kalman.EKF(0)
 
+#This is the code that simulates the lawnmower
 def simulation():
-    #Starting with defining variables for the robot
-    D = 0.4
+    #Starting with defining variables of the robot
+
     r = 0.752/(2*math.pi)
     L = (43/2+3.2/2)/100
+    D = 0.4
     
     #Other variables
     x = [0]
@@ -22,7 +32,7 @@ def simulation():
     x_kalman = [0]
     y_kalman = [0]
 
-    theta =[0]
+    theta =[-math.pi]
     delta_x = [0]
     delta_y = [0]
     delta_xe = [0]
@@ -39,8 +49,8 @@ def simulation():
     y_error = [0]
     theta_kalman =[0]
     Kp = 15
-    Ki = 2
-    Kd = 0
+    Ki = 10
+    Kd = 0.01
     Ts = 0.1
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -57,6 +67,7 @@ def simulation():
     err_sum_x = 0
     err_sum_y = 0
     s = [0]
+    tot_error = 0
 
     delta_omega = [0]
     delta_S = [0]
@@ -68,23 +79,77 @@ def simulation():
     
     
     #Defining simulation time
-    simTime = 400
-    nrOfSteps = simTime/Ts
+    simTime = 100
+    nrOfSteps = int(simTime/Ts)
+    
+    #load pitch data from json file
+    route.load_pitch_data()
 
-    #print(Kp)
+    #Outer lines
+    route.outerLines(path)
 
-    for k in range(1,int(nrOfSteps)):
-    #Updating x_ref
-        x_ref.append(x_ref[k-1])
-        y_ref.append(y_ref[k-1]-0.025)
+    #Lower penalty area
+    route.lowerPenaltyArea(path)
+    route.lowerArc(path)
+    
+    #Lower goal area
+    route.lowerGoalArea(path)
+
+    #Transport path to reach mid line
+    route.transportMidLine(path)
+
+    #Midline and mid circle
+    route.midLine(path)
+
+    #Transport from midLine to upper goal area
+    route.driveToUpperLineFromMid(path)
+
+    #Upper penalty area
+    route.upperPenaltyArea(path)
+    route.upperArc(path)
+
+    #upper goal area
+    route.upperGoalArea(path)
+
+    #Corner flags
+    route.upperLeftCorner(path)
+    route.lowerLeftCorner(path)
+    route.bottomRightCorner(path)
+    route.upperRightCorner(path)
+    
+
+
+
+    #Defining the reached goal variable to false to begin the simulation
+    reached_goal = False
+
+    #The first iteration of the while loop, k needs to equal 1
+    k = 1
+    #Vector of simulation time used for plots
+    #t = np.linspace(0,simTime,len(path._path))
+
+    while reached_goal == False:
+
+        #Updating the point when we are close enough to the previous point
+        path.update_point()
+
+        next_point = path.get_point()
+        x_ref.append(next_point[0])
+        y_ref.append(next_point[1])
+
+        #When there are no more points in the path planner list, we end the simulation
+        if next_point[0] == None or next_point[1] == None:
+            reached_goal = True
+            break
+
         #Implementing the kinematic model of the robot
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
 
         err_sum_x = err_sum_x + delta_xe[k]
         err_sum_y = err_sum_y + delta_ye[k] 
-
-        #Increasing the error with the proportional gain
+        
+        #Increasing the error with the PID-controller
         delta_x.append(delta_xe[k]*Kp+Ki*Ts*err_sum_x+Kd*(delta_xe[k]-delta_xe[k-1])/Ts)
         delta_y.append(delta_ye[k]*Kp+Ki*Ts*err_sum_y+Kd*(delta_ye[k]-delta_ye[k-1])/Ts)
 
@@ -95,48 +160,36 @@ def simulation():
         #Calculating delta_omega1(k) and delta_omega2(k)
         delta_omega1.append(1/r*(delta_S[k]+L*delta_omega[k]))
         delta_omega2.append(1/r*(delta_S[k]-L*delta_omega[k]))
-        """
-        #Discrete time integration using backwards Euler
-        acc_sum_delta_omega_1.append(acc_sum_delta_omega_1[k-1] + Ts*delta_omega1[k])
-        acc_sum_delta_omega_2.append(acc_sum_delta_omega_2[k-1] + Ts*delta_omega2[k]) 
-
-        #Measure the difference between the old wheel counter and the accumulated sum to find angular displacement
-        theta_1_increment.append(Ts*delta_omega1[k])
-        theta_2_increment.append(Ts*delta_omega2[k])
-        """
         
         #Calculating the needed angular velocity of each wheel
+
         dtheta1_dt.append(-1*(delta_omega1[k]))
         dtheta2_dt.append(-1*(delta_omega2[k]))
 
+        #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
+        if dtheta1_dt[k]>6.5:
+            dtheta1_dt[k] = 6.5
+        elif dtheta1_dt[k]<-6.5:
+            dtheta1_dt[k] = -6.5
+        if dtheta2_dt[k]>6.5:
+            dtheta2_dt[k] =6.5
+        elif dtheta2_dt[k]<-6.5:
+            dtheta2_dt[k] = -6.5
+            
+        #Calculating the steering variable to see the output
         s.append((dtheta1_dt[k]-dtheta2_dt[k])/dtheta1_dt[k])
 
-        #Converting to linear and angular movement of the robot
+        #Converting to linear and angular movement of the robot to use in the Kalman filter
         lin_vel.append(r/2*(dtheta1_dt[k]+dtheta2_dt[k]))
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
-        #Publish angular and linear velocity to the lawnmower
-
-        #Publish lin_vel
-        #Publish ang_vel
-
-        #Sleep for Ts = 0.025 s
-        #time.sleep(0.025)
-
-        #wheel_1_counter = #Subscribe to HQV topic /hqv_mower/wheel0/speed
-        #wheel_2_counter = #Subscribe to HQV topic /hqv_mower/wheel1/speed
-
-        #Convert to angular displacement
-        #theta_1_meas = wheel_1_counter*2*math.pi/PPR
-        #theta_2_meas = wheel_2_counter*2*math.pi/PPR
-
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
-        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.001,0.001)
+        rand1 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
+        rand2 = random.uniform(0,2*math.pi/PPR) + random.uniform(0,0.01)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
-        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts))
-        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts))
+        theta_1_meas.append(theta_1_meas[k-1]+(-1*dtheta1_dt[k]*Ts)+rand1)
+        theta_2_meas.append(theta_2_meas[k-1]+(-1*dtheta2_dt[k]*Ts)+rand2)
 
         #Calculating the angular difference between the two samples
         delta_theta_1.append(theta_1_meas[k]-theta_1_meas[k-1])
@@ -173,31 +226,36 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
-    #print(theta)
-    print(s)
-    #print(dtheta2_dt)
-    #print(theta_2_meas)
-    #print(delta_theta_2)
-    #print(lin_vel)
-    #print(dtheta2_dt)
-    #print(dtheta1_dt)
+        tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
+        k += 1
         
     #print(lin_vel)
-    #print(x)
-    plt.figure()
-    plt.plot(theta)
-    plt.figure()
-    plt.plot(x,y)
-    plt.show()
+    #print(delta_ye)
 
+    #plt.figure()
+    plt.plot(x,y,label = "Actual trajectory")
+    # plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
+    plt.title("Trajectory following")
+    plt.legend(loc="upper left")
+    plt.xlabel("x [m]")
+    plt.ylabel("y [m]")
+    plt.show()
+    #plt.figure()
+    #plt.plot(t,tot_error,label="Total error")
+    #plt.title("Error measurement")
+    #plt.xlabel("Simulation time [s]")
+    #plt.ylabel("Total error [m]")
+    #plt.legend(loc="upper left")
+    #plt.figure()
+    #plt.plot(theta)
+    #plt.ylabel("Theta [rad]")
+    #plt.xlabel("Number of samples")
 simulation()
 
 
 
-
-
-    
-
-
-
+def rotate90deg(theta, r, L,):
+    dtheta1_dt = 0.1
+    dtheta2_dt = -0.1
     
