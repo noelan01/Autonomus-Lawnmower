@@ -116,16 +116,18 @@ class Regulation():
         #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. The model has defined the opposite sign of positive angular velocity, which means we have to change it so that the model is the same as the lawnmower
         dtheta0_dt = -1*delta_omega0
         dtheta1_dt = -1*delta_omega1
+        
+        max_speed = 6.5
 
-        if dtheta0_dt > 6.5:        # clamping left
-            dtheta0_dt = 6.5
-        elif dtheta0_dt < -6.5:
-            dtheta0_dt = -6.5
+        if dtheta0_dt > max_speed:        # clamping left
+            dtheta0_dt = max_speed
+        elif dtheta0_dt < -max_speed:
+            dtheta0_dt = -max_speed
 
-        if dtheta1_dt > 6.5:        # clamping right
-            dtheta1_dt = 6.5
-        elif dtheta1_dt < -6.5:
-            dtheta1_dt = -6.5
+        if dtheta1_dt > max_speed:        # clamping right
+            dtheta1_dt = max_speed
+        elif dtheta1_dt < -max_speed:
+            dtheta1_dt = -max_speed
 
 
         print("DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
