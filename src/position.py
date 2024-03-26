@@ -224,7 +224,7 @@ def simulation():
         tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
         k += 1
         
-    #print(lin_vel)
+    print(lin_vel)
     #print(delta_ye)
 
     #plt.figure()

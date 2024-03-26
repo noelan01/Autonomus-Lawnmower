@@ -82,18 +82,18 @@ class sequencePlanner:
 
     def upperLeftCorner(self,path):
         path.set_path(self.goalLine/2-self.goalAreaWidth/2,self.sideLine,1,self.sideLine,self.ppm)
-        path.set_upper_left_corner(1,(0,self.sideLine),100)
+        path.set_upper_left_corner(1,(0,self.sideLine),98)
     def lowerLeftCorner(self,path):
         path.set_path(0,self.sideLine-1,0,1,self.ppm)
-        path.set_bottom_left_corner(1,(0,0),100)
+        path.set_bottom_left_corner(1,(0,0),98)
     
     def bottomRightCorner(self,path):
         path.set_path(1,0,self.goalLine-1,0,self.ppm)
-        path.set_bottom_right_corner(1,(self.goalLine,0),100)
+        path.set_bottom_right_corner(1,(self.goalLine,0),98)
     
     def upperRightCorner(self,path):
         path.set_path(self.goalLine,1,self.goalLine,self.sideLine-1,self.ppm)
-        path.set_upper_right_corner(1,(self.goalLine,self.sideLine),100)
+        path.set_upper_right_corner(1,(self.goalLine,self.sideLine),98)
 
         
 
