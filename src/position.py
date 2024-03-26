@@ -12,6 +12,7 @@ import RouteSequencePlanner
 path = path_planner.Path()
 route = RouteSequencePlanner.sequencePlanner()
 
+
     
 #Importing the Kalman filter code
 import kalman
@@ -81,6 +82,9 @@ def simulation():
     simTime = 100
     nrOfSteps = int(simTime/Ts)
     
+    #load pitch data from json file
+    route.load_pitch_data()
+
     #Outer lines
     route.outerLines(path)
 
@@ -112,6 +116,7 @@ def simulation():
     route.lowerLeftCorner(path)
     route.bottomRightCorner(path)
     route.upperRightCorner(path)
+    
 
 
 
@@ -229,7 +234,7 @@ def simulation():
 
     #plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
-    #plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    # plt.plot(x_ref,y_ref, label = "Desired trajectory")
     #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
     plt.title("Trajectory following")
     plt.legend(loc="upper left")
