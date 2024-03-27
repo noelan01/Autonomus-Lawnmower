@@ -66,7 +66,7 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0.5, 0, 50, 0, 200)      # (x_0, y_0, x_n, y_n, ppm)
+    path.set_path(0, 0, 50, 0, 200)      # (x_0, y_0, x_n, y_n, ppm)
     #path.set_circle_path(1, (-1,0.4), 500)
 
     

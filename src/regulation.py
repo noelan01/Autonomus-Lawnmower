@@ -112,23 +112,34 @@ class Regulation():
         delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
         delta_S = self.D*math.cos(delta_omega)+self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
 
+        #Old version
         #Calculating delta_omega0(k) and delta_omega1(k)
-        delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
-        delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
+        #delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
+        #delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
+
+        #Calculating delta_omega0(k) and delta_omega1(k)
+        delta_omega1 = 1/self.r*(delta_S + self.L*delta_omega)
+        delta_omega0 = 1/self.r*(delta_S - self.L*delta_omega)
 
         #Calculating the needed angular velocity of each wheel
         #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. 
         #The model has defined the opposite sign of positive angular velocity, 
         #which means we have to change it so that the model is the same as the lawnmower
-        dtheta0_dt = -1*delta_omega0
         dtheta1_dt = -1*delta_omega1
+        dtheta0_dt = -1*delta_omega0
 
-        print("DTHETA 0: ", dtheta0_dt, "DTHETA 1: ", dtheta1_dt)
+        print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
         print("")
 
-        dtheta_sum = dtheta0_dt + dtheta1_dt
-        l_ratio = dtheta0_dt/dtheta_sum
-        r_ratio = dtheta1_dt/dtheta_sum
+        #Old version
+        #dtheta_sum = dtheta0_dt + dtheta1_dt
+        #l_ratio = dtheta0_dt/dtheta_sum
+        #r_ratio = dtheta1_dt/dtheta_sum
+
+        #New version
+        dtheta_sum = dtheta1_dt + dtheta0_dt
+        l_ratio = dtheta1_dt/dtheta_sum
+        r_ratio = dtheta0_dt/dtheta_sum
 
         print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
 
@@ -146,14 +157,14 @@ class Regulation():
                 self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
         else:
             max_steering = 1
-            if l_ratio > r_ratio:                                   # left turn
-                self.steering = max_steering * (l_ratio-r_ratio)
-            else:                                                   # right turn
-                self.steering = - max_steering * (r_ratio-l_ratio)
+            if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
+                self.steering = -max_steering * (l_ratio-r_ratio)
+            else:                                                   # left turn
+                self.steering = max_steering * (r_ratio-l_ratio)
             
 
-
-        speed = (dtheta0_dt + dtheta1_dt)*self.r/2
+        max_speed = 0.65
+        speed = (dtheta1_dt + dtheta0_dt)*self.r/(2*max_speed)
 
         print("calculated speed: ", speed)
         
@@ -179,14 +190,14 @@ class Regulation():
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
         
-        print("WHEELCOUNTER 0: ", wheel_0_counter, "   WHEELCOUNTER 1: ", wheel_1_counter)
-        print("WHEELCOUNTER 0 init: ", wheel_0_counter_init, "   WHEELCOUNTER 1 init: ", wheel_1_counter_init)
+        print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
+        print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
         print("")
 
         #Convert to angular displacement
         #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negative sign and convert it back so that the model can still be used
-        theta_0_meas = wheel_0_counter*2*math.pi/self.PPR*-1
         theta_1_meas = wheel_1_counter*2*math.pi/self.PPR*-1
+        theta_0_meas = wheel_0_counter*2*math.pi/self.PPR*-1
 
         print("ANGLULAR DIST 0: ", theta_0_meas, "ANGLULAR DIST 1: ", theta_1_meas)
         print("")
@@ -197,11 +208,11 @@ class Regulation():
         rand3 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
 
         #Calculating the angular difference between the two samples
-        delta_theta_0 = theta_0_meas-self.theta_0_meas_old
-        delta_theta_1 = theta_1_meas-self.theta_1_meas_old     
+        delta_theta_1 = theta_1_meas-self.theta_1_meas_old
+        delta_theta_0 = theta_0_meas-self.theta_0_meas_old     
 
-        delta_s = self.r/2*(delta_theta_0+delta_theta_1)
-        delta_theta = self.r/(2*self.L)*(delta_theta_0-delta_theta_1)
+        delta_s = self.r/2*(delta_theta_1+delta_theta_0)
+        delta_theta = self.r/(2*self.L)*(delta_theta_1-delta_theta_0)
 
         #Updating the robots base position
         self.x_base = self.x_base + delta_s*math.cos(self.theta_old)
@@ -270,8 +281,8 @@ class Regulation():
         self.theta_old = self.theta
         self.delta_xe_old = delta_xe
         self.delta_ye_old = delta_ye
-        self.theta_0_meas_old = theta_0_meas
         self.theta_1_meas_old = theta_1_meas
+        self.theta_0_meas_old = theta_0_meas
 
         return x_error, y_error, self.x, self.y, self.theta, time
     

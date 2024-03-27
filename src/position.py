@@ -27,7 +27,7 @@ def simulation():
     D = 0.4
     
     #Other variables
-    x = [0.5]
+    x = [0]
     y = [0]
     x_kalman = [0]
     y_kalman = [0]
