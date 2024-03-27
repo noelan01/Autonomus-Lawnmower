@@ -184,7 +184,7 @@ class Regulation():
         print("")
 
         #Convert to angular displacement
-        #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negatie sign and convert it back so that the model can still be used
+        #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negative sign and convert it back so that the model can still be used
         theta_0_meas = wheel_0_counter*2*math.pi/self.PPR*-1
         theta_1_meas = wheel_1_counter*2*math.pi/self.PPR*-1
 

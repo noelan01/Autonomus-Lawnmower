@@ -27,7 +27,7 @@ def simulation():
     D = 0.4
     
     #Other variables
-    x = [0.06]
+    x = [0.5]
     y = [0]
     x_kalman = [0]
     y_kalman = [0]
@@ -237,8 +237,8 @@ def simulation():
         tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
         k += 1
         
-    print(delta_xe)
-    print(lin_vel)
+    print(dtheta1_dt)
+    #print(lin_vel)
     #print(delta_ye)
 
     #plt.figure()
