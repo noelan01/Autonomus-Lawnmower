@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
-JSON_OBJECT2 = "../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json"
+JSON_OBJECT1 = "../assets/data/2024_03_28_ChangedWheelIndex/diag_path.json"
+JSON_OBJECT2 = "../assets/data/2024_03_28_ChangedWheelIndex/ref_diag_path.json"
 
 def plot_data(file1, file2):
     # Load data from JSON files
