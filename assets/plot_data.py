@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "data/2024_03_28_Mossen_rtk/path_straight_line_50_rtk_2.json"
-JSON_OBJECT2 = "data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
-JSON_OBJECT3 = "data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
+JSON_OBJECT1 = "assets/data/2024_03_28_Mossen_rtk/path_straight_line_50_rtk_2.json"
+JSON_OBJECT2 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
+JSON_OBJECT3 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
 
 def plot_data(file1, file2, file3):
     # Load data from JSON files
@@ -37,7 +37,7 @@ def plot_data(file1, file2, file3):
     y_odo = [data3[key][1] for key in data3.keys()]
 
     # Plotting
-    plt.plot(x, y, label='Measured path', color='blue')
+    plt.plot(x, y, label='RTK path', color='blue')
     plt.plot(x_ref, y_ref, label='Reference path', color='orange')
     plt.plot(x_odo, y_odo, label='Odometry path', color='red')
 
