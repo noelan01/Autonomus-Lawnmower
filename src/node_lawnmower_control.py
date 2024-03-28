@@ -59,7 +59,7 @@ class Lawnmower_Control(Node):
         self._msg_angle_offset = Float64()
 
         # other
-        self._update_rate = 40.0
+        self._update_rate = 10.0
         self._rtk_x = 0
         self._rtk_y = 0
         self._rtk_x_accuracy = 0
@@ -96,6 +96,11 @@ class Lawnmower_Control(Node):
         self._coord_init_pos2 = [0,0]
 
         self._rtk_angle_offset = 0
+
+        """
+            ADD INIT FLAGS FOR ALL INIT CALLBACKS
+        """
+        
 
         self._time = 0
         self._time_prev = 0
