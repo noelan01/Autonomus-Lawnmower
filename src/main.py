@@ -32,7 +32,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 1:
+    if total_error < 0.5:
         path.update_point()
         regulator.reset_error_sum()
     
@@ -48,12 +48,17 @@ def write_json(measured_pos, ref_pos):
     json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
     json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
  
-    with open("../assets/data/following_path_08-03-24/circle.json", "w",) as outfile:
+    # with open("../assets/data/2024_03_28_ChangedWheelIndex/path.json", "w",) as outfile:
+    #     outfile.write(json_object)
+    
+    # with open("../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json", "w",) as outfile:
+    #     outfile.write(json_object2)
+
+    with open("assets/data/2024_03_28_ChangedWheelIndex/circle.json", "w",) as outfile:
         outfile.write(json_object)
     
-    with open("../assets/data/following_path_08-03-24/ref_circle.json", "w",) as outfile:
+    with open("assets/data/2024_03_28_ChangedWheelIndex/ref_circle.json", "w",) as outfile:
         outfile.write(json_object2)
-
 
 
 def main():
@@ -66,8 +71,11 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 50, 0, 200)      # (x_0, y_0, x_n, y_n, ppm)
-    #path.set_circle_path(1, (-1,0.4), 500)
+    #path.set_path(0, 0, 1, 0, 100)
+    #path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm)
+    #path.set_path(2,0,2,2,100)
+    radius = 0.5
+    path.set_circle_path(radius, (-radius,0), 300)
 
     
     next_point = path.get_point()
@@ -76,22 +84,21 @@ def main():
     measured_pos = {}
     ref_pos = {}
     angle_offset = 0
-
     while rclpy.ok():
-        
-        if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
-            if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
-                pos1 = drive_node.get_coord_init_pos1()
-                pos2 = drive_node.get_coord_init_pos2()
-                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
+        # if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
+        #     if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
+        #         pos1 = drive_node.get_coord_init_pos1()
+        #         pos2 = drive_node.get_coord_init_pos2()
+        #         print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
 
-                angle_offset = drive_node.get_rtk_angle_offset()
-                print("Angle_offset: ", angle_offset)
+        #         angle_offset = drive_node.get_rtk_angle_offset()
+        #         print("Angle_offset: ", angle_offset)
 
-            rate = drive_node.get_rate()
-            drive_node.drive(0.0, 0.0)
-            rate.sleep()
-
+        #     rate = drive_node.get_rate()
+        #     drive_node.drive(0.0, 0.0)
+        #     rate.sleep()
+        if(False):
+            print(" ")
         else:
             print("-----------------------------------------------")
             # Original regulator
@@ -108,8 +115,8 @@ def main():
 
             # calc next ref point
             next_point = goal(x_error, y_error)
-    
-    #write_json(measured_pos, ref_pos)
+
+    write_json(measured_pos, ref_pos)
 
     drive_node.destroy_node()
     print("End of main")

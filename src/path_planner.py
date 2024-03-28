@@ -65,8 +65,8 @@ class Path():
             print("")
             return (None, None)
         else:
-            # print("DESIRED POINT: ", self._path[self._current_point])
-            # print("")
+            print("DESIRED POINT: ", self._path[self._current_point])
+            print("")
             return self._path[self._current_point]
 
     def set_bottom_right_corner(self,radius,center,num_points):
@@ -104,7 +104,7 @@ class CircularPathPlanner:
         path = []
         for i in range(self.num_points):
             theta = 2 * math.pi * i / self.num_points
-            x = self.center[0] - self.radius * math.cos(theta)
+            x = self.center[0] + self.radius * math.cos(theta)
             y = self.center[1] + self.radius * math.sin(theta)
             path.append((x, y))
         return path

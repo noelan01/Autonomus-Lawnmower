@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.4
+        self.D = 0.1
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         
@@ -28,7 +28,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = - np.pi
+        self.theta = - np.pi/2
 
         self.x_base = 0
         self.y_base = 0
@@ -38,14 +38,14 @@ class Regulation():
 
         # PID PARAMETERS
         # x
-        self.Kp_x = 5
-        self.Ki_x = 0
-        self.Kd_x = 0
+        self.Kp_x = 15
+        self.Ki_x = 10
+        self.Kd_x = 0.05
 
         # y
-        self.Kp_y = 10
-        self.Ki_y = 5
-        self.Kd_y = 0.001
+        self.Kp_y = 15
+        self.Ki_y = 10
+        self.Kd_y = 0.05
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -96,8 +96,8 @@ class Regulation():
         #delta_ye = y_ref - self.y
 
         #Drive with odometry
-        delta_xe = x_ref - x
-        delta_ye = y_ref - y
+        delta_xe = x_ref - self.x
+        delta_ye = y_ref - self.y
 
         self.err_sum_x = self.err_sum_x + delta_xe
         self.err_sum_y = self.err_sum_y + delta_ye 
@@ -151,6 +151,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
+        noel_steering = False
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
@@ -160,6 +161,11 @@ class Regulation():
                     steering = -2
             else:
                 self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
+        elif noel_steering == True:
+            if dtheta0_dt > dtheta1_dt:
+                self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
+            else:
+                self.steering = (dtheta1_dt-dtheta0_dt)/dtheta1_dt
         else:
             max_steering = 1
             if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
@@ -168,15 +174,16 @@ class Regulation():
                 self.steering = max_steering * (r_ratio-l_ratio)
             
 
-        max_speed = 0.65
+        max_speed = 2
         speed = (dtheta1_dt + dtheta0_dt)*self.r/(2*max_speed)
+        # speed = 0.2
 
         print("calculated speed: ", speed)
         
         speed, steering = self.clamping(speed, self.steering)
 
         time_prev, time = self.drive_node.get_time()
-        print("Drive commands:", "SPEED = ", speed, "STEERING = ", steering)
+        print("Drive commands:", "SPEED = ", speed, "STEERING = ", self.steering)
         print("")
 
         #Publish angular and linear velocity to the lawnmower node
@@ -270,14 +277,14 @@ class Regulation():
 
 
         #Updating the chalking mechanism position
-        x = self.x_base - self.D*math.cos(self.theta)
-        y = self.y_base - self.D*math.sin(self.theta)
+        self.x = self.x_base - self.D*math.cos(self.theta)
+        self.y = self.y_base - self.D*math.sin(self.theta)
 
-        self.x = state_x - self.D*math.cos(self.theta)
-        self.y = state_y - self.D*math.sin(self.theta)
+        # self.x = state_x - self.D*math.cos(self.theta)
+        # self.y = state_y - self.D*math.sin(self.theta)
 
-        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
-        print("ODOMETRY X: ", x, "  Y: ", y)
+        # print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
+        print("ODOMETRY X: ", self.x, "  Y: ", self.y)
         print("")
 
         x_error = self.x-x_ref
@@ -307,8 +314,10 @@ class Regulation():
         speed = round(speed, 2)
         steering = round(steering, 2)
 
-        if abs(speed) < 0.2:
+        if speed >= 0 and speed < 0.2:
             speed = 0.2
+        elif speed < 0 and speed >-0.2:
+            speed = -0.2
         elif speed > 1:
             speed = 1
         elif speed < -1:
