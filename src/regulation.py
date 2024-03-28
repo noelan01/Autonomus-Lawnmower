@@ -85,8 +85,7 @@ class Regulation():
         self.steering_prev = 0
 
 
-    def update(self, x_ref, y_ref):
-
+    def update(self, x_ref, y_ref):                             
         x_ref = x_ref
         y_ref = y_ref
         
