@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.1
+        self.D = 0.4
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         
@@ -38,14 +38,26 @@ class Regulation():
 
         # PID PARAMETERS
         # x
-        self.Kp_x = 15
-        self.Ki_x = 10
-        self.Kd_x = 0.05
 
+        # 50 meter straight line, good values
+        # self.Kp_x = 3
+        # self.Ki_x = 2
+        # self.Kd_x = 0.01
+        
+        # # y
+        # self.Kp_y = 20
+        # self.Ki_y = 12
+        # self.Kd_y = 0.5
+
+
+        self.Kp_x = 15
+        self.Ki_x = 8
+        self.Kd_x = 0.5
+        
         # y
         self.Kp_y = 15
-        self.Ki_y = 10
-        self.Kd_y = 0.05
+        self.Ki_y = 8
+        self.Kd_y = 0.5
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -92,12 +104,12 @@ class Regulation():
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
-        #delta_xe = x_ref - self.x
-        #delta_ye = y_ref - self.y
-
-        #Drive with odometry
         delta_xe = x_ref - self.x
         delta_ye = y_ref - self.y
+
+        # #Drive with odometry
+        # delta_xe = x_ref - x
+        # delta_ye = y_ref - y
 
         self.err_sum_x = self.err_sum_x + delta_xe
         self.err_sum_y = self.err_sum_y + delta_ye 
@@ -174,7 +186,7 @@ class Regulation():
                 self.steering = max_steering * (r_ratio-l_ratio)
             
 
-        max_speed = 2
+        max_speed = 4
         speed = (dtheta1_dt + dtheta0_dt)*self.r/(2*max_speed)
         # speed = 0.2
 
@@ -243,7 +255,7 @@ class Regulation():
         print("offset angle: ", offset_angle)
 
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
-
+        y_rotated = y_rotated*(-1)
         # EKF
         use_kalman = False
 
@@ -277,14 +289,14 @@ class Regulation():
 
 
         #Updating the chalking mechanism position
-        self.x = self.x_base - self.D*math.cos(self.theta)
-        self.y = self.y_base - self.D*math.sin(self.theta)
+        x = self.x_base - self.D*math.cos(self.theta)
+        y = self.y_base - self.D*math.sin(self.theta)
 
-        # self.x = state_x - self.D*math.cos(self.theta)
-        # self.y = state_y - self.D*math.sin(self.theta)
+        self.x = state_x - self.D*math.cos(self.theta)
+        self.y = state_y - self.D*math.sin(self.theta)
 
-        # print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
-        print("ODOMETRY X: ", self.x, "  Y: ", self.y)
+        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
+        print("ODOMETRY X: ", x, "  Y: ", y)
         print("")
 
         x_error = self.x-x_ref
@@ -296,7 +308,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y
     
 
     def PID(self, error, kp, ki, kd):
