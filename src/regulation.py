@@ -91,7 +91,6 @@ class Regulation():
         self.theta_0_meas_old = 0
         self.theta_1_meas_old = 0
 
-
         self.PPR = 349
 
         self.steering_prev = 0
