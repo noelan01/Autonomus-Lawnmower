@@ -7,10 +7,11 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
-JSON_OBJECT2 = "../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json"
+JSON_OBJECT1 = "data/2024_03_28_Mossen_rtk/path_straight_line_50_rtk_2.json"
+JSON_OBJECT2 = "data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
+JSON_OBJECT3 = "data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
 
-def plot_data(file1, file2):
+def plot_data(file1, file2, file3):
     # Load data from JSON files
     with open(file1, 'r') as f1:
         data1 = json.load(f1)
@@ -21,6 +22,9 @@ def plot_data(file1, file2):
 
     with open(file2, 'r') as f2:
         data2 = json.load(f2)
+    
+    with open(file3, 'r') as f3:
+        data3 = json.load(f3)
 
     # Extract x and y values from the data
 
@@ -29,9 +33,13 @@ def plot_data(file1, file2):
     x_ref = [data2[key][0] for key in data2.keys()]
     y_ref = [data2[key][1] for key in data2.keys()]
 
+    x_odo = [data3[key][0] for key in data3.keys()]
+    y_odo = [data3[key][1] for key in data3.keys()]
+
     # Plotting
     plt.plot(x, y, label='Measured path', color='blue')
     plt.plot(x_ref, y_ref, label='Reference path', color='orange')
+    plt.plot(x_odo, y_odo, label='Odometry path', color='red')
 
     # Add legends and labels
     plt.legend()
@@ -46,5 +54,6 @@ if __name__ == "__main__":
     # Replace 'file1.json' and 'file2.json' with your actual file paths
     file1_path = JSON_OBJECT1
     file2_path = JSON_OBJECT2
+    file3_path = JSON_OBJECT3
 
-    plot_data(file1_path, file2_path)
+    plot_data(file1_path, file2_path, file3_path)
