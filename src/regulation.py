@@ -91,8 +91,13 @@ class Regulation():
         y_ref = y_ref
         
         #Implementing the kinematic model of the robot
-        delta_xe = x_ref - self.x
-        delta_ye = y_ref - self.y
+        #Drive with RTK data
+        #delta_xe = x_ref - self.x
+        #delta_ye = y_ref - self.y
+
+        #Drive with odometry
+        delta_xe = x_ref - x
+        delta_ye = y_ref - y
 
         self.err_sum_x = self.err_sum_x + delta_xe
         self.err_sum_y = self.err_sum_y + delta_ye 
