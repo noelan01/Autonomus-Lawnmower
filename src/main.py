@@ -32,7 +32,7 @@ def constant_speed():
 def goal(x_error,y_error):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 0.5:
+    if total_error < 1:
         path.update_point()
         regulator.reset_error_sum()
     
@@ -44,9 +44,10 @@ def goal(x_error,y_error):
     return point
 
 
-def write_json(measured_pos, ref_pos):
+def write_json(measured_pos, ref_pos, odometry_pos):
     json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
     json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
+    json_object3 = json.dumps(odometry_pos, indent=2, ensure_ascii=True)
  
     # with open("../assets/data/2024_03_28_ChangedWheelIndex/path.json", "w",) as outfile:
     #     outfile.write(json_object)
@@ -54,11 +55,14 @@ def write_json(measured_pos, ref_pos):
     # with open("../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json", "w",) as outfile:
     #     outfile.write(json_object2)
 
-    with open("assets/data/2024_03_28_ChangedWheelIndex/circle.json", "w",) as outfile:
+    with open("assets/data/2024_03_28_Mossen_rtk/path_straight_line_30_rtk_2.json", "w",) as outfile:
         outfile.write(json_object)
     
-    with open("assets/data/2024_03_28_ChangedWheelIndex/ref_circle.json", "w",) as outfile:
+    with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_2.json", "w",) as outfile:
         outfile.write(json_object2)
+
+    with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_odometry_2.json", "w",) as outfile:
+        outfile.write(json_object3)
 
 
 def main():
@@ -71,11 +75,16 @@ def main():
     rate.sleep()
     
     # set ref path
-    #path.set_path(0, 0, 1, 0, 100)
-    #path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm)
-    #path.set_path(2,0,2,2,100)
-    radius = 0.5
-    path.set_circle_path(radius, (-radius,0), 300)
+    # path.set_path(0, 0, 50, 0, 25)
+
+    # path.set_path(0,0,100,0, 20)
+
+    # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm)
+    # path.set_path(2,0,2,2,100)
+
+    # kom ihåg startvinkel
+    radius = 9.15
+    path.set_circle_path(radius, (-radius,0), 3000)
 
     
     next_point = path.get_point()
@@ -83,26 +92,25 @@ def main():
 
     measured_pos = {}
     ref_pos = {}
+    odometry_pos = {}
     angle_offset = 0
     while rclpy.ok():
-        # if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
-        #     if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
-        #         pos1 = drive_node.get_coord_init_pos1()
-        #         pos2 = drive_node.get_coord_init_pos2()
-        #         print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
+        if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
+            if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
+                pos1 = drive_node.get_coord_init_pos1()
+                pos2 = drive_node.get_coord_init_pos2()
+                print("Positions set. Pos1: ", pos1, "Pos2: ", pos2)
 
-        #         angle_offset = drive_node.get_rtk_angle_offset()
-        #         print("Angle_offset: ", angle_offset)
+                angle_offset = drive_node.get_rtk_angle_offset()
+                print("Angle_offset: ", angle_offset)
 
-        #     rate = drive_node.get_rate()
-        #     drive_node.drive(0.0, 0.0)
-        #     rate.sleep()
-        if(False):
-            print(" ")
+            rate = drive_node.get_rate()
+            drive_node.drive(0.0, 0.0)
+            rate.sleep()
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x, y, theta, time = regulator.update(next_point[0], next_point[1])
+            x_error, y_error, x, y, theta, time, x_odometry, y_odometry = regulator.update(next_point[0], next_point[1])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -112,11 +120,12 @@ def main():
             # Data logging
             measured_pos[time] = [x, y, theta]
             ref_pos[time] = [next_point[0], next_point[1]]
+            odometry_pos[time] = [x_odometry, y_odometry]
 
             # calc next ref point
             next_point = goal(x_error, y_error)
 
-    write_json(measured_pos, ref_pos)
+    # write_json(measured_pos, ref_pos, odometry_pos)
 
     drive_node.destroy_node()
     print("End of main")
