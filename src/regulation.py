@@ -255,7 +255,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = True
+        use_kalman = False
 
         if use_kalman == True:
             yaw_angle = self.theta
@@ -317,7 +317,7 @@ class Regulation():
 
     def reset_error_sum(self):
         self.err_sum_x = 0
-        self.err_sum_y = 0
+        #self.err_sum_y = 0
 
 
     def clamping(self, speed, steering):
