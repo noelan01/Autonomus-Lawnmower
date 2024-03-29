@@ -161,7 +161,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
-        noel_steering = True
+        noel_steering = False
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
