@@ -255,7 +255,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = False
+        use_kalman = True
 
         if use_kalman == True:
             yaw_angle = self.theta
