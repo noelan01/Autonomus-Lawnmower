@@ -136,7 +136,7 @@ def simulation():
     while reached_goal == False:
 
         #Updating the point when we are close enough to the previous point
-        if tot_error <0.5:
+        if tot_error <1:
             path.update_point()
 
         next_point = path.get_point()
