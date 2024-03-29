@@ -34,9 +34,9 @@ class sequencePlanner:
     def outerLines(self,path):
         #Algorithm for painting the outer lines
         path.set_path(0, 0, self.goalLine,0,self.ppm)
-        #path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm)
-        #path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm)
-        #path.set_path(0, self.sideLine, 0, 0, self.ppm)
+        path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm)
+        path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm)
+        path.set_path(0, self.sideLine, 0, 0, self.ppm)
 
     def lowerPenaltyArea(self,path):
         #Algorithm for painting the downer goal area of the field

@@ -54,7 +54,7 @@ def simulation():
     Ts = 0.1
 
     #Time constant for inner system
-    T = 0.1
+    T = 0.5
 
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -243,8 +243,8 @@ def simulation():
 
     #plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
-    # plt.plot(x_ref,y_ref, label = "Desired trajectory")
-    #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
+    plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
     plt.title("Trajectory following")
     plt.legend(loc="upper left")
     plt.xlabel("x [m]")
