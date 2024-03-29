@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.4
+        self.D = 0.1
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         
@@ -28,7 +28,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = - np.pi/2
+        self.theta = - np.pi
 
         self.x_base = 0
         self.y_base = 0
@@ -40,24 +40,24 @@ class Regulation():
         # x
 
         # 50 meter straight line, good values
-        # self.Kp_x = 3
-        # self.Ki_x = 2
-        # self.Kd_x = 0.01
+        self.Kp_x = 3
+        self.Ki_x = 2
+        self.Kd_x = 0.01
         
         # # y
-        # self.Kp_y = 20
-        # self.Ki_y = 12
-        # self.Kd_y = 0.5
+        self.Kp_y = 20
+        self.Ki_y = 12
+        self.Kd_y = 0.5
 
 
-        self.Kp_x = 15
-        self.Ki_x = 8
-        self.Kd_x = 0.5
+        #self.Kp_x = 15
+        #self.Ki_x = 8
+        #self.Kd_x = 0.5
         
         # y
-        self.Kp_y = 15
-        self.Ki_y = 8
-        self.Kd_y = 0.5
+        #self.Kp_y = 15
+        #self.Ki_y = 8
+        #self.Kd_y = 0.5
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -161,7 +161,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
-        noel_steering = False
+        noel_steering = True
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
@@ -173,7 +173,7 @@ class Regulation():
                 self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
         elif noel_steering == True:
             if dtheta0_dt > dtheta1_dt:
-                self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
+                self.steering = -(dtheta0_dt-dtheta1_dt)/dtheta0_dt
             else:
                 self.steering = (dtheta1_dt-dtheta0_dt)/dtheta1_dt
         else:

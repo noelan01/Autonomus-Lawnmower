@@ -75,7 +75,7 @@ def main():
     rate.sleep()
     
     # set ref path
-    # path.set_path(0, 0, 50, 0, 25)
+    path.set_path(0, 0, 50, 0, 25)
 
     # path.set_path(0,0,100,0, 20)
 
@@ -83,8 +83,8 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 9.15
-    path.set_circle_path(radius, (-radius,0), 3000)
+    #radius = 9.15
+    #path.set_circle_path(radius, (-radius,0), 3000)
 
     
     next_point = path.get_point()
