@@ -13,11 +13,6 @@ sim_data = sub_data.Get_data()
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
-
-Nu görs state estimationen med GPS data enbart samt predictions baserat på
-control inputs. Skapa sensor fusion function?
-
-https://www.youtube.com/watch?v=whSw42XddsU&ab_channel=BrianDouglas
 """
 ###################################################################
 
