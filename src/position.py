@@ -100,7 +100,7 @@ def simulation():
     #Outer lines
     route.outerLines(path)
     
-    #Lower penalty area
+    # Lower penalty area
     route.lowerPenaltyArea(path)
     
     route.lowerArc(path)

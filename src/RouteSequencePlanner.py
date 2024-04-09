@@ -19,7 +19,7 @@ class sequencePlanner:
         self.arcFromMid = math.sqrt(self.radius**2-5.5**2)
         self.lowerArcAngle = math.acos(5.5/self.radius)
         self.ppm = 25
-        
+
         self.file_path = "UserInputServer/data.json"
 
         self.load_pitch_data()
