@@ -29,12 +29,12 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error,y_error):
+def goal(x_error,y_error,dir):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     if total_error < 1:
         path.update_point()
-        regulator.reset_error_sum()
+        regulator.reset_error_sum(dir)
     
     point = path.get_point()
     
@@ -114,7 +114,7 @@ def main():
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x, y, theta, time, x_odometry, y_odometry = regulator.update(next_point[0], next_point[1])
+            x_error, y_error, x, y, theta, time, x_odometry, y_odometry,dir = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -127,7 +127,7 @@ def main():
             odometry_pos[time] = [x_odometry, y_odometry]
 
             # calc next ref point
-            next_point = goal(x_error, y_error)
+            next_point = goal(x_error, y_error,dir)
 
     # write_json(measured_pos, ref_pos, odometry_pos)
 

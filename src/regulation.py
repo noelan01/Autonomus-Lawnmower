@@ -96,9 +96,10 @@ class Regulation():
         self.steering_prev = 0
 
 
-    def update(self, x_ref, y_ref):                             
+    def update(self, x_ref, y_ref,dir):                             
         x_ref = x_ref
         y_ref = y_ref
+        dir = dir
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
@@ -293,9 +294,10 @@ class Regulation():
         self.x = state_x - self.D*math.cos(self.theta)
         self.y = state_y - self.D*math.sin(self.theta)
 
-        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
+        print("Kalman X: ", self.x, "  Y: ", self.y)
         print("ODOMETRY X: ", x, "  Y: ", y)
-        print("")
+        print("RTK X: ",x_rotated, "Y: ", y_rotated)
+        print("Direction",dir )
 
         x_error = self.x-x_ref
         y_error = self.y-y_ref
@@ -306,7 +308,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir
     
 
     def PID(self, error, kp, ki, kd):
@@ -315,9 +317,11 @@ class Regulation():
 
     
 
-    def reset_error_sum(self):
-        self.err_sum_x = 0
-        #self.err_sum_y = 0
+    def reset_error_sum(self,dir):
+        if dir == "x":
+            self.err_sum_x = 0
+        elif dir == "y":
+            self.err_sum_y = 0
 
 
     def clamping(self, speed, steering):
