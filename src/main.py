@@ -79,7 +79,7 @@ def main():
 
     # path.set_path(0,0,100,0, 20)
 
-    # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm)
+    # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm, dir)
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
