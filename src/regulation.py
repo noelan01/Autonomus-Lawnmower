@@ -50,14 +50,14 @@ class Regulation():
         self.Kd_y = 0.5
 
 
-        #self.Kp_x = 15
-        #self.Ki_x = 8
-        #self.Kd_x = 0.5
+        self.Kp_x = 20
+        self.Ki_x = 8
+        self.Kd_x = 0.5
         
         # y
-        #self.Kp_y = 15
-        #self.Ki_y = 8
-        #self.Kd_y = 0.5
+        self.Kp_y = 20
+        self.Ki_y = 8
+        self.Kd_y = 0.5
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
