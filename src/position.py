@@ -49,12 +49,12 @@ def simulation():
     y_error = [0]
     theta_kalman =[0]
 
-    Kp_x = 15
-    Ki_x = 10
-    Kd_x = 0.01
-    Kp_y = 15
-    Ki_y = 10
-    Kd_y = 0.01
+    Kp_x = 20
+    Ki_x = 0
+    Kd_x = 0
+    Kp_y = 20
+    Ki_y = 0
+    Kd_y = 0
 
     Ts = 0.1
 
