@@ -28,7 +28,7 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
-        self.theta = - np.pi/2
+        self.theta = - np.pi
 
         self.x_base = 0
         self.y_base = 0
@@ -50,12 +50,12 @@ class Regulation():
         # self.Kd_y = 0.5
 
 
-        self.Kp_x = 15
+        self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
         
         # y
-        self.Kp_y = 15
+        self.Kp_y = 20
         self.Ki_y = 8
         self.Kd_y = 0.5
 
