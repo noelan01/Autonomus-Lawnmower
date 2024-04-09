@@ -49,7 +49,7 @@ class Regulation():
         self.Ki_y = 12
         self.Kd_y = 0.5
 
-
+        """
         self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
@@ -58,6 +58,7 @@ class Regulation():
         self.Kp_y = 20
         self.Ki_y = 8
         self.Kd_y = 0.5
+        """
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -96,9 +97,10 @@ class Regulation():
         self.steering_prev = 0
 
 
-    def update(self, x_ref, y_ref):                             
+    def update(self, x_ref, y_ref,dir):                             
         x_ref = x_ref
         y_ref = y_ref
+        dir = dir
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
@@ -161,7 +163,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
-        noel_steering = False
+        noel_steering = True
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
@@ -173,9 +175,9 @@ class Regulation():
                 self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
         elif noel_steering == True:
             if dtheta0_dt > dtheta1_dt:
-                self.steering = -(dtheta0_dt-dtheta1_dt)/dtheta0_dt
+                self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
             else:
-                self.steering = (dtheta1_dt-dtheta0_dt)/dtheta1_dt
+                self.steering = -(dtheta1_dt-dtheta0_dt)/dtheta1_dt
         else:
             max_steering = 1
             if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
@@ -290,15 +292,17 @@ class Regulation():
         x = self.x_base - self.D*math.cos(self.theta)
         y = self.y_base - self.D*math.sin(self.theta)
 
+        #Updating based on Kalman
         self.x = state_x - self.D*math.cos(self.theta)
         self.y = state_y - self.D*math.sin(self.theta)
 
-        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
+        print("Kalman X: ", self.x, "  Y: ", self.y)
         print("ODOMETRY X: ", x, "  Y: ", y)
-        print("")
+        print("RTK X: ",x_rotated, "Y: ", y_rotated)
+        print("Direction",dir )
 
-        x_error = self.x-x_ref
-        y_error = self.y-y_ref
+        x_error = x_ref-self.x
+        y_error = y_ref-self.y
         
         self.theta_old = self.theta
         self.delta_xe_old = delta_xe
@@ -306,7 +310,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,x_rotated, y_rotated
     
 
     def PID(self, error, kp, ki, kd):
@@ -315,9 +319,11 @@ class Regulation():
 
     
 
-    def reset_error_sum(self):
-        self.err_sum_x = 0
-        #self.err_sum_y = 0
+    def reset_error_sum(self,dir):
+        if dir == "x":
+            self.err_sum_x = 0
+        elif dir == "y":
+            self.err_sum_y = 0
 
 
     def clamping(self, speed, steering):

@@ -68,8 +68,8 @@ class Path():
             print("")
             return (None, None,None)
         else:
-            # print("DESIRED POINT: ", self._path[self._current_point])
-            # print("")
+            print("DESIRED POINT: ", self._path[self._current_point])
+            print("")
             return self._path[self._current_point]
 
     def set_bottom_right_corner(self,radius,center,num_points,dir):
