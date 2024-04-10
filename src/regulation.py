@@ -23,23 +23,20 @@ class Regulation():
         self.L = (43/2+3.2/2)/100
         
         #Other variables
-        self.x = 0
-        self.y = 0
+        self.x_odometry = 0
+        self.y_odometry = 0
         self.x_kalman = 0
         self.y_kalman = 0
+
+        self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
         self.theta = - np.pi
 
         self.x_base = 0
         self.y_base = 0
-        self.x_base_kalman = 0
-        self.y_base_kalman = 0
         self.theta_kalman = 0
 
         # PID PARAMETERS
-        # x
-
-        # 50 meter straight line, good values
         self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
@@ -94,12 +91,8 @@ class Regulation():
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
-        delta_xe = x_ref - self.x
-        delta_ye = y_ref - self.y
-
-        # #Drive with odometry
-        # delta_xe = x_ref - x
-        # delta_ye = y_ref - y
+        delta_xe = x_ref - self.rtk_x
+        delta_ye = y_ref - self.rtk_y
 
         self.err_sum_x = self.err_sum_x + delta_xe
         self.err_sum_y = self.err_sum_y + delta_ye 
@@ -247,7 +240,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = False
+        use_kalman = True
 
         if use_kalman == True:
             yaw_angle = self.theta
@@ -279,23 +272,25 @@ class Regulation():
 
 
         #Updating the chalking mechanism position
-        x = self.x_base - self.D*math.cos(self.theta)
-        y = self.y_base - self.D*math.sin(self.theta)
+        self.x_odometry = self.x_base - self.D*math.cos(self.theta)
+        self.y_odometry = self.y_base - self.D*math.sin(self.theta)
 
         #Updating based on Kalman
-        self.x = state_x - self.D*math.cos(self.theta)
-        self.y = state_y - self.D*math.sin(self.theta)
+        self.x_kalman = state_x - self.D*math.cos(self.theta)
+        self.y_kalman = state_y - self.D*math.sin(self.theta)
 
-        rtk_x = x_rotated - self.D*math.cos(self.theta)
-        rtk_y = y_rotated - self.D*math.sin(self.theta)
+        #Updating based on rtk
+        self.rtk_x = x_rotated - self.D*math.cos(self.theta)
+        self.rtk_y = y_rotated - self.D*math.sin(self.theta)
 
-        print("Kalman X: ", self.x, "  Y: ", self.y)
-        print("ODOMETRY X: ", x, "  Y: ", y)
-        print("RTK X: ",rtk_x, "Y: ", rtk_y)
+        print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
+        print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
+        print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
         print("Direction",dir )
 
-        x_error = x_ref-self.x
-        y_error = y_ref-self.y
+        # these decide what measurements we base the control on
+        x_error = x_ref-self.rtk_x
+        y_error = y_ref-self.rtk_y
         
         self.theta_old = self.theta
         self.delta_xe_old = delta_xe
@@ -303,7 +298,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y
+        return x_error, y_error, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y
     
 
     def PID(self, error, kp, ki, kd):

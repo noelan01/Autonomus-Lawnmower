@@ -7,6 +7,10 @@ import rclpy
 import threading
 import numpy as np
 import json
+#read keys
+import sys
+import tty
+import termios
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
@@ -50,24 +54,12 @@ def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
         "ref":ref_pos,
         "odometry":odometry_pos,
         "rtk":rtk_pos}
+
     json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
-    #json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
-    #json_object3 = json.dumps(odometry_pos, indent=2, ensure_ascii=True)
- 
-    # with open("../assets/data/2024_03_28_ChangedWheelIndex/path.json", "w",) as outfile:
-    #     outfile.write(json_object)
-    
-    # with open("../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json", "w",) as outfile:
-    #     outfile.write(json_object2)
 
-    with open("assets/data/kalman_test_med_rtk_som_styrning_50_m.json", "w",) as outfile:
+    with open("assets/data/10-04-24/50m-straight.json", "w",) as outfile:
         outfile.write(json_object)
-    
-    #with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_2.json", "w",) as outfile:
-    #    outfile.write(json_object2)
-
-    #with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_odometry_2.json", "w",) as outfile:
-    #    outfile.write(json_object3)
+   
 
 
 def main():
@@ -80,10 +72,10 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 10, 0, 60,"x")
-    path.set_path(10, 0, 10, 10, 60,"y")
-    path.set_path(10, 10, 0, 10,60,"x")
-    path.set_path(0, 10, 0, 0, 60,"y")
+    path.set_path(0, 0, 30, 0, 40,"x")
+    #path.set_path(10, 0, 10, 10, 60,"y")
+    #path.set_path(10, 10, 0, 10,60,"x")
+    #path.set_path(0, 10, 0, 0, 60,"y")
 
 
     # path.set_path(0,0,100,0, 20)
@@ -120,7 +112,7 @@ def main():
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry,dir,x_rtk,y_rtk = regulator.update(next_point[0], next_point[1], next_point[2])
+            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -136,7 +128,8 @@ def main():
             # calc next ref point
             next_point = goal(x_error, y_error,dir)
 
-    #write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos)
+
+    write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
     drive_node.destroy_node()
     print("End of main")
