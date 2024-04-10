@@ -18,8 +18,8 @@ class sequencePlanner:
         self.goalWidth = 7.32
         self.arcFromMid = math.sqrt(self.radius**2-5.5**2)
         self.lowerArcAngle = math.acos(5.5/self.radius)
-        self.ppm = 50
-        
+        self.ppm = 25
+
         self.file_path = "UserInputServer/data.json"
 
         self.load_pitch_data()
@@ -33,81 +33,83 @@ class sequencePlanner:
     
     def outerLines(self,path):
         #Algorithm for painting the outer lines
-        path.set_path(0, 0, self.goalLine,0,self.ppm)
-        #path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm)
-        #path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm)
-        #path.set_path(0, self.sideLine, 0, 0, self.ppm)
+        path.set_path(0, 0, self.goalLine,0,self.ppm,"x")
+        path.set_path(self.goalLine, 0, self.goalLine,self.sideLine, self.ppm,"y")
+        path.set_path(self.goalLine, self.sideLine, 0, self.sideLine, self.ppm,"x")
+        path.set_path(0, self.sideLine, 0, 0, self.ppm,"y")
 
     def lowerPenaltyArea(self,path):
         #Algorithm for painting the downer goal area of the field
-        path.set_path(0, 0, (self.goalLine-self.penaltyAreaWidth)/2, 0, self.ppm)
-        path.set_path((self.goalLine-self.penaltyAreaWidth)/2, 0, (self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.ppm)
-        path.set_path((self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, 0, self.ppm)
+        path.set_path(0, 0, (self.goalLine-self.penaltyAreaWidth)/2, 0, self.ppm,"x")
+        path.set_path((self.goalLine-self.penaltyAreaWidth)/2, 0, (self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.ppm,"y")
+        path.set_path((self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, 0, self.ppm,"y")
 
     def lowerArc(self,path):
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, 0, self.goalLine/2-self.penaltyAreaWidth/2, 0, self.ppm)
-        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2, 0, self.goalLine/2-self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.goalLine/2-self.arcFromMid, self.penaltyAreaHeight, self.ppm)
-        path.set_lower_arc_path(self.radius, (self.goalLine/2, 11), 8000)
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, 0, self.goalLine/2-self.penaltyAreaWidth/2, 0, self.ppm,"x")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2, 0, self.goalLine/2-self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.ppm,"y")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.goalLine/2-self.arcFromMid, self.penaltyAreaHeight, self.ppm,"x")
+        path.set_lower_arc_path(self.radius, (self.goalLine/2, 11), 8000,"None")
         
 
 
     def lowerGoalArea(self,path):
-        path.set_path(self.goalLine/2+self.arcFromMid, self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, 0, self.ppm)
-        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, 0, self.goalLine/2+self.goalAreaWidth/2, 0, self.ppm)
-        path.set_path(self.goalLine/2+self.goalAreaWidth/2,0, self.goalLine/2+self.goalAreaWidth/2, self.goalAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.goalAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2-self.goalAreaWidth/2, self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, 0, self.ppm)
+        path.set_path(self.goalLine/2+self.arcFromMid, self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, 0, self.ppm,"y")
+        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, 0, self.goalLine/2+self.goalAreaWidth/2, 0, self.ppm,"x")
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2,0, self.goalLine/2+self.goalAreaWidth/2, self.goalAreaHeight, self.ppm,"y")
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.goalAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine/2-self.goalAreaWidth/2, self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, 0, self.ppm,"y")
 
     def transportMidLine(self, path):
-        path.set_path(self.goalLine/2-self.goalAreaWidth/2, 0, 0, self.sideLine/2, self.ppm)
+        path.set_path(self.goalLine/2-self.goalAreaWidth/2, 0, 0, self.sideLine/2, self.ppm,"None")
     
     #Have to put quite a lot of points in the circle for it to follow
     def midLine(self,path):
-        path.set_path(0, self.sideLine/2, self.goalLine/2-self.radius, self.sideLine/2, self.ppm)
-        path.set_circle_path(self.radius, (self.goalLine/2,self.sideLine/2), 8000)
-        path.set_path(self.goalLine/2-self.radius, self.sideLine/2, self.goalLine,self.sideLine/2, self.ppm)
+        path.set_path(0, self.sideLine/2, self.goalLine/2-self.radius, self.sideLine/2, self.ppm,"x")
+        path.set_circle_path(self.radius, (self.goalLine/2,self.sideLine/2), 2000,"None")
+        path.set_path(self.goalLine/2-self.radius, self.sideLine/2, self.goalLine,self.sideLine/2, self.ppm,"x")
 
     def driveToUpperLineFromMid(self,path):
-        path.set_path(self.goalLine,self.sideLine/2, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.ppm)
+        path.set_path(self.goalLine,self.sideLine/2, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.ppm,"None")
 
     def upperPenaltyArea(self,path):
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2, self.sideLine,self.ppm)
-        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine, self.goalLine/2-self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine-self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine-self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine-self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.ppm)
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2, self.sideLine,self.ppm,"x")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine, self.goalLine/2-self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.ppm,"y")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine-self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine-self.penaltyAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine-self.penaltyAreaHeight, self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.ppm,"y")
 
     def upperArc(self,path):
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2,
-                        self.sideLine-self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine-self.penaltyAreaHeight, self.goalLine/2-self.arcFromMid, 
-                        self.sideLine-self.penaltyAreaHeight,self.ppm)
-        path.set_upper_arc_path(self.radius, (self.goalLine/2, self.sideLine-11),8000)
-        path.set_path(self.goalLine/2+self.arcFromMid, self.sideLine-self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine, self.ppm)
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine,self.ppm,"x")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,self.sideLine,self.goalLine/2-self.penaltyAreaWidth/2,
+                        self.sideLine-self.penaltyAreaHeight, self.ppm,"y")
+        path.set_path(self.goalLine/2-self.penaltyAreaWidth/2,
+                        self.sideLine-self.penaltyAreaHeight, self.goalLine/2-self.arcFromMid, 
+                        self.sideLine-self.penaltyAreaHeight,self.ppm,"x")
+        path.set_upper_arc_path(self.radius, (self.goalLine/2, self.sideLine-11),8000,"None")
+        path.set_path(self.goalLine/2+self.arcFromMid, self.sideLine-self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine-self.penaltyAreaHeight, self.goalLine/2+self.penaltyAreaWidth/2, self.sideLine, self.ppm,"y")
 
     def upperGoalArea(self,path):
-        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine, self.goalLine/2+self.goalAreaWidth/2, self.sideLine, self.ppm)
-        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.sideLine,self.goalLine/2+self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.ppm)
-        path.set_path(self.goalLine/2-self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.sideLine, self.ppm)
+        path.set_path(self.goalLine-(self.goalLine-self.penaltyAreaWidth)/2, self.sideLine, self.goalLine/2+self.goalAreaWidth/2, self.sideLine, self.ppm,"x")
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.sideLine,self.goalLine/2+self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.ppm,"y")
+        path.set_path(self.goalLine/2+self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.ppm,"x")
+        path.set_path(self.goalLine/2-self.goalAreaWidth/2, self.sideLine-self.goalAreaHeight, self.goalLine/2-self.goalAreaWidth/2, self.sideLine, self.ppm,"y")
 
     def upperLeftCorner(self,path):
-        path.set_path(self.goalLine/2-self.goalAreaWidth/2,self.sideLine,1,self.sideLine,self.ppm)
-        path.set_upper_left_corner(1,(0,self.sideLine),400)
+        path.set_path(self.goalLine/2-self.goalAreaWidth/2,self.sideLine,1,self.sideLine,self.ppm,"None")
+        path.set_upper_left_corner(1,(0,self.sideLine),400,"None")
     def lowerLeftCorner(self,path):
-        path.set_path(0,self.sideLine-1,0,1,self.ppm)
-        path.set_bottom_left_corner(1,(0,0),400)
+        path.set_path(0,self.sideLine-1,0,1,self.ppm,"None")
+        path.set_bottom_left_corner(1,(0,0),400,"None")
     
     def bottomRightCorner(self,path):
-        path.set_path(1,0,self.goalLine-1,0,self.ppm)
-        path.set_bottom_right_corner(1,(self.goalLine,0),400)
+        path.set_path(1,0,self.goalLine-1,0,self.ppm,"None")
+        path.set_bottom_right_corner(1,(self.goalLine,0),400,"None")
     
     def upperRightCorner(self,path):
-        path.set_path(self.goalLine,1,self.goalLine,self.sideLine-1,self.ppm)
-        path.set_upper_right_corner(1,(self.goalLine,self.sideLine),400)
+        path.set_path(self.goalLine,1,self.goalLine,self.sideLine-1,self.ppm,"None")
+        path.set_upper_right_corner(1,(self.goalLine,self.sideLine),400,"None")
 
         
 

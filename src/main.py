@@ -29,12 +29,12 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error,y_error):
+def goal(x_error,y_error,dir):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     if total_error < 1:
         path.update_point()
-        regulator.reset_error_sum()
+        regulator.reset_error_sum(dir)
     
     point = path.get_point()
     
@@ -44,10 +44,15 @@ def goal(x_error,y_error):
     return point
 
 
-def write_json(measured_pos, ref_pos, odometry_pos):
-    json_object = json.dumps(measured_pos, indent=2, ensure_ascii=True)
-    json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
-    json_object3 = json.dumps(odometry_pos, indent=2, ensure_ascii=True)
+def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
+    json_data = {
+        "kalman":kalman_pos,
+        "ref":ref_pos,
+        "odometry":odometry_pos,
+        "rtk":rtk_pos}
+    json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
+    #json_object2 = json.dumps(ref_pos, indent=2, ensure_ascii=True)
+    #json_object3 = json.dumps(odometry_pos, indent=2, ensure_ascii=True)
  
     # with open("../assets/data/2024_03_28_ChangedWheelIndex/path.json", "w",) as outfile:
     #     outfile.write(json_object)
@@ -55,14 +60,14 @@ def write_json(measured_pos, ref_pos, odometry_pos):
     # with open("../assets/data/2024_03_28_ChangedWheelIndex/ref_path.json", "w",) as outfile:
     #     outfile.write(json_object2)
 
-    with open("assets/data/2024_03_28_Mossen_rtk/path_straight_line_30_rtk_2.json", "w",) as outfile:
+    with open("assets/data/kalman_test_med_rtk_som_styrning_50_m.json", "w",) as outfile:
         outfile.write(json_object)
     
-    with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_2.json", "w",) as outfile:
-        outfile.write(json_object2)
+    #with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_2.json", "w",) as outfile:
+    #    outfile.write(json_object2)
 
-    with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_odometry_2.json", "w",) as outfile:
-        outfile.write(json_object3)
+    #with open("assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_30_odometry_2.json", "w",) as outfile:
+    #    outfile.write(json_object3)
 
 
 def main():
@@ -75,15 +80,15 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 10, 0, 10)
-    path.set_path(10, 0, 10, 10, 10)
-    path.set_path(10, 10, 0, 10,10)
-    path.set_path(0, 10, 0, 0, 10)
+    path.set_path(0, 0, 50, 0, 25,"x")
+    #path.set_path(10, 0, 10, 10, 10,"y")
+    #path.set_path(10, 10, 0, 10,10,"x")
+    #path.set_path(0, 10, 0, 0, 10,"y")
 
 
     # path.set_path(0,0,100,0, 20)
 
-    # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm)
+    # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm, dir)
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
@@ -94,9 +99,10 @@ def main():
     next_point = path.get_point()
     print("PATH", path._path)
 
-    measured_pos = {}
+    kalman_pos = {}
     ref_pos = {}
     odometry_pos = {}
+    rtk_pos = {}
     angle_offset = 0
     while rclpy.ok():
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
@@ -114,7 +120,7 @@ def main():
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x, y, theta, time, x_odometry, y_odometry = regulator.update(next_point[0], next_point[1])
+            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry,dir,x_rtk,y_rtk = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -122,14 +128,15 @@ def main():
             print("TIME: ", time)
 
             # Data logging
-            measured_pos[time] = [x, y, theta]
+            kalman_pos[time] = [x_kalman, y_kalman, theta]
             ref_pos[time] = [next_point[0], next_point[1]]
             odometry_pos[time] = [x_odometry, y_odometry]
+            rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error)
+            next_point = goal(x_error, y_error,dir)
 
-    # write_json(measured_pos, ref_pos, odometry_pos)
+    #write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos)
 
     drive_node.destroy_node()
     print("End of main")

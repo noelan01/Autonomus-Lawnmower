@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.4
+        self.D = 0.1
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         
@@ -40,16 +40,16 @@ class Regulation():
         # x
 
         # 50 meter straight line, good values
-        # self.Kp_x = 3
-        # self.Ki_x = 2
-        # self.Kd_x = 0.01
+        self.Kp_x = 3
+        self.Ki_x = 2
+        self.Kd_x = 0.01
         
         # # y
-        # self.Kp_y = 20
-        # self.Ki_y = 12
-        # self.Kd_y = 0.5
+        self.Kp_y = 20
+        self.Ki_y = 12
+        self.Kd_y = 0.5
 
-
+        """
         self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
@@ -58,6 +58,7 @@ class Regulation():
         self.Kp_y = 20
         self.Ki_y = 8
         self.Kd_y = 0.5
+        """
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -91,16 +92,15 @@ class Regulation():
         self.theta_0_meas_old = 0
         self.theta_1_meas_old = 0
 
-
         self.PPR = 349
 
         self.steering_prev = 0
 
 
-    def update(self, x_ref, y_ref):
-
+    def update(self, x_ref, y_ref,dir):                             
         x_ref = x_ref
         y_ref = y_ref
+        dir = dir
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
@@ -163,7 +163,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
-        noel_steering = False
+        noel_steering = True
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
@@ -177,7 +177,7 @@ class Regulation():
             if dtheta0_dt > dtheta1_dt:
                 self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
             else:
-                self.steering = (dtheta1_dt-dtheta0_dt)/dtheta1_dt
+                self.steering = -(dtheta1_dt-dtheta0_dt)/dtheta1_dt
         else:
             max_steering = 1
             if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
@@ -257,7 +257,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = False
+        use_kalman = True
 
         if use_kalman == True:
             yaw_angle = self.theta
@@ -292,15 +292,20 @@ class Regulation():
         x = self.x_base - self.D*math.cos(self.theta)
         y = self.y_base - self.D*math.sin(self.theta)
 
+        #Updating based on Kalman
         self.x = state_x - self.D*math.cos(self.theta)
         self.y = state_y - self.D*math.sin(self.theta)
 
-        print("RTK ROTATED X: ", self.x, "  Y: ", self.y)
-        print("ODOMETRY X: ", x, "  Y: ", y)
-        print("")
+        rtk_x = x_rotated - self.D*math.cos(self.theta)
+        rtk_y = y_rotated - self.D*math.sin(self.theta)
 
-        x_error = self.x-x_ref
-        y_error = self.y-y_ref
+        print("Kalman X: ", self.x, "  Y: ", self.y)
+        print("ODOMETRY X: ", x, "  Y: ", y)
+        print("RTK X: ",rtk_x, "Y: ", rtk_y)
+        print("Direction",dir )
+
+        x_error = x_ref-self.x
+        y_error = y_ref-self.y
         
         self.theta_old = self.theta
         self.delta_xe_old = delta_xe
@@ -308,7 +313,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y
     
 
     def PID(self, error, kp, ki, kd):
@@ -317,9 +322,11 @@ class Regulation():
 
     
 
-    def reset_error_sum(self):
-        self.err_sum_x = 0
-        self.err_sum_y = 0
+    def reset_error_sum(self,dir):
+        if dir == "x":
+            self.err_sum_x = 0
+        elif dir == "y":
+            self.err_sum_y = 0
 
 
     def clamping(self, speed, steering):
