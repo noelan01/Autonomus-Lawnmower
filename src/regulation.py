@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.1
+        self.D = 0.2
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         
@@ -40,16 +40,6 @@ class Regulation():
         # x
 
         # 50 meter straight line, good values
-        self.Kp_x = 3
-        self.Ki_x = 2
-        self.Kd_x = 0.01
-        
-        # # y
-        self.Kp_y = 20
-        self.Ki_y = 12
-        self.Kd_y = 0.5
-
-        """
         self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
@@ -58,7 +48,7 @@ class Regulation():
         self.Kp_y = 20
         self.Ki_y = 8
         self.Kd_y = 0.5
-        """
+    
 
         #Put the sample time to the same as the update time of the drive publish node
         self.Ts = 1/self.drive_node.get_updaterate()
@@ -163,7 +153,7 @@ class Regulation():
         #Converting the linear and angular velocity to the signals
 
         jonas_steering = False
-        noel_steering = True
+        noel_steering = False
 
         if jonas_steering == True:
             if dtheta0_dt == -dtheta1_dt:
@@ -186,8 +176,8 @@ class Regulation():
                 self.steering = max_steering * (r_ratio-l_ratio)
             
 
-        max_speed = 16
-        speed = (dtheta1_dt + dtheta0_dt)*self.r/(2*max_speed)
+        speed_clamp = 16
+        speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
         # speed = 0.2
 
         print("calculated speed: ", speed)
@@ -257,7 +247,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = True
+        use_kalman = False
 
         if use_kalman == True:
             yaw_angle = self.theta
