@@ -186,7 +186,7 @@ class Regulation():
                 self.steering = max_steering * (r_ratio-l_ratio)
             
 
-        max_speed = 4
+        max_speed = 16
         speed = (dtheta1_dt + dtheta0_dt)*self.r/(2*max_speed)
         # speed = 0.2
 
