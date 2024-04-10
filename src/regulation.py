@@ -296,9 +296,12 @@ class Regulation():
         self.x = state_x - self.D*math.cos(self.theta)
         self.y = state_y - self.D*math.sin(self.theta)
 
+        rtk_x = x_rotated - self.D*math.cos(self.theta)
+        rtk_y = y_rotated - self.D*math.sin(self.theta)
+
         print("Kalman X: ", self.x, "  Y: ", self.y)
         print("ODOMETRY X: ", x, "  Y: ", y)
-        print("RTK X: ",x_rotated, "Y: ", y_rotated)
+        print("RTK X: ",rtk_x, "Y: ", rtk_y)
         print("Direction",dir )
 
         x_error = x_ref-self.x
@@ -310,7 +313,7 @@ class Regulation():
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,x_rotated, y_rotated
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y
     
 
     def PID(self, error, kp, ki, kd):
