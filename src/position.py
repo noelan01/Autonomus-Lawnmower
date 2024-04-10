@@ -48,9 +48,14 @@ def simulation():
     x_error = [0]
     y_error = [0]
     theta_kalman =[0]
-    Kp = 15
-    Ki = 10
-    Kd = 0.01
+
+    Kp_x = 20
+    Ki_x = 0
+    Kd_x = 0
+    Kp_y = 20
+    Ki_y = 0
+    Kd_y = 0
+
     Ts = 0.1
 
     #Time constant for inner system
@@ -73,7 +78,8 @@ def simulation():
     err_sum_x = 0
     err_sum_y = 0
     s = [0]
-    tot_error = 0
+    tot_error = [0]
+    dir = [0]
 
     delta_omega = [0]
     delta_S = [0]
@@ -85,7 +91,7 @@ def simulation():
     
     
     #Defining simulation time
-    simTime = 100
+    simTime = 300
     nrOfSteps = int(simTime/Ts)
     
     #load pitch data from json file
@@ -93,8 +99,8 @@ def simulation():
 
     #Outer lines
     route.outerLines(path)
-    """
-    #Lower penalty area
+    
+    # Lower penalty area
     route.lowerPenaltyArea(path)
     
     route.lowerArc(path)
@@ -102,10 +108,10 @@ def simulation():
     #Lower goal area
     route.lowerGoalArea(path)
 
-    #Transport path to reach mid line
+    # #Transport path to reach mid line
     route.transportMidLine(path)
 
-    #Midline and mid circle
+    # #Midline and mid circle
     route.midLine(path)
     
     #Transport from midLine to upper goal area
@@ -116,6 +122,7 @@ def simulation():
     route.upperArc(path)
 
     #upper goal area
+
     route.upperGoalArea(path)
 
     #Corner flags
@@ -123,28 +130,27 @@ def simulation():
     route.lowerLeftCorner(path)
     route.bottomRightCorner(path)
     route.upperRightCorner(path)
-    """
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
 
     #The first iteration of the while loop, k needs to equal 1
     k = 1
-    #Vector of simulation time used for plots
-    #t = np.linspace(0,simTime,len(path._path))
-
+    
     while reached_goal == False:
 
         #Updating the point when we are close enough to the previous point
-        if tot_error <0.5:
+        if tot_error[-1] <0.1:
             path.update_point()
 
         next_point = path.get_point()
         x_ref.append(next_point[0])
         y_ref.append(next_point[1])
+        dir.append(next_point[2])
 
+        
         #When there are no more points in the path planner list, we end the simulation
-        if next_point[0] == None or next_point[1] == None:
+        if next_point[0] == None or next_point[1] == None or next_point[2]==None:
             reached_goal = True
             break
 
@@ -155,9 +161,28 @@ def simulation():
         err_sum_x = err_sum_x + delta_xe[k]
         err_sum_y = err_sum_y + delta_ye[k] 
         
+
+        #Basing the controller on the direction the lawnmower is travelling
+        if dir[k] =="x" or dir[k]=="y":
+            Kp_x = 20
+            Ki_x = 12
+            Kd_x = 0.5
+            Kp_y = 20
+            Ki_y = 12
+            Kd_y = 0.5
+        else:
+            Kp_x = 20
+            Ki_x =12
+            Kd_x = 0.5
+            Kp_y = 20
+            Ki_y = 12
+            Kd_y = 0.5
+            
+
+
         #Increasing the error with the PID-controller
-        delta_x.append(delta_xe[k]*Kp+Ki*Ts*err_sum_x+Kd*(delta_xe[k]-delta_xe[k-1])/Ts)
-        delta_y.append(delta_ye[k]*Kp+Ki*Ts*err_sum_y+Kd*(delta_ye[k]-delta_ye[k-1])/Ts)
+        delta_x.append(delta_xe[k]*Kp_x+Ki_x*Ts*err_sum_x+Kd_x*(delta_xe[k]-delta_xe[k-1])/Ts)
+        delta_y.append(delta_ye[k]*Kp_y+Ki_y*Ts*err_sum_y+Kd_y*(delta_ye[k]-delta_ye[k-1])/Ts)
 
         #Calculating delta_omega(k) and delta_S(k)
         delta_omega.append(cmath.asin((delta_x[k]*math.sin(theta[k-1])-delta_y[k]*math.cos(theta[k-1]))/D).real)
@@ -234,28 +259,29 @@ def simulation():
 
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
-        tot_error = math.sqrt(x_error[k]**2+y_error[k]**2)
+        tot_error.append(math.sqrt(x_error[k]**2+y_error[k]**2))
         k += 1
+    
+    #Vector of simulation time used for plots
+    t = np.linspace(0,simTime,len(tot_error))
+    print(len(path._path))
         
-    print(dtheta1_dt)
-    #print(lin_vel)
-    #print(delta_ye)
-
-    #plt.figure()
+    plt.figure()
     plt.plot(x,y,label = "Actual trajectory")
-    # plt.plot(x_ref,y_ref, label = "Desired trajectory")
-    #plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp, Ki, Kd))
+    #plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp_x, Ki_x, Kd_x))
     plt.title("Trajectory following")
     plt.legend(loc="upper left")
     plt.xlabel("x [m]")
     plt.ylabel("y [m]")
     plt.show()
-    #plt.figure()
-    #plt.plot(t,tot_error,label="Total error")
-    #plt.title("Error measurement")
-    #plt.xlabel("Simulation time [s]")
-    #plt.ylabel("Total error [m]")
-    #plt.legend(loc="upper left")
+    plt.figure()
+    plt.plot(t,tot_error,label="Total error")
+    plt.title("Error measurement")
+    plt.xlabel("Simulation time [s]")
+    plt.ylabel("Total error [m]")
+    plt.legend(loc="upper left")
+    plt.show()
     #plt.figure()
     #plt.plot(theta)
     #plt.ylabel("Theta [rad]")
@@ -263,8 +289,3 @@ def simulation():
 simulation()
 
 
-
-def rotate90deg(theta, r, L,):
-    dtheta1_dt = 0.1
-    dtheta2_dt = -0.1
-    
