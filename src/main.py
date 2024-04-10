@@ -80,10 +80,10 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 50, 0, 25,"x")
-    #path.set_path(10, 0, 10, 10, 10,"y")
-    #path.set_path(10, 10, 0, 10,10,"x")
-    #path.set_path(0, 10, 0, 0, 10,"y")
+    path.set_path(0, 0, 10, 0, 60,"x")
+    path.set_path(10, 0, 10, 10, 60,"y")
+    path.set_path(10, 10, 0, 10,60,"x")
+    path.set_path(0, 10, 0, 0, 60,"y")
 
 
     # path.set_path(0,0,100,0, 20)
