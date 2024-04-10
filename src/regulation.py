@@ -26,6 +26,7 @@ class Regulation():
         self.x = 0
         self.y = 0
         self.y_old = 0
+        self.x_old = 0
         self.x_kalman = 0
         self.y_kalman = 0
 
@@ -36,6 +37,7 @@ class Regulation():
         self.x_base_kalman = 0
         self.y_base_kalman = 0
         self.theta_kalman = 0
+        self.reset_integral = False
 
         # PID PARAMETERS
         # x
@@ -298,20 +300,31 @@ class Regulation():
         x_error = x_ref-self.x
         y_error = y_ref-self.y
         
-        signs_to_check = [self.y,self.y_old]
-        signs = np.sign(signs_to_check)
+        if dir == "x":
+            signs_to_check = [self.y,self.y_old]
+            signs = np.sign(signs_to_check)
+        elif dir == "y":
+            signs_to_check = [self.x,self.x_old]
+            signs = np.sign(signs_to_check)
         
-        print("Signs: ", signs)
+        if signs[0]!=signs[1]:
+            reset_integral = True
+            print("Crossed line")
+        else:
+            reset_integral = False
+            print("Signs: ",signs)
+        
 
-
+        #Updating the old variables to the new ones
         self.theta_old = self.theta
         self.delta_xe_old = delta_xe
         self.delta_ye_old = delta_ye
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y
+        self.x_old = self.x
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y
+        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y,reset_integral
     
 
     def PID(self, error, kp, ki, kd):
@@ -320,11 +333,18 @@ class Regulation():
 
     
 
-    def reset_error_sum(self,dir):
+    def reset_error_sum_dir(self,dir):
         if dir == "x":
             self.err_sum_x = 0
         elif dir == "y":
             self.err_sum_y = 0
+
+    def reset_error_sum_crossed_line(self,dir):
+        if dir == "x":
+            self.err_sum_y = 0
+        elif dir == "y":
+            self.err_sum_x = 0        
+
 
 
     def clamping(self, speed, steering):
