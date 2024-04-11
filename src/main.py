@@ -36,19 +36,22 @@ def constant_speed():
 def goal(x_error, y_error, dir, reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    # if total_error < 1:
-    #     path.update_point()
-    #     regulator.reset_error_sum_dir(dir)
+    seperate = True
+    
+    if seperate == True:
+        if dir =="x":
+            if x_error<0.3:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+        elif dir == "y":
+            if y_error<0.1:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+    else:
 
-    if dir =="x":
-        if x_error<0.1:
+        if total_error < 1:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
-    elif dir == "y":
-        if y_error<0.1:
-            path.update_point()
-            regulator.reset_error_sum_dir(dir)
-
     
     if reset_integral == True:
         regulator.reset_error_sum_crossed_line(dir)
@@ -70,7 +73,7 @@ def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
 
     json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
 
-    with open("assets/data/10-04-24/50m-straight.json", "w",) as outfile:
+    with open("assets/data/11-04-24/50m-straight-20-12-0_5.json", "w",) as outfile:
         outfile.write(json_object)
    
 
@@ -85,7 +88,8 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 30, 0, 25,"x")
+    path.set_path(0, 0, 50, 0, 10,"x")
+    #path.set_path(30, 0, 0, 0, 40,"x")
     #path.set_path(10, 0, 10, 10, 60,"y")
     #path.set_path(10, 10, 0, 10,60,"x")
     #path.set_path(0, 10, 0, 0, 60,"y")
@@ -124,8 +128,9 @@ def main():
             rate.sleep()
         else:
             print("-----------------------------------------------")
+
             # Original regulator
-            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -133,10 +138,10 @@ def main():
             print("TIME: ", time)
 
             # Data logging
-            kalman_pos[time] = [x_kalman, y_kalman, theta]
-            ref_pos[time] = [next_point[0], next_point[1]]
-            odometry_pos[time] = [x_odometry, y_odometry]
-            rtk_pos[time] = [x_rtk,y_rtk]
+            #kalman_pos[time] = [x_kalman, y_kalman, theta]
+            #ref_pos[time] = [next_point[0], next_point[1]]
+            #odometry_pos[time] = [x_odometry, y_odometry]
+            #rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
             next_point = goal(x_error, y_error, dir,reset_integral)

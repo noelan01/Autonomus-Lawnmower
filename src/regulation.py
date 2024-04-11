@@ -44,13 +44,13 @@ class Regulation():
 
         # 50 meter straight line, good values
         self.Kp_x = 20
-        self.Ki_x = 8
-        self.Kd_x = 0.5
+        self.Ki_x = 20
+        self.Kd_x = 0.25
         
         # y
         self.Kp_y = 20
-        self.Ki_y = 8
-        self.Kd_y = 0.5
+        self.Ki_y = 20
+        self.Kd_y = 0.25   
     
 
         #Put the sample time to the same as the update time of the drive publish node
@@ -282,15 +282,16 @@ class Regulation():
 
 
         #Updating the chalking mechanism position
-        x = self.x_base - self.D*math.cos(self.theta)
-        y = self.y_base - self.D*math.sin(self.theta)
+        self.x_odometry = self.x_base -  self.D*math.cos(self.theta)
+        self.y_odometry = self.y_base -  self.D*math.sin(self.theta)
 
         #Updating based on Kalman
-        self.x = state_x - self.D*math.cos(self.theta)
-        self.y = state_y - self.D*math.sin(self.theta)
+        self.x_kalman = state_x -  self.D*math.cos(self.theta)
+        self.y_kalman = state_y -  self.D*math.sin(self.theta)
 
-        rtk_x = x_rotated - self.D*math.cos(self.theta)
-        rtk_y = y_rotated - self.D*math.sin(self.theta)
+        #Updating based on rtk
+        self.rtk_x = x_rotated -  self.D*math.cos(self.theta)
+        self.rtk_y = y_rotated -  self.D*math.sin(self.theta)
 
         print("Kalman X: ", self.x, "  Y: ", self.y)
         print("ODOMETRY X: ", x, "  Y: ", y)
@@ -372,10 +373,10 @@ class Regulation():
             steering = 2.0
         elif steering < -2:
             steering = -2.0
-        elif steering > 1 and steering <= 2:
-            speed = 0.3
-        elif steering > 0.5 and steering <= 1:
-            speed = 0.5
+        #elif steering > 1 and steering <= 2:
+        #    speed = 0.3
+        ##elif steering > 0.5 and steering <= 1:
+        #    speed = 0.5
 
 
         return float(speed), float(steering)
