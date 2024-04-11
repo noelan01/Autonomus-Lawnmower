@@ -1,20 +1,25 @@
-import gpiozero 
+import RPi.GPIO as GPIO
 import time
-from gpiozero.pins.mock import MockFactory
 
-RELAY_PIN = 4
-# Set the pin factory explicitly to the mock factory for non-Raspberry Pi environments
+# Customize this GPIO pin to match your relay connection
+RELAY_PIN = 7
 
-gpiozero.Device.pin_factory = MockFactory()
-relay = gpiozero.OutputDevice(RELAY_PIN, active_high=True, initial_value=False)
+# Set up the GPIO mode
+GPIO.setmode(GPIO.BOARD)  
+GPIO.setup(RELAY_PIN, GPIO.OUT)
+
+GPIO.output(RELAY_PIN, False)
 
 try:
     while True:
-        relay.on()
-        time.sleep(5)
+        GPIO.output(RELAY_PIN, GPIO.HIGH)
+        print("relay on")
+        time.sleep(1)
 
-        relay.off()
-        time.sleep(5)
-except KeyboardInterrupt:
-    print("stop the circuit")
-    relay.close()
+        GPIO.output(RELAY_PIN, GPIO.LOW)
+        print("relay off")
+        time.sleep(1)     
+
+except KeyboardInterrupt:   
+    # Important: Clean up GPIO at the end
+    GPIO.cleanup()
