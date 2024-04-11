@@ -33,12 +33,15 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error,y_error,dir):
+def goal(x_error,y_error,dir,reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     if total_error < 1:
         path.update_point()
-        regulator.reset_error_sum(dir)
+        regulator.reset_error_sum_dir(dir)
+    
+    if reset_integral == True:
+        regulator.reset_error_sum_crossed_line(dir)
     
     point = path.get_point()
     
@@ -72,7 +75,7 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 30, 0, 40,"x")
+    path.set_path(0, 0, 30, 0, 25,"x")
     #path.set_path(10, 0, 10, 10, 60,"y")
     #path.set_path(10, 10, 0, 10,60,"x")
     #path.set_path(0, 10, 0, 0, 60,"y")
@@ -112,7 +115,7 @@ def main():
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk = regulator.update(next_point[0], next_point[1], next_point[2])
+            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry,dir,x_rtk,y_rtk,reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -126,10 +129,10 @@ def main():
             rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error,dir)
-
+            next_point = goal(x_error, y_error,dir,reset_integral)
 
     write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    
 
     drive_node.destroy_node()
     print("End of main")
