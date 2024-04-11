@@ -33,7 +33,7 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error,y_error,dir,reset_integral):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     if total_error < 1:
@@ -115,7 +115,7 @@ def main():
         else:
             print("-----------------------------------------------")
             # Original regulator
-            x_error, y_error, x_kalman, y_kalman, theta, time, x_odometry, y_odometry,dir,x_rtk,y_rtk,reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
+            x_error, y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
@@ -129,10 +129,10 @@ def main():
             rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error,dir,reset_integral)
+            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
 
     write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
-    
+
 
     drive_node.destroy_node()
     print("End of main")
