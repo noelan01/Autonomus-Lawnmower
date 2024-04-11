@@ -41,11 +41,11 @@ def goal(x_error, y_error, dir, reset_integral):
     #     regulator.reset_error_sum_dir(dir)
 
     if dir =="x":
-        if x_error<0.2:
+        if x_error<0.1:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     elif dir == "y":
-        if y_error<0.2:
+        if y_error<0.1:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
 
