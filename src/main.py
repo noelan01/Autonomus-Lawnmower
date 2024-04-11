@@ -36,9 +36,19 @@ def constant_speed():
 def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 1:
-        path.update_point()
-        regulator.reset_error_sum_dir(dir)
+    # if total_error < 1:
+    #     path.update_point()
+    #     regulator.reset_error_sum_dir(dir)
+
+    if dir =="x":
+        if x_error<0.2:
+            path.update_point()
+            regulator.reset_error_sum_dir(dir)
+    elif dir == "y":
+        if y_error<0.2:
+            path.update_point()
+            regulator.reset_error_sum_dir(dir)
+
     
     if reset_integral == True:
         regulator.reset_error_sum_crossed_line(dir)
