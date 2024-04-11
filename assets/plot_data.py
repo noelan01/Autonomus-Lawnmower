@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "assets/data/kalman_test_med_rtk_som_styrning_50_m.json"
+#JSON_OBJECT1 = "assets/data/10-04-24/50m-straight.json"
+JSON_OBJECT1 = "rosbag2_2024_03_28-16_45_52/data.json"
 #JSON_OBJECT2 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
 #JSON_OBJECT3 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
 

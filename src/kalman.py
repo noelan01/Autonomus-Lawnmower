@@ -39,7 +39,7 @@ class EKF():
         
         self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # Predikterad kovarians matris av state estimering  JUSTERA
         self._H_k = np.eye(3)   # Mätningsmatris
-        self._R_k = np.eye(3)   # Sensorbrus kovarians matris       justera vid behov
+        self._R_k = np.eye(3) * 0.9  # Sensorbrus kovarians matris       justera vid behov
         self._F_k = np.eye(3)   # Funkar som A matrisen
         self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
 
@@ -146,14 +146,16 @@ class EKF():
         y_prev = prev_pos[1][0]
         theta_prev = prev_pos[2][0]
         
-        """
-        Q_k = np.array([[np.cov([x,x]).item(), np.cov([x,y]).item(), np.cov([x,theta]).item()],
-                        [np.cov([y,x]).item(), np.cov([y,y]).item(), np.cov([y,theta]).item()],
-                        [np.cov([theta,x]).item(), np.cov([theta,y]).item(), np.cov([theta,theta]).item()]])
+        
         """
         Q_k = np.array([[np.cov([x_prev,x]).item(),     10e-6,                          0],
                         [10e-6,                             np.cov([y_prev,y]).item(),  0],
                         [0,                             0,                          np.cov([theta_prev,theta]).item()]])
+        """
+        Q_k = np.array([[1, 0, 0],
+                        [0, 1,  0],
+                        [0, 0, 1]]) * 0.05
+
         self._Q_k = Q_k
         
     """
