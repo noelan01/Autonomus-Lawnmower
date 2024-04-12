@@ -73,6 +73,9 @@ class Points_Init():
             self._done = True
             keep_going = False
 
+        else:
+            keep_going = True
+
 
     def append_point(self, point, east, north):
         if point == 1:
