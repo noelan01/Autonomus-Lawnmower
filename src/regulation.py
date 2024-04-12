@@ -30,19 +30,16 @@ class Regulation():
         self.x_kalman = 0
         self.y_kalman = 0
 
+        self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
+
         self.theta = - np.pi
 
         self.x_base = 0
         self.y_base = 0
-        self.x_base_kalman = 0
-        self.y_base_kalman = 0
         self.theta_kalman = 0
         self.reset_integral = False
 
         # PID PARAMETERS
-        # x
-
-        # 50 meter straight line, good values
         self.Kp_x = 20
         self.Ki_x = 8
         self.Kd_x = 0.5
@@ -88,6 +85,10 @@ class Regulation():
         self.PPR = 349
 
         self.steering_prev = 0
+        self.x_error = 0
+        self.y_error = 0
+        self.x_error_old = 0
+        self.y_error_old = 0
 
 
     def update(self, x_ref, y_ref,dir):                             
@@ -97,12 +98,8 @@ class Regulation():
         
         #Implementing the kinematic model of the robot
         #Drive with RTK data
-        delta_xe = x_ref - self.x
-        delta_ye = y_ref - self.y
-
-        # #Drive with odometry
-        # delta_xe = x_ref - x
-        # delta_ye = y_ref - y
+        delta_xe = x_ref - self.rtk_x
+        delta_ye = y_ref - self.rtk_y
 
         self.err_sum_x = self.err_sum_x + delta_xe
         self.err_sum_y = self.err_sum_y + delta_ye 
@@ -293,19 +290,22 @@ class Regulation():
         self.rtk_x = x_rotated -  self.D*math.cos(self.theta)
         self.rtk_y = y_rotated -  self.D*math.sin(self.theta)
 
-        print("Kalman X: ", self.x, "  Y: ", self.y)
-        print("ODOMETRY X: ", x, "  Y: ", y)
-        print("RTK X: ",rtk_x, "Y: ", rtk_y)
+        print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
+        print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
+        print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
         print("Direction",dir )
 
-        x_error = x_ref-self.x
-        y_error = y_ref-self.y
+        # these decide what measurements we base the control on
+        self.x_error_old = self.x_error
+        self.x_error_old = self.x_error
+        self.x_error = x_ref-self.x_kalman
+        self.y_error = y_ref-self.y_kalman
         
         if dir == "x":
-            signs_to_check = [self.y,self.y_old]
+            signs_to_check = [self.y_kalman,self.y_old]
             signs = np.sign(signs_to_check)
         elif dir == "y":
-            signs_to_check = [self.x,self.x_old]
+            signs_to_check = [self.x_kalman,self.x_old]
             signs = np.sign(signs_to_check)
         
         if signs[0]!=signs[1]:
@@ -322,10 +322,11 @@ class Regulation():
         self.delta_ye_old = delta_ye
         self.theta_1_meas_old = theta_1_meas
         self.theta_0_meas_old = theta_0_meas
-        self.y_old = self.y
-        self.x_old = self.x
+        self.y_old = self.y_kalman
+        self.x_old = self.x_kalman
+        
 
-        return x_error, y_error, self.x, self.y, self.theta, time, x,y, dir,rtk_x, rtk_y,reset_integral
+        return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
 
     def PID(self, error, kp, ki, kd):
