@@ -12,6 +12,16 @@ import sys
 import tty
 import termios
 
+import RPi.GPIO as GPIO
+import time
+
+#Relay init
+RELAY_PIN = 7
+GPIO.setmode(GPIO.BOARD)  
+GPIO.setup(RELAY_PIN, GPIO.OUT)
+GPIO.output(RELAY_PIN, False)
+
+
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
 
@@ -112,6 +122,7 @@ def main():
     odometry_pos = {}
     rtk_pos = {}
     angle_offset = 0
+
     while rclpy.ok():
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
             if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
@@ -142,12 +153,14 @@ def main():
             odometry_pos[time] = [x_odometry, y_odometry]
             rtk_pos[time] = [x_rtk,y_rtk]
 
+            GPIO.output(RELAY_PIN, GPIO.HIGH)
             # calc next ref point
             next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
 
     write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
-
+    GPIO.output(RELAY_PIN, GPIO.LOW)
+    GPIO.cleanup()
     drive_node.destroy_node()
     print("End of main")
 
