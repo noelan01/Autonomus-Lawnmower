@@ -279,16 +279,16 @@ class Regulation():
 
 
         #Updating the chalking mechanism position
-        self.x_odometry = self.x_base - self.D*math.cos(self.theta)
-        self.y_odometry = self.y_base - self.D*math.sin(self.theta)
+        self.x_odometry = self.x_base -  self.D*math.cos(self.theta)
+        self.y_odometry = self.y_base -  self.D*math.sin(self.theta)
 
         #Updating based on Kalman
-        self.x_kalman = state_x - self.D*math.cos(self.theta)
-        self.y_kalman = state_y - self.D*math.sin(self.theta)
+        self.x_kalman = state_x -  self.D*math.cos(self.theta)
+        self.y_kalman = state_y -  self.D*math.sin(self.theta)
 
         #Updating based on rtk
-        self.rtk_x = x_rotated - self.D*math.cos(self.theta)
-        self.rtk_y = y_rotated - self.D*math.sin(self.theta)
+        self.rtk_x = x_rotated -  self.D*math.cos(self.theta)
+        self.rtk_y = y_rotated -  self.D*math.sin(self.theta)
 
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
