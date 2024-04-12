@@ -146,7 +146,7 @@ def main():
             # calc next ref point
             next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
 
-    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
 
     drive_node.destroy_node()
