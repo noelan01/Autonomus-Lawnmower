@@ -36,9 +36,22 @@ def constant_speed():
 def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    if total_error < 1:
-        path.update_point()
-        regulator.reset_error_sum_dir(dir)
+    seperate = True
+    
+    if seperate == True:
+        if dir =="x":
+            if x_error<0.1:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+        elif dir == "y":
+            if y_error<0.1:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+    else:
+
+        if total_error < 1:
+            path.update_point()
+            regulator.reset_error_sum_dir(dir)
     
     if reset_integral == True:
         regulator.reset_error_sum_crossed_line(dir)
@@ -114,8 +127,9 @@ def main():
             rate.sleep()
         else:
             print("-----------------------------------------------")
+
             # Original regulator
-            x_error, y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
 
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])

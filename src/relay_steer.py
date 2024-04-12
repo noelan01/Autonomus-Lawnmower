@@ -1,31 +1,25 @@
 import RPi.GPIO as GPIO
 import time
 
-"""
-Remember to use sudo when running script, for the raspberry pi to be able to access GPIO pins
-"""
+# Customize this GPIO pin to match your relay connection
+RELAY_PIN = 7
 
-# Set the GPIO mode
-GPIO.setmode(GPIO.BOARD)
+# Set up the GPIO mode
+GPIO.setmode(GPIO.BOARD)  
+GPIO.setup(RELAY_PIN, GPIO.OUT)
 
-# Set the pin number you're using for the relay
-relay_pin = 7
-
-# Setup the GPIO pin as an output
-GPIO.setup(relay_pin, GPIO.OUT)
+GPIO.output(RELAY_PIN, False)
 
 try:
     while True:
-        # Turn on the relay
-        GPIO.output(relay_pin, GPIO.HIGH)
-        print("Relay is ON")
-        time.sleep(1)  # Wait for 1 second
+        GPIO.output(RELAY_PIN, GPIO.HIGH)
+        print("relay on")
+        time.sleep(1)
 
-        # Turn off the relay
-        GPIO.output(relay_pin, GPIO.LOW)
-        print("Relay is OFF")
-        time.sleep(1)  # Wait for 1 second
+        GPIO.output(RELAY_PIN, GPIO.LOW)
+        print("relay off")
+        time.sleep(1)     
 
-except KeyboardInterrupt:
-    # Clean up GPIO settings
+except KeyboardInterrupt:   
+    # Important: Clean up GPIO at the end
     GPIO.cleanup()
