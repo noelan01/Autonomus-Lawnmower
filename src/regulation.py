@@ -41,13 +41,13 @@ class Regulation():
 
         # PID PARAMETERS
         self.Kp_x = 20
-        self.Ki_x = 8
-        self.Kd_x = 0.5
+        self.Ki_x = 20
+        self.Kd_x = 0.25
         
         # y
         self.Kp_y = 20
-        self.Ki_y = 8
-        self.Kd_y = 0.5
+        self.Ki_y = 20
+        self.Kd_y = 0.25   
     
 
         #Put the sample time to the same as the update time of the drive publish node
@@ -374,10 +374,10 @@ class Regulation():
             steering = 2.0
         elif steering < -2:
             steering = -2.0
-        elif steering > 1 and steering <= 2:
-            speed = 0.3
-        elif steering > 0.5 and steering <= 1:
-            speed = 0.5
+        #elif steering > 1 and steering <= 2:
+        #    speed = 0.3
+        ##elif steering > 0.5 and steering <= 1:
+        #    speed = 0.5
 
 
         return float(speed), float(steering)
