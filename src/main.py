@@ -33,7 +33,7 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, dir, reset_integral):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     seperate = True
@@ -144,9 +144,9 @@ def main():
             #rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error, dir,reset_integral)
+            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
 
-    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
 
     drive_node.destroy_node()
