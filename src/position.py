@@ -87,11 +87,14 @@ def simulation():
     delta_theta = [0]
     delta_omega1 = [0]
     delta_omega2 = [0]
+    reset_integral = False
+    x_to_plot = [0]
+    y_to_plot = [0]
     PPR = 349
     
     
     #Defining simulation time
-    simTime = 300
+    simTime = 120
     nrOfSteps = int(simTime/Ts)
     
     #load pitch data from json file
@@ -140,8 +143,18 @@ def simulation():
     while reached_goal == False:
 
         #Updating the point when we are close enough to the previous point
-        if tot_error[-1] <0.1:
-            path.update_point()
+        if dir[k-1] == "x":
+            if delta_xe[k-1]<0.3:
+                path.update_point()
+                reset_error_sum_dir(dir,k)
+        elif dir[k-1] == "y":
+            if delta_ye[k-1]<0.3:
+                path.update_point()
+                reset_error_sum_dir(dir,k)
+        else:
+            if tot_error[k-1]<0.3:
+                path.update_point()
+                
 
         next_point = path.get_point()
         x_ref.append(next_point[0])
@@ -165,17 +178,17 @@ def simulation():
         #Basing the controller on the direction the lawnmower is travelling
         if dir[k] =="x" or dir[k]=="y":
             Kp_x = 20
-            Ki_x = 12
+            Ki_x = 20
             Kd_x = 0.5
             Kp_y = 20
-            Ki_y = 12
+            Ki_y = 20
             Kd_y = 0.5
         else:
             Kp_x = 20
-            Ki_x =12
+            Ki_x = 20
             Kd_x = 0.5
             Kp_y = 20
-            Ki_y = 12
+            Ki_y = 20
             Kd_y = 0.5
             
 
@@ -214,8 +227,8 @@ def simulation():
         ang_vel.append(r/(2*L)*(dtheta1_dt[k]-dtheta2_dt[k]))
 
         #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(0,0.01)
-        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(0,0.01)
+        rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
+        rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
         rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
         dtheta1_out_dt.append(dtheta1_dt[k]*Ts/(T+Ts)+dtheta1_out_dt[k-1]*T/(T+Ts)+rand1)
@@ -260,32 +273,90 @@ def simulation():
         x_error.append(x[k]-x_ref[k])
         y_error.append(y[k]-y_ref[k])
         tot_error.append(math.sqrt(x_error[k]**2+y_error[k]**2))
+
+        if dir[k-1] == "x":
+            signs_to_check = [y[k],y[k-1]]
+            signs = np.sign(signs_to_check)
+        elif dir == "y":
+            signs_to_check = [x[k],x[k-1]]
+            signs = np.sign(signs_to_check)
+
+        if dir == "x" or dir  == "y": 
+            if signs[0]!=signs[1]:
+                reset_integral = True
+                print("Crossed line")
+            else:
+                reset_integral = False
+                print("Signs: ",signs)
+        
+        if reset_integral == True:
+            reset_error_sum_crossed_line(dir)
+
         k += 1
     
     #Vector of simulation time used for plots
-    t = np.linspace(0,simTime,len(tot_error))
+    t = np.linspace(0,simTime,len(dir))
     print(len(path._path))
         
     plt.figure()
-    plt.plot(x,y,label = "Actual trajectory")
-    #plt.plot(x_ref,y_ref, label = "Desired trajectory")
+    plt.plot(x,y,label = "Gräsklipparens simulerade trajektorie",c="orange")
+    #plt.plot(x_ref,y_ref, label = "Önskad trajektorie")
     plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp_x, Ki_x, Kd_x))
-    plt.title("Trajectory following")
+    plt.title("Trajektorieföljning")
     plt.legend(loc="upper left")
     plt.xlabel("x [m]")
     plt.ylabel("y [m]")
     plt.show()
     plt.figure()
-    plt.plot(t,tot_error,label="Total error")
-    plt.title("Error measurement")
-    plt.xlabel("Simulation time [s]")
-    plt.ylabel("Total error [m]")
+    print(len(tot_error))
+    print(len(dir))
+    y_to_plot_1 = [0]
+    y_to_plot_2 = [0]
+    y_to_plot_3 = [0]
+    for i in range(len(dir)-1):
+        if dir[i] == "x":
+            y_to_plot_1.append(delta_ye[i])
+            y_to_plot.append(delta_ye[i])
+        elif dir[i] == "y":
+            y_to_plot_2.append(delta_xe[i])
+            y_to_plot.append(delta_xe[i])
+        elif dir[i] == "None":
+            y_to_plot_3.append(tot_error[i])
+            y_to_plot.append(tot_error[i])
+        else:
+            y_to_plot.append(tot_error[i])
+
+    min_error_x = min(y_to_plot_1)
+    min_error_y = min(y_to_plot_2)
+    min_error_circle = min(y_to_plot_3)
+    max_error_x = max(y_to_plot_1)
+    max_error_y = max(y_to_plot_2)
+    max_error_circle = max(y_to_plot_3)
+
+    print(max_error_x,max_error_y,max_error_circle,min_error_x,min_error_y,min_error_circle)
+    plt.plot(t,y_to_plot)
+    plt.title("Avvikelse från rutt")
+    plt.xlabel("Simuleringstid [s]")
+    plt.ylabel("Total avvikelse [m]")
     plt.legend(loc="upper left")
     plt.show()
     #plt.figure()
     #plt.plot(theta)
     #plt.ylabel("Theta [rad]")
     #plt.xlabel("Number of samples")
+
+
+def reset_error_sum_dir(dir,k):
+        if dir[k-1] == "x":
+            err_sum_x = 0
+            print("aa")
+        elif dir[k-1] == "y":
+            err_sum_y = 0
+
+def reset_error_sum_crossed_line(dir,k):
+    if dir[k-1] == "x":
+        err_sum_y = 0
+    elif dir[k-1] == "y":
+        err_sum_x = 0    
+
 simulation()
-
-
