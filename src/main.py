@@ -33,8 +33,21 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref):
     total_error = np.sqrt(x_error**2 +  y_error**2)
+
+    point = path.get_point()
+    end_points = path.get_endpoints()
+    rotate = False
+
+    if point in end_points:
+        rotate = True
+        while rotate == True:            
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
+
+            if abs(theta_ref - theta) >= np.pi/2:
+                rotate = False
+                path.update_point()
 
     seperate = True
     
@@ -102,6 +115,7 @@ def main():
 
     # kom ihåg startvinkel
     radius = 9.15
+    rotate = False
     #path.set_circle_path(radius, (-radius,0), 3000)
 
     
@@ -130,8 +144,8 @@ def main():
             print("-----------------------------------------------")
 
             # Original regulator
-            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
-
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2], rotate)
+            theta_ref = theta
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
             
@@ -144,7 +158,7 @@ def main():
             #rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
+            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref)
 
     write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
