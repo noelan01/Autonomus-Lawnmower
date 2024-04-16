@@ -18,9 +18,10 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.2
+        self.D = 0.2        # distance between RTK module and track.
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
+        self.chalk_offset = 0.4     # distance between 
         
         #Other variables
         self.x = 0
@@ -91,7 +92,10 @@ class Regulation():
         self.y_error_old = 0
 
 
-    def update(self, x_ref, y_ref,dir):                             
+    def update(self, x_ref, y_ref,dir, rotate):
+        
+        
+        # keep up with regular shit
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
@@ -100,100 +104,109 @@ class Regulation():
         #Drive with RTK data
         delta_xe = x_ref - self.rtk_x
         delta_ye = y_ref - self.rtk_y
-
-        self.err_sum_x = self.err_sum_x + delta_xe
-        self.err_sum_y = self.err_sum_y + delta_ye 
-
-        #PID regulator
-
-        delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
-        delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
-
-        #delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
-        #delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
-        
-        #print("PID: X: ", delta_x, "Y: ", delta_y)
-        print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
-        
-        #Calculating delta_omega(k) and delta_S(k)
-        delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
-        delta_S = self.D*math.cos(delta_omega)+self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
-
-        #Old version
-        #Calculating delta_omega0(k) and delta_omega1(k)
-        #delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
-        #delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
-
-        #Calculating delta_omega0(k) and delta_omega1(k)
-        delta_omega1 = 1/self.r*(delta_S + self.L*delta_omega)
-        delta_omega0 = 1/self.r*(delta_S - self.L*delta_omega)
-
-        #Calculating the needed angular velocity of each wheel
-        #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. 
-        #The model has defined the opposite sign of positive angular velocity, 
-        #which means we have to change it so that the model is the same as the lawnmower
-        dtheta1_dt = -1*delta_omega1
-        dtheta0_dt = -1*delta_omega0
-
-        print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
-        print("")
-
-        #Old version
-        #dtheta_sum = dtheta0_dt + dtheta1_dt
-        #l_ratio = dtheta0_dt/dtheta_sum
-        #r_ratio = dtheta1_dt/dtheta_sum
-
-        #New version
-        dtheta_sum = dtheta1_dt + dtheta0_dt
-        l_ratio = dtheta1_dt/dtheta_sum
-        r_ratio = dtheta0_dt/dtheta_sum
-
-        print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
-
-        #Converting the linear and angular velocity to the signals
-
-        jonas_steering = False
-        noel_steering = False
-
-        if jonas_steering == True:
-            if dtheta0_dt == -dtheta1_dt:
-                if dtheta0_dt > dtheta1_dt:
-                    steering = 2
-                else:
-                    steering = -2
-            else:
-                self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
-        elif noel_steering == True:
-            if dtheta0_dt > dtheta1_dt:
-                self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
-            else:
-                self.steering = -(dtheta1_dt-dtheta0_dt)/dtheta1_dt
-        else:
-            max_steering = 1
-            if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
-                self.steering = -max_steering * (l_ratio-r_ratio)
-            else:                                                   # left turn
-                self.steering = max_steering * (r_ratio-l_ratio)
             
+        if rotate == False:
+            self.err_sum_x = self.err_sum_x + delta_xe
+            self.err_sum_y = self.err_sum_y + delta_ye 
 
-        speed_clamp = 16
-        speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
-        # speed = 0.2
+            #PID regulator
 
-        print("calculated speed: ", speed)
-        
-        speed, steering = self.clamping(speed, self.steering)
+            delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
+            delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
 
-        time_prev, time = self.drive_node.get_time()
-        print("Drive commands:", "SPEED = ", speed, "STEERING = ", self.steering)
-        print("")
+            #delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
+            #delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
+            
+            #print("PID: X: ", delta_x, "Y: ", delta_y)
+            print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
+            
+            #Calculating delta_omega(k) and delta_S(k)
+            delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
+            delta_S = self.D*math.cos(delta_omega)+self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
 
-        #Publish angular and linear velocity to the lawnmower node
-        rate = self.drive_node.get_rate()
-        self.drive_node.drive(speed, steering)
-        rate.sleep()
+            #Old version
+            #Calculating delta_omega0(k) and delta_omega1(k)
+            #delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
+            #delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
 
-        self.steering_prev = self.steering
+            #Calculating delta_omega0(k) and delta_omega1(k)
+            delta_omega1 = 1/self.r*(delta_S + self.L*delta_omega)
+            delta_omega0 = 1/self.r*(delta_S - self.L*delta_omega)
+
+            #Calculating the needed angular velocity of each wheel
+            #Multiplying with -1 to get the same sign on the rotational velocity as the lawnmower. 
+            #The model has defined the opposite sign of positive angular velocity, 
+            #which means we have to change it so that the model is the same as the lawnmower
+            dtheta1_dt = -1*delta_omega1
+            dtheta0_dt = -1*delta_omega0
+
+            print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
+            print("")
+
+            #Old version
+            #dtheta_sum = dtheta0_dt + dtheta1_dt
+            #l_ratio = dtheta0_dt/dtheta_sum
+            #r_ratio = dtheta1_dt/dtheta_sum
+
+            #New version
+            dtheta_sum = dtheta1_dt + dtheta0_dt
+            l_ratio = dtheta1_dt/dtheta_sum
+            r_ratio = dtheta0_dt/dtheta_sum
+
+            print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
+
+            #Converting the linear and angular velocity to the signals
+
+            jonas_steering = False
+            noel_steering = False
+
+            if jonas_steering == True:
+                if dtheta0_dt == -dtheta1_dt:
+                    if dtheta0_dt > dtheta1_dt:
+                        steering = 2
+                    else:
+                        steering = -2
+                else:
+                    self.steering = 2*(dtheta1_dt - dtheta0_dt)/(dtheta0_dt + dtheta1_dt)
+            elif noel_steering == True:
+                if dtheta0_dt > dtheta1_dt:
+                    self.steering = (dtheta0_dt-dtheta1_dt)/dtheta0_dt
+                else:
+                    self.steering = -(dtheta1_dt-dtheta0_dt)/dtheta1_dt
+            else:
+                max_steering = 1
+                if l_ratio > r_ratio:                                   # right turn, since if l_ratio>r_ratio we want to turn right as the left wheel will rotate faster
+                    self.steering = -max_steering * (l_ratio-r_ratio)
+                else:                                                   # left turn
+                    self.steering = max_steering * (r_ratio-l_ratio)
+                
+
+            speed_clamp = 16
+            speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
+            # speed = 0.2
+
+            print("calculated speed: ", speed)
+            
+            speed, steering = self.clamping(speed, self.steering)
+
+            time_prev, time = self.drive_node.get_time()
+            print("Drive commands:", "SPEED = ", speed, "STEERING = ", self.steering)
+            print("")
+
+            #Publish angular and linear velocity to the lawnmower node
+            rate = self.drive_node.get_rate()
+            self.drive_node.drive(speed, steering)
+            rate.sleep()
+
+            self.steering_prev = self.steering
+        else:
+            # Rotate in place
+            time_prev, time = self.drive_node.get_time()
+            
+            rate = self.drive_node.get_rate()
+            self.drive_node.drive(0.1, 2.0)
+            rate.sleep()
+            print("ROTATING!!!!!")
 
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         wheel_0_counter, wheel_1_counter = self.drive_node.get_wheelcounters()
@@ -293,7 +306,7 @@ class Regulation():
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
         print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
-        print("Direction",dir )
+        print("Direction",dir)
 
         # these decide what measurements we base the control on
         self.x_error_old = self.x_error
