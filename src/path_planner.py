@@ -8,12 +8,15 @@ class Path():
         self._num_points = 0
         self._prev_point = 0
         self._next_point = 0
+        self._end_points = []
 
         #La till att man kan bestämma vilken riktning den åker i för att ändra regleringen
         self._dir = None
 
 
     def set_path(self, x_0, y_0, x_n, y_n , ppm, dir):
+
+        self._end_points.append((x_n, y_n, dir))
 
         if y_0 - y_n == 0:
             if x_n > x_0:
@@ -39,7 +42,7 @@ class Path():
             next_point = (x_0 + x, y_0 + y,dir)
             new_path.append(next_point)
 
-        new_path.append((x_n, y_n,dir))
+        new_path.append((x_n, y_n, dir))
 
         self._path += new_path
 
@@ -72,8 +75,6 @@ class Path():
             print("")
             return (None, None,None)
         else:
-            print("DESIRED POINT: ", self._path[self._current_point])
-            print("")
             return self._path[self._current_point]
         
     def get_prev_point(self):
@@ -87,6 +88,9 @@ class Path():
             return None
         else:
             return self._path[self._next_point]
+        
+    def get_endpoints(self):
+        return self._end_points
 
     def set_bottom_right_corner(self,radius,center,num_points,dir):
         bottom_right_corner_planner = cornerPath(radius, center, num_points,dir)
