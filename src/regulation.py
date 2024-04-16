@@ -293,7 +293,7 @@ class Regulation():
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
         print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
-        print("Direction",dir )
+        print("Direction",dir)
 
         # these decide what measurements we base the control on
         self.x_error_old = self.x_error

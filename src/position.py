@@ -59,7 +59,7 @@ def simulation():
     Ts = 0.1
 
     #Time constant for inner system
-    T = 0.1
+    T = 0.2
 
     acc_sum_delta_omega_1 = [0]
     acc_sum_delta_omega_2 = [0]    
@@ -171,8 +171,8 @@ def simulation():
         delta_xe.append(x_ref[k] - x[k-1])
         delta_ye.append(y_ref[k] - y[k-1])
 
-        err_sum_x = err_sum_x + delta_xe[k]
-        err_sum_y = err_sum_y + delta_ye[k] 
+        err_sum_x = err_sum_x + Ki_x*delta_xe[k]*Ts
+        err_sum_y = err_sum_y + Ki_y*delta_ye[k]*Ts
         
 
         #Basing the controller on the direction the lawnmower is travelling
@@ -194,8 +194,8 @@ def simulation():
 
 
         #Increasing the error with the PID-controller
-        delta_x.append(delta_xe[k]*Kp_x+Ki_x*Ts*err_sum_x+Kd_x*(delta_xe[k]-delta_xe[k-1])/Ts)
-        delta_y.append(delta_ye[k]*Kp_y+Ki_y*Ts*err_sum_y+Kd_y*(delta_ye[k]-delta_ye[k-1])/Ts)
+        delta_x.append(delta_xe[k]*Kp_x+err_sum_x+Kd_x*(delta_xe[k]-delta_xe[k-1])/Ts)
+        delta_y.append(delta_ye[k]*Kp_y+err_sum_y+Kd_y*(delta_ye[k]-delta_ye[k-1])/Ts)
 
         #Calculating delta_omega(k) and delta_S(k)
         delta_omega.append(cmath.asin((delta_x[k]*math.sin(theta[k-1])-delta_y[k]*math.cos(theta[k-1]))/D).real)
