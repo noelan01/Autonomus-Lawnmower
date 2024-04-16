@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch measurements</title>
+
+<style>
+    /* Define CSS styles */
+
+    body {
+        background-image: url('images/3.jpg'); /* URL to your background image */
+        background-size: cover; /* Cover the entire background */
+        background-position: center; /* Center the background image */
+        background-repeat: no-repeat; /* Do not repeat the background image */
+        background-color: rgba(0, 0, 0, 0.67);
+        background-blend-mode: darken;
+        position: relative; /* Position relative for overlay */
+        color: white; /* Title color */
+    }
+
+    .container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 50px; /* Add space above the container */
+        color: white;
+        text-shadow: 0 0 2px black; /* Add black outline */
+    }
+
+    h1 {
+        text-align: center;
+        font-size: 60px; /* Larger title size */
+        text-shadow: 2px 2px 2px black; /* Add black outline */
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        border: 1px solid #1e1e1e;
+        border-radius: 5px;
+        background-color: #3e3e42;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        font-size: 18px;
+    }
+
+    label {
+        margin-bottom: 5px;
+    }
+
+    input[type="text"], input[type="number"] {
+        padding: 5px;
+        margin-bottom: 5px;
+        border: 1px solid #1e1e1e;
+        border-radius: 5px;
+        color: black;
+        font-size: 14;
+        
+    }
+
+    button[type="submit"] {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 18px;
+        
+    }
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    #footballFieldImage {
+        
+        width: 850px;
+        margin-left: 30px; /* Add space between image and form */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
+        border-radius: 10px; /* Round the edges */
+    }
+</style>
+
+</head>
+
+<h1>Football pitch dimensions</h1>
+
+<body>
+    <!-- Container for image and form -->
+    <div class="container">
+
+        <!-- Your form code -->
+        <form id="myForm">
+            <label for="shortside">1. Shortside length:</label>
+            <input type="text" id="shortside" name="shortside"><br>
+            <label for="longside">2. Longside length:</label>
+            <input type="text" id="longside" name="longside"><br>
+
+            <!-- <label for="penalty_width">3. Penalty area width:</label>
+            <input type="text" id="penalty_width" name="penalty_width"><br>
+            <label for="penalty_height">4. Penalty area height:</label>
+            <input type="text" id="penalty_height" name="penalty_height"><br>
+            <label for="center_circle_radius">5. Centre circle radius:</label>
+            <input type="text" id="center_circle_radius" name="center_circle_radius"><br><br> -->
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <img id="footballFieldImage" src="images/Football_field3.png" alt="Football Field">
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Retrieve values from local storage and fill in input fields
+        const storedValues = JSON.parse(localStorage.getItem("pitchMeasurements"));
+        if (storedValues) {
+            document.getElementById("shortside").value = storedValues.shortside || "";
+            document.getElementById("longside").value = storedValues.longside || "";
+            document.getElementById("penalty_width").value = storedValues.penalty_width || "";
+            document.getElementById("penalty_height").value = storedValues.penalty_height || "";
+            document.getElementById("center_circle_radius").value = storedValues.center_circle_radius || "";
+
+        }
+    });
+    document.getElementById("myForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent the form from submitting
+
+        const formData = new FormData(this);
+
+        // Convert formData to JSON
+        const jsonData = {};
+        formData.forEach(function(value, key) {
+        jsonData[key] = value;
+        });
+
+        localStorage.setItem("pitchMeasurements", JSON.stringify(jsonData));
+
+        // Send data to server
+        fetch('/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData)
+        })
+        .then(response => response.text())
+        .then(data => {
+        console.log(data);
+        })
+        .catch(error => {
+        console.error('Error:', error);
+        });
+    });
+    </script>
+</body>
+</html>
