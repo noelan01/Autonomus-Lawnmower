@@ -94,17 +94,18 @@ class Regulation():
 
     def update(self, x_ref, y_ref,dir, rotate):
         
-        if rotate == False:
-            # keep up with regular shit
-            x_ref = x_ref
-            y_ref = y_ref
-            dir = dir
+        
+        # keep up with regular shit
+        x_ref = x_ref
+        y_ref = y_ref
+        dir = dir
+        
+        #Implementing the kinematic model of the robot
+        #Drive with RTK data
+        delta_xe = x_ref - self.rtk_x
+        delta_ye = y_ref - self.rtk_y
             
-            #Implementing the kinematic model of the robot
-            #Drive with RTK data
-            delta_xe = x_ref - self.rtk_x
-            delta_ye = y_ref - self.rtk_y
-
+        if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe
             self.err_sum_y = self.err_sum_y + delta_ye 
 
@@ -200,9 +201,12 @@ class Regulation():
             self.steering_prev = self.steering
         else:
             # Rotate in place
+            time_prev, time = self.drive_node.get_time()
+            
             rate = self.drive_node.get_rate()
             self.drive_node.drive(0.1, 2.0)
             rate.sleep()
+            print("ROTATING!!!!!")
 
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         wheel_0_counter, wheel_1_counter = self.drive_node.get_wheelcounters()

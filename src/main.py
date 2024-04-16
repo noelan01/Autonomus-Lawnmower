@@ -15,8 +15,8 @@ import termios
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
 
-import differential_drive
-diff_drive = differential_drive.Differential_Drive(drive_node)
+#import differential_drive
+#diff_drive = differential_drive.Differential_Drive(drive_node)
 
 import path_planner
 path = path_planner.Path()
@@ -101,11 +101,11 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 50, 0, 10,"x")
-    #path.set_path(30, 0, 0, 0, 40,"x")
-    #path.set_path(10, 0, 10, 10, 60,"y")
-    #path.set_path(10, 10, 0, 10,60,"x")
-    #path.set_path(0, 10, 0, 0, 60,"y")
+    #path.set_path(0, 0, 50, 0, 10,"x")
+    path.set_path(0, 0, 10, 0, 10,"x")
+    path.set_path(10, 0, 10, 10, 10,"y")
+    path.set_path(10, 10, 0, 10,10,"x")
+    path.set_path(0, 10, 0, 0, 10,"y")
 
 
     # path.set_path(0,0,100,0, 20)
@@ -160,7 +160,7 @@ def main():
             # calc next ref point
             next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref)
 
-    write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
 
     drive_node.destroy_node()

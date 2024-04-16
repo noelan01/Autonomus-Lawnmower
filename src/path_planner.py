@@ -75,6 +75,7 @@ class Path():
             print("")
             return (None, None,None)
         else:
+            print("Desired point: ",self._path[self._current_point])
             return self._path[self._current_point]
         
     def get_prev_point(self):
