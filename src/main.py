@@ -58,7 +58,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
         elif dir == "y":
-            if y_error<0.1:
+            if y_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
     else:
