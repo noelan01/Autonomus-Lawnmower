@@ -104,8 +104,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
 
     if Kalman == True:
         #Variables to the Kalman function
-        Z_k = np.array([[x_base[k]],[y_base[k]],[theta[k]]])
-        control_inputs = np.array([[lin_vel[k]],[ang_vel[k]]])
+        Z_k = np.array([[x_base],[y_base],[theta]])
+        control_inputs = np.array([[lin_vel],[ang_vel]])
         sensor_error = np.array([[rand1],[rand2],[rand3]])
         no_sensor_error = np.array([[0],[0],[0]])
         #Filtering with the Kalman filter to get a better estimation of the position
@@ -114,8 +114,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         x_base_kalman.append(state[0].item())
         y_base_kalman.append(state[1].item())
         theta_kalman.append(state[2].item())
-        x_kalman.append(x_base_kalman[k] - D*math.cos(theta_kalman[k]))
-        y_kalman.append(y_base_kalman[k]-D*math.sin(theta[k]))
+        x_kalman.append(x_base_kalman - D*math.cos(theta_kalman))
+        y_kalman.append(y_base_kalman-D*math.sin(theta))
 
     #Updating the chalking mechanism position
     x = x_base - D*math.cos(theta)
@@ -181,53 +181,4 @@ def reset_error_sum_crossed_line(dir,err_sum_x,err_sum_y):
         err_sum_y = err_sum_y
     return err_sum_x,err_sum_y
 
-def plot():
-        #Vector of simulation time used for plots
-    t = np.linspace(0,simTime,len(dir))
-    print(len(path._path))
-        
-    plt.figure()
-    plt.plot(x,y,label = "Gräsklipparens simulerade trajektorie",c="orange")
-    #plt.plot(x_ref,y_ref, label = "Önskad trajektorie")
-    plt.plot([],[],' ',label="Kp = %i, Ki = %i, Kd = %.2f" %(Kp_x, Ki_x, Kd_x))
-    plt.title("Trajektorieföljning")
-    plt.legend(loc="upper left")
-    plt.xlabel("x [m]")
-    plt.ylabel("y [m]")
-    plt.show()
-    plt.figure()
-    y_to_plot_1 = [0]
-    y_to_plot_2 = [0]
-    y_to_plot_3 = [0]
-    for i in range(len(dir)-1):
-        if dir[i] == "x":
-            y_to_plot_1.append(delta_ye[i])
-            y_to_plot.append(delta_ye[i])
-        elif dir[i] == "y":
-            y_to_plot_2.append(delta_xe[i])
-            y_to_plot.append(delta_xe[i])
-        elif dir[i] == "None":
-            y_to_plot_3.append(tot_error[i])
-            y_to_plot.append(tot_error[i])
-        else:
-            y_to_plot.append(tot_error[i])
-
-    min_error_x = min(y_to_plot_1)
-    min_error_y = min(y_to_plot_2)
-    min_error_circle = min(y_to_plot_3)
-    max_error_x = max(y_to_plot_1)
-    max_error_y = max(y_to_plot_2)
-    max_error_circle = max(y_to_plot_3)
-
-    print(max_error_x,max_error_y,max_error_circle,min_error_x,min_error_y,min_error_circle)
-    plt.plot(t,y_to_plot)
-    plt.title("Avvikelse från rutt")
-    plt.xlabel("Simuleringstid [s]")
-    plt.ylabel("Total avvikelse [m]")
-    plt.legend(loc="upper left")
-    plt.show()
-    #plt.figure()
-    #plt.plot(theta)
-    #plt.ylabel("Theta [rad]")
-    #plt.xlabel("Number of samples")
 
