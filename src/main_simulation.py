@@ -160,7 +160,7 @@ def main():
 
         theta_ref = theta
         
-        next_point,err_sum_x,err_sum_y = goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point)
+        next_point,err_sum_x,err_sum_y,index_end_point = goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point)
 
         if next_point[0] == None or next_point[1]==None:
             reached_goal = True
@@ -230,7 +230,7 @@ def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_re
     
     point = path.get_point()
     
-    return point,err_sum_x,err_sum_y
+    return point,err_sum_x,err_sum_y,index_end_point
 
 def plot(x,y,Kp_x,Ki_x,Kd_x, y_to_plot_1, y_to_plot_2,y_to_plot_3,err_to_plot,y_to_plot):
         #Vector of simulation time used for plots
