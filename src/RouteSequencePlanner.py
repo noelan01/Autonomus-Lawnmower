@@ -18,7 +18,7 @@ class sequencePlanner:
         self.goalWidth = 7.32
         self.arcFromMid = math.sqrt(self.radius**2-5.5**2)
         self.lowerArcAngle = math.acos(5.5/self.radius)
-        self.ppm = 25
+        self.ppm = 50
 
         self.file_path = "UserInputServer/data.json"
 
