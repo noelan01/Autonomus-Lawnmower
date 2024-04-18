@@ -211,14 +211,18 @@ class Regulation():
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         wheel_0_counter, wheel_1_counter = self.drive_node.get_wheelcounters()
         wheel_0_counter_init, wheel_1_counter_init = self.drive_node.get_wheelcounters_init()
+        yaw_offset = self.drive_node.get_init_yaw_offset()
 
         wheelspeed0, wheelspeed1 = self.drive_node.get_wheelspeeds()
+        yaw_angle = self.drive_node.get_yaw()
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
+        yaw_angle = yaw_angle - yaw_offset
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
+        print("YAW ANGLE: ", yaw_angle)
         print("")
 
         #Convert to angular displacement
@@ -246,7 +250,7 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
         self.theta = self.theta + delta_theta
 
-        print("THETA : ", self.theta)
+        print("THETA odometry: ", self.theta)
 
         # get coord inits
         x_rtk, y_rtk = self.drive_node.get_rtk()
@@ -263,8 +267,6 @@ class Regulation():
         use_kalman = True
 
         if use_kalman == True:
-            yaw_angle = self.theta
-
             v = (wheelspeed0 + wheelspeed1)/2
             yaw_rate = (wheelspeed1 - wheelspeed0)/self.L
 
@@ -285,6 +287,7 @@ class Regulation():
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
+            self.theta = skalman_state[2].item()
 
         else:
             state_x = x_rotated
