@@ -30,7 +30,8 @@ class Points_Init():
         self._east2 = 0
         self._north2 = 0
 
-        self._yaw_offset = []
+        self._yaw_offset = 0
+        self._yaw_offset_list = []
 
         self._done = False
         self._read_json = False
@@ -87,14 +88,14 @@ class Points_Init():
             self._east_2_list.append(east)
             self._north_2_list.append(north)
 
-        self._yaw_offset.append(yaw_angle)
+        self._yaw_offset_list.append(yaw_angle)
 
 
     def point_mean(self):
         if (len(self._east_1_list) and len(self._north_1_list) and len(self._yaw_offset)) >= 1:
             east1 = mean(self._east_1_list)
             north1 = mean(self._north_1_list)
-            yaw_offset = mean(self._yaw_offset)
+            yaw_offset = mean(self._yaw_offset_list)
         else:
             east1 = 0
             north1 = 0
@@ -118,6 +119,7 @@ class Points_Init():
         self._north1 =  data["point 1"]["north"]
         self._east2 =   data["point 2"]["east"]
         self._north2 =  data["point 2"]["north"]
+        self._yaw_offset = data["angle"]
 
         f1.close()
 
@@ -143,6 +145,7 @@ class Points_Init():
         self._north_1_list = []
         self._east_2_list = []
         self._north_2_list = []
+        self._yaw_offset_list = []
 
 
     def get_points(self):
