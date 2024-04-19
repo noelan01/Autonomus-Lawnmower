@@ -93,9 +93,6 @@ class Regulation():
 
 
     def update(self, x_ref, y_ref,dir, rotate):
-        
-        
-        # keep up with regular shit
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
@@ -104,7 +101,8 @@ class Regulation():
         #Drive with RTK data
         delta_xe = x_ref - self.rtk_x
         delta_ye = y_ref - self.rtk_y
-            
+        
+        # keep up with regular shit
         if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe
             self.err_sum_y = self.err_sum_y + delta_ye 
@@ -249,6 +247,8 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
         self.theta = self.theta + delta_theta
 
+        theta_odometry = self.theta
+
         print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -342,7 +342,12 @@ class Regulation():
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y_kalman
         self.x_old = self.x_kalman
-        
+
+        # log data
+        self.drive_node.pub_total_error(self.x_error, self.y_error)
+        self.drive_node.pub_state_estimation(self.x_kalman, self.y_kalman, self.theta)
+        self.drive_node.pub_odometry(self.x_odometry, self.y_odometry, theta_odometry)
+        self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
 
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
