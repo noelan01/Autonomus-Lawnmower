@@ -104,7 +104,7 @@ class Regulation():
         #Drive with RTK data
         delta_xe = x_ref - self.rtk_x
         delta_ye = y_ref - self.rtk_y
-            
+    
         if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe
             self.err_sum_y = self.err_sum_y + delta_ye 
