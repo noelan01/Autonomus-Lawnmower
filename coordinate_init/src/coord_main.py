@@ -92,7 +92,7 @@ class Points_Init():
 
 
     def point_mean(self):
-        if (len(self._east_1_list) and len(self._north_1_list) and len(self._yaw_offset)) >= 1:
+        if (len(self._east_1_list) and len(self._north_1_list) and len(self._yaw_offset_list)) >= 1:
             east1 = mean(self._east_1_list)
             north1 = mean(self._north_1_list)
             yaw_offset = mean(self._yaw_offset_list)
