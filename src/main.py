@@ -33,22 +33,23 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     point = path.get_point()
     end_points = path.get_endpoints()
     rotate = False
 
-    if point in end_points:
+    if point in end_points and index_end_point == end_points.index(point):
         rotate = True
+        print("INDEX END POINT:", index_end_point)
         while rotate == True:            
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
 
             if abs(theta_ref - theta) >= np.pi/2:
                 rotate = False
                 path.update_point()
-
+        index_end_point +=1
     seperate = True
     
     if seperate == True:
@@ -57,7 +58,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
         elif dir == "y":
-            if y_error<0.1:
+            if y_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
     else:
@@ -74,7 +75,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
     if point[0] == None or point[1] == None:
         drive_node.stop_drive()
         rclpy.shutdown()
-    return point
+    return point, index_end_point
 
 
 def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
@@ -101,11 +102,11 @@ def main():
     rate.sleep()
     
     # set ref path
-    #path.set_path(0, 0, 50, 0, 10,"x")
-    path.set_path(0, 0, 10, 0, 10,"x")
-    path.set_path(10, 0, 10, 10, 10,"y")
-    path.set_path(10, 10, 0, 10,10,"x")
-    path.set_path(0, 10, 0, 0, 10,"y")
+    path.set_path(0, 0, 50, 0, 25,"x")
+    #path.set_path(0, 0, 10, 0, 10,"x")
+    #path.set_path(10, 0, 10, 10, 10,"y")
+    #path.set_path(10, 10, 0, 10,10,"x")
+    #path.set_path(0, 10, 0, 0, 10,"y")
 
 
     # path.set_path(0,0,100,0, 20)
@@ -116,6 +117,7 @@ def main():
     # kom ihåg startvinkel
     radius = 9.15
     rotate = False
+    index_end_point = 0
     #path.set_circle_path(radius, (-radius,0), 3000)
 
     
@@ -158,7 +160,7 @@ def main():
             #rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref)
+            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point)
 
     #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 

@@ -361,7 +361,6 @@ class Regulation():
             self.err_sum_x = 0        
 
 
-
     def clamping(self, speed, steering):
         speed = round(speed, 2)
         steering = round(steering, 2)

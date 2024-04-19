@@ -72,7 +72,7 @@ class Path():
     def get_point(self):
         if self._current_point >= self._num_points:
             print("REACHED GOAL")
-            print("")
+            print("Total number of points: ",self._num_points)
             return (None, None,None)
         else:
             print("Desired point: ",self._path[self._current_point])
