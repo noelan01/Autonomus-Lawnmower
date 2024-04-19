@@ -218,7 +218,7 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset
+        yaw_angle = yaw_angle - yaw_offset - np.pi
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
