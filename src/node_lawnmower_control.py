@@ -54,6 +54,8 @@ class Lawnmower_Control(Node):
 
         self.rtk_angle_offset_subscriber = self.create_subscription(Float64, '/pos_init/angle_offset', self.rtk_angle_offset_callback, 10)
 
+        self.coord_init_yaw_subscriber = self.create_subscription(Float64, '/pos_init/yaw_offset', self.coord_init_yaw_callback, 10)
+
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
         self._msg_angle_offset = Float64()
@@ -94,6 +96,7 @@ class Lawnmower_Control(Node):
         self._coord_init_done = False
         self._coord_init_pos1 = [0,0]
         self._coord_init_pos2 = [0,0]
+        self._coord_init_yaw_offset = 0
 
         self._rtk_angle_offset = 0
 
@@ -191,6 +194,9 @@ class Lawnmower_Control(Node):
     def rtk_angle_offset_callback(self, msg):
         self._rtk_angle_offset = msg.data
 
+    def coord_init_yaw_callback(self, msg):
+        self._coord_init_yaw_offset = msg.data
+
 
     ######   #    #   #####    #        #   ######   #    #   ######   ######   ######
     #    #   #    #   #    #   #        #   #        #    #   #        #    #   #
@@ -278,5 +284,8 @@ class Lawnmower_Control(Node):
 
     def get_rtk_angle_offset(self):
         return self._rtk_angle_offset
+    
+    def get_init_yaw_offset(self):
+        return self._coord_init_yaw_offset
     
     

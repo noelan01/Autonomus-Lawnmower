@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.2        # distance between RTK module and track.
+        self.D = 0.1        # distance between RTK module and track.
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         self.chalk_offset = 0.4     # distance between 
@@ -33,7 +33,7 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = - np.pi
+        self.theta = - np.pi/2
 
         self.x_base = 0
         self.y_base = 0
@@ -43,12 +43,12 @@ class Regulation():
         # PID PARAMETERS
         self.Kp_x = 20
         self.Ki_x = 20
-        self.Kd_x = 0.25
+        self.Kd_x = 0.5
         
         # y
         self.Kp_y = 20
         self.Ki_y = 20
-        self.Kd_y = 0.25   
+        self.Kd_y = 0.5
     
 
         #Put the sample time to the same as the update time of the drive publish node
@@ -181,7 +181,7 @@ class Regulation():
                     self.steering = max_steering * (r_ratio-l_ratio)
                 
 
-            speed_clamp = 16
+            speed_clamp = 32
             speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
             # speed = 0.2
 
@@ -204,18 +204,21 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.1, 2.0)
+            self.drive_node.drive(0.5, 2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
         #Have to take the current counter and subtract the initial value to get the correct counter from the start
         wheel_0_counter, wheel_1_counter = self.drive_node.get_wheelcounters()
         wheel_0_counter_init, wheel_1_counter_init = self.drive_node.get_wheelcounters_init()
+        yaw_offset = self.drive_node.get_init_yaw_offset()
 
         wheelspeed0, wheelspeed1 = self.drive_node.get_wheelspeeds()
+        yaw_angle = self.drive_node.get_yaw()
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
+        yaw_angle = yaw_angle - yaw_offset - np.pi/2
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
@@ -246,7 +249,7 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
         self.theta = self.theta + delta_theta
 
-        print("THETA : ", self.theta)
+        print("THETA odometry: ", self.theta)
 
         # get coord inits
         x_rtk, y_rtk = self.drive_node.get_rtk()
@@ -255,7 +258,6 @@ class Regulation():
 
         print("rkt init: x:", x_init_rtk, "y: ", y_init_rtk)
         print("rkt: x:", x_rtk, "y: ", y_rtk)
-        print("offset angle: ", offset_angle)
 
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
@@ -263,8 +265,6 @@ class Regulation():
         use_kalman = True
 
         if use_kalman == True:
-            yaw_angle = self.theta
-
             v = (wheelspeed0 + wheelspeed1)/2
             yaw_rate = (wheelspeed1 - wheelspeed0)/self.L
 
@@ -285,6 +285,8 @@ class Regulation():
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
+            self.theta = skalman_state[2].item()
+            print("yaw angle ", self.theta)
 
         else:
             state_x = x_rotated
@@ -320,6 +322,9 @@ class Regulation():
         elif dir == "y":
             signs_to_check = [self.x_kalman,self.x_old]
             signs = np.sign(signs_to_check)
+        else:
+            signs_to_check = [self.x_kalman,self.x_old]
+            signs = np.sign(signs_to_check)    
         
         if signs[0]!=signs[1]:
             reset_integral = True

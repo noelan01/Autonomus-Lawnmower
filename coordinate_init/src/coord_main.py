@@ -30,28 +30,31 @@ class Points_Init():
         self._east2 = 0
         self._north2 = 0
 
+        self._yaw_offset = 0
+        self._yaw_offset_list = []
+
         self._done = False
         self._read_json = False
 
 
-    def point_set(self, east, north):
+    def point_set(self, east, north, yaw_angle):
         global keep_going
         key = GetchUnix()
 
         if key == 'd':
             print("done")
-            self._east1, self._north1, self._east2, self._north2 = self.point_mean()
+            self._east1, self._north1, self._east2, self._north2, self._yaw_offset = self.point_mean()
             self.write()
             self._done = True
             
         elif key == 'a':
             print("Point 1:     east: ", east, "north: ", north)
-            self.append_point(1, east, north)
+            self.append_point(1, east, north, yaw_angle)
             self._done = False
 
         elif key == 'b':
             print("Point 2:     east: ", east, "north: ", north)
-            self.append_point(2, east, north)
+            self.append_point(2, east, north, yaw_angle)
             self._done = False
 
         elif key == 'e':
@@ -77,7 +80,7 @@ class Points_Init():
             keep_going = True
 
 
-    def append_point(self, point, east, north):
+    def append_point(self, point, east, north, yaw_angle):
         if point == 1:
             self._east_1_list.append(east)
             self._north_1_list.append(north)
@@ -85,14 +88,18 @@ class Points_Init():
             self._east_2_list.append(east)
             self._north_2_list.append(north)
 
+        self._yaw_offset_list.append(yaw_angle)
+
 
     def point_mean(self):
-        if (len(self._east_1_list) and len(self._north_1_list)) >= 1:
+        if (len(self._east_1_list) and len(self._north_1_list) and len(self._yaw_offset_list)) >= 1:
             east1 = mean(self._east_1_list)
             north1 = mean(self._north_1_list)
+            yaw_offset = mean(self._yaw_offset_list)
         else:
             east1 = 0
             north1 = 0
+            yaw_offset = 0
 
         if (len(self._east_2_list) and len(self._north_2_list)) >= 1:
             east2 = mean(self._east_2_list)
@@ -101,7 +108,7 @@ class Points_Init():
             east2 = 0
             north2 = 0
 
-        return east1, north1, east2, north2
+        return east1, north1, east2, north2, yaw_offset
     
     
     def read(self):
@@ -112,6 +119,7 @@ class Points_Init():
         self._north1 =  data["point 1"]["north"]
         self._east2 =   data["point 2"]["east"]
         self._north2 =  data["point 2"]["north"]
+        self._yaw_offset = data["angle"]
 
         f1.close()
 
@@ -120,7 +128,8 @@ class Points_Init():
         json_data = {"point 1": {"east": self._east1,
                                  "north": self._north1},
                     "point 2": {"east": self._east2,
-                                "north": self._north2}}
+                                "north": self._north2},
+                    "angle":    self._yaw_offset}
 
         json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
  
@@ -136,10 +145,14 @@ class Points_Init():
         self._north_1_list = []
         self._east_2_list = []
         self._north_2_list = []
+        self._yaw_offset_list = []
 
 
     def get_points(self):
         return self._east1, self._north1, self._east2, self._north2
+    
+    def get_yaw_offset(self):
+        return self._yaw_offset
 
     def is_done(self):
         return self._done
@@ -208,13 +221,16 @@ def main():
         coord_node.pub_ongoing(True)
 
         east, north = coord_node.get_rtk()
-        points.point_set(east, north)
+        yaw_angle = coord_node.get_yaw()
+        points.point_set(east, north, yaw_angle)
 
         if points.is_done() or points.read_json() == True:
             east1, north1, east2, north2 = points.get_points()
+            yaw_offset = points.get_yaw_offset()
 
             coord_node.pub_point1(east1, north1)
             coord_node.pub_point2(east2, north2)
+            coord_node.pub_yaw_offset(yaw_offset)
 
             angle_offset = get_offset(east1, north1, east2, north2)
 

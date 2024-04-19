@@ -50,7 +50,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 rotate = False
                 path.update_point()
         index_end_point +=1
-    seperate = True
+    seperate = False
     
     if seperate == True:
         if dir =="x":
@@ -102,11 +102,11 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 50, 0, 25,"x")
-    #path.set_path(0, 0, 10, 0, 10,"x")
-    #path.set_path(10, 0, 10, 10, 10,"y")
-    #path.set_path(10, 10, 0, 10,10,"x")
-    #path.set_path(0, 10, 0, 0, 10,"y")
+    # path.set_path(0, 0, 50, 0, 25,"x")
+    #path.set_path(0, 0, 5, 0, 25,"x")
+    #path.set_path(5, 0, 5, 5, 25,"y")
+    # path.set_path(10, -10, 0, -10,25,"x")
+    # path.set_path(0, -10, 0, 0, 25,"y")
 
 
     # path.set_path(0,0,100,0, 20)
@@ -115,10 +115,10 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 9.15
+    radius = 3
     rotate = False
     index_end_point = 0
-    #path.set_circle_path(radius, (-radius,0), 3000)
+    path.set_circle_path(radius, (3,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
@@ -162,7 +162,7 @@ def main():
             # calc next ref point
             next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point)
 
-    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    # write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
 
     drive_node.destroy_node()
