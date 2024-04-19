@@ -29,6 +29,7 @@ class Coordinate_Node(Node):
         self.init_done_publisher = self.create_publisher(Bool, '/pos_init/done', 100)
 
         self.rtk_angle_offset_publisher = self.create_publisher(Float64, '/pos_init/angle_offset', 100)
+        self.yaw_offset_publisher = self.create_publisher(Float64, '/pos_init/yaw_offset', 100)
 
         
         # Subscribers
@@ -46,6 +47,7 @@ class Coordinate_Node(Node):
         self._msg_ongoing = Bool()
         self._msg_done = Bool()
         self._msg_angle_offset = Float64()
+        self._msg_yaw_offset = Float64()
 
         self._update_rate = 1
 
@@ -124,6 +126,11 @@ class Coordinate_Node(Node):
     def pub_done(self, done):
         self._msg_done.data = done
         self.init_done_publisher.publish(self._msg_done)
+
+    def pub_yaw_offset(self, yaw_offset):
+        self._msg_yaw_offset.data = yaw_offset
+        self.yaw_offset_publisher.publish(self._msg_yaw_offset)
+
 
     
 
