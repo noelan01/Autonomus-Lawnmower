@@ -18,7 +18,7 @@ class sequencePlanner:
         self.goalWidth = 7.32
         self.arcFromMid = math.sqrt(self.radius**2-5.5**2)
         self.lowerArcAngle = math.acos(5.5/self.radius)
-        self.ppm = 25
+        self.ppm = 50
 
         self.file_path = "UserInputServer/data.json"
 
@@ -67,7 +67,7 @@ class sequencePlanner:
     #Have to put quite a lot of points in the circle for it to follow
     def midLine(self,path):
         path.set_path(0, self.sideLine/2, self.goalLine/2-self.radius, self.sideLine/2, self.ppm,"x")
-        path.set_circle_path(self.radius, (self.goalLine/2,self.sideLine/2), 2000,"None")
+        path.set_circle_path(self.radius, (self.goalLine/2,self.sideLine/2), 8000,"None")
         path.set_path(self.goalLine/2-self.radius, self.sideLine/2, self.goalLine,self.sideLine/2, self.ppm,"x")
 
     def driveToUpperLineFromMid(self,path):

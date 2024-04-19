@@ -25,8 +25,8 @@ GPIO.output(RELAY_PIN, False)
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
 
-import differential_drive
-diff_drive = differential_drive.Differential_Drive(drive_node)
+#import differential_drive
+#diff_drive = differential_drive.Differential_Drive(drive_node)
 
 import path_planner
 path = path_planner.Path()
@@ -43,18 +43,32 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
-    seperate = True
+    point = path.get_point()
+    end_points = path.get_endpoints()
+    rotate = False
+
+    if point in end_points and index_end_point == end_points.index(point):
+        rotate = True
+        print("INDEX END POINT:", index_end_point)
+        while rotate == True:            
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
+
+            if abs(theta_ref - theta) >= np.pi/2:
+                rotate = False
+                path.update_point()
+        index_end_point +=1
+    seperate = False
     
     if seperate == True:
         if dir =="x":
-            if x_error<0.1:
+            if x_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
         elif dir == "y":
-            if y_error<0.1:
+            if y_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
     else:
@@ -71,7 +85,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral):
     if point[0] == None or point[1] == None:
         drive_node.stop_drive()
         rclpy.shutdown()
-    return point
+    return point, index_end_point
 
 
 def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
@@ -83,7 +97,7 @@ def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
 
     json_object = json.dumps(json_data, indent=2, ensure_ascii=True)
 
-    with open("assets/data/10-04-24/50m-straight.json", "w",) as outfile:
+    with open("assets/data/11-04-24/50m-straight-20-12-0_5.json", "w",) as outfile:
         outfile.write(json_object)
    
 
@@ -98,10 +112,11 @@ def main():
     rate.sleep()
     
     # set ref path
-    path.set_path(0, 0, 30, 0, 25,"x")
-    #path.set_path(10, 0, 10, 10, 60,"y")
-    #path.set_path(10, 10, 0, 10,60,"x")
-    #path.set_path(0, 10, 0, 0, 60,"y")
+    # path.set_path(0, 0, 50, 0, 25,"x")
+    #path.set_path(0, 0, 5, 0, 25,"x")
+    #path.set_path(5, 0, 5, 5, 25,"y")
+    # path.set_path(10, -10, 0, -10,25,"x")
+    # path.set_path(0, -10, 0, 0, 25,"y")
 
 
     # path.set_path(0,0,100,0, 20)
@@ -110,8 +125,10 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 9.15
-    #path.set_circle_path(radius, (-radius,0), 3000)
+    radius = 3
+    rotate = False
+    index_end_point = 0
+    path.set_circle_path(radius, (3,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
@@ -140,24 +157,24 @@ def main():
             print("-----------------------------------------------")
 
             # Original regulator
-            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2])
-
+            x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2], rotate)
+            theta_ref = theta
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
             
             print("TIME: ", time)
 
             # Data logging
-            kalman_pos[time] = [x_kalman, y_kalman, theta]
-            ref_pos[time] = [next_point[0], next_point[1]]
-            odometry_pos[time] = [x_odometry, y_odometry]
-            rtk_pos[time] = [x_rtk,y_rtk]
+            #kalman_pos[time] = [x_kalman, y_kalman, theta]
+            #ref_pos[time] = [next_point[0], next_point[1]]
+            #odometry_pos[time] = [x_odometry, y_odometry]
+            #rtk_pos[time] = [x_rtk,y_rtk]
 
             GPIO.output(RELAY_PIN, GPIO.HIGH)
             # calc next ref point
-            next_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral)
+            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point)
 
-    write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    # write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
     GPIO.output(RELAY_PIN, GPIO.LOW)
     GPIO.cleanup()
