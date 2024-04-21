@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.1        # distance between RTK module and track.
+        self.D = 0.2        # distance between RTK module and track.
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         self.chalk_offset = 0.4     # distance between 
@@ -33,10 +33,12 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = - np.pi/2
+        self.theta = - np.pi
 
         self.x_base = 0
         self.y_base = 0
+        self.x_base_kalman = 0
+        self.y_base_kalman = 0
         self.theta_kalman = 0
         self.reset_integral = False
 
@@ -204,7 +206,7 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.5, 2.0)
+            self.drive_node.drive(0.1, 2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
@@ -218,11 +220,11 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset - np.pi/2
+        yaw_angle = yaw_angle - yaw_offset - np.pi
         
-        print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
-        print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
-        print("")
+        #print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
+        #print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
+        #print("")
 
         #Convert to angular displacement
         #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negative sign and convert it back so that the model can still be used
@@ -231,11 +233,6 @@ class Regulation():
 
         print("ANGLULAR DIST 0: ", theta_0_meas, "ANGLULAR DIST 1: ", theta_1_meas)
         print("")
-
-        #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        rand2 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        rand3 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
 
         #Calculating the angular difference between the two samples
         delta_theta_1 = theta_1_meas-self.theta_1_meas_old
@@ -258,8 +255,8 @@ class Regulation():
         x_init_rtk, y_init_rtk = self.drive_node.get_coord_init_pos1()
         offset_angle = self.drive_node.get_rtk_angle_offset()
 
-        print("rkt init: x:", x_init_rtk, "y: ", y_init_rtk)
-        print("rkt: x:", x_rtk, "y: ", y_rtk)
+        #print("rkt init: x:", x_init_rtk, "y: ", y_init_rtk)
+        #print("rkt: x:", x_rtk, "y: ", y_rtk)
 
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
@@ -299,9 +296,14 @@ class Regulation():
         self.x_odometry = self.x_base -  self.D*math.cos(self.theta)
         self.y_odometry = self.y_base -  self.D*math.sin(self.theta)
 
+        self.x_base_kalman = state_x + 0.2*math.cos(self.theta)
+        self.y_base_kalman = state_y + 0.2*math.sin(self.theta)
+
+        print("X base Kalman: ",self.x_base_kalman, "Y base Kalman: ", self.y_base_kalman)
+
         #Updating based on Kalman
-        self.x_kalman = state_x + 0.1*math.cos(self.theta)-self.D*math.cos(self.theta)
-        self.y_kalman = state_y +0.1*math.sin(self.theta) - self.D*math.sin(self.theta)
+        self.x_kalman = self.x_base_kalman - self.D*math.cos(self.theta)
+        self.y_kalman = self.y_base_kalman- self.D*math.sin(self.theta)
 
         #Updating based on rtk
         self.rtk_x = x_rotated + 0.1*math.cos(self.theta) -  self.D*math.cos(self.theta)
@@ -310,7 +312,7 @@ class Regulation():
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
         print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
-        #print("Direction",dir)
+        print("Direction",dir)
 
         # these decide what measurements we base the control on
         self.x_error_old = self.x_error
@@ -335,6 +337,8 @@ class Regulation():
             reset_integral = False
             print("Signs: ",signs)
         
+        print("X error: ",self.x_error, "Y error: ",self.y_error)
+        print("")
 
         #Updating the old variables to the new ones
         self.theta_old = self.theta

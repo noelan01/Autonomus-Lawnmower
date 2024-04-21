@@ -50,7 +50,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 rotate = False
                 path.update_point()
         index_end_point +=1
-    seperate = False
+    seperate = True
     
     if seperate == True:
         if dir =="x":
@@ -63,7 +63,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 1:
+        if total_error < 0.3:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -102,9 +102,10 @@ def main():
     rate.sleep()
     
     # set ref path
+    #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    #path.set_path(0, 0, 5, 0, 25,"x")
-    #path.set_path(5, 0, 5, 5, 25,"y")
+    path.set_path(0, 0, 5.5, 0, 25,"x")
+    path.set_path(5, 0.2, 5, 5, 25,"y")
     # path.set_path(10, -10, 0, -10,25,"x")
     # path.set_path(0, -10, 0, 0, 25,"y")
 
@@ -118,7 +119,7 @@ def main():
     radius = 3
     rotate = False
     index_end_point = 0
-    path.set_circle_path(radius, (3,0), 3000,dir = "None")
+    #path.set_circle_path(radius, (3,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
