@@ -95,15 +95,15 @@ class Regulation():
     def update(self, x_ref, y_ref,dir, rotate):
         
         
-        # keep up with regular shit
+        # keep up with regular
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
         
         #Implementing the kinematic model of the robot
-        #Drive with RTK data
-        delta_xe = x_ref - self.rtk_x
-        delta_ye = y_ref - self.rtk_y
+        #Drive with Kalman data
+        delta_xe = x_ref - self.x_kalman
+        delta_ye = y_ref - self.y_kalman
     
         if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe
@@ -122,7 +122,7 @@ class Regulation():
             
             #Calculating delta_omega(k) and delta_S(k)
             delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
-            delta_S = self.D*math.cos(delta_omega)+self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
+            delta_S = self.D*math.cos(delta_omega)-self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
 
             #Old version
             #Calculating delta_omega0(k) and delta_omega1(k)
@@ -247,8 +247,10 @@ class Regulation():
         #Updating the robots base position
         self.x_base = self.x_base + delta_s*math.cos(self.theta_old)
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
+
         self.theta = self.theta + delta_theta
 
+        
         print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -298,17 +300,17 @@ class Regulation():
         self.y_odometry = self.y_base -  self.D*math.sin(self.theta)
 
         #Updating based on Kalman
-        self.x_kalman = state_x -  self.D*math.cos(self.theta)
-        self.y_kalman = state_y -  self.D*math.sin(self.theta)
+        self.x_kalman = state_x + 0.1*math.cos(self.theta)-self.D*math.cos(self.theta)
+        self.y_kalman = state_y +0.1*math.sin(self.theta) - self.D*math.sin(self.theta)
 
         #Updating based on rtk
-        self.rtk_x = x_rotated -  self.D*math.cos(self.theta)
-        self.rtk_y = y_rotated -  self.D*math.sin(self.theta)
+        self.rtk_x = x_rotated + 0.1*math.cos(self.theta) -  self.D*math.cos(self.theta)
+        self.rtk_y = y_rotated + 0.1*math.sin(self.theta) - self.D*math.sin(self.theta)
 
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
         print("RTK X: ",self.rtk_x, "Y: ", self.rtk_y)
-        print("Direction",dir)
+        #print("Direction",dir)
 
         # these decide what measurements we base the control on
         self.x_error_old = self.x_error
