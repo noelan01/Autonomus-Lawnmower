@@ -33,7 +33,7 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = - np.pi
+        self.theta = -np.pi
 
         self.x_base = 0
         self.y_base = 0
@@ -92,6 +92,8 @@ class Regulation():
         self.y_error = 0
         self.x_error_old = 0
         self.y_error_old = 0
+        self.theta_odo=-math.pi
+        self.theta_kalman=0
 
 
     def update(self, x_ref, y_ref,dir, rotate):
@@ -112,8 +114,8 @@ class Regulation():
             self.err_sum_y = self.err_sum_y + delta_ye*self.Ts
 
             #PID regulator
-            delta_x = self.PID_X(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
-            delta_y = self.PID_Y(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
+            delta_x = self.PID_x(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
+            delta_y = self.PID_y(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
             
             print("PID: X: ", delta_x, "Y: ", delta_y)
             #print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
@@ -175,7 +177,7 @@ class Regulation():
                     self.steering = max_steering * (r_ratio-l_ratio)
                 
 
-            speed_clamp = 16
+            speed_clamp = 32
             speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
             # speed = 0.2
 
@@ -198,7 +200,7 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.5, 2.0)
+            self.drive_node.drive(0.1, 2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
@@ -212,7 +214,7 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset - np.pi
+        yaw_angle = yaw_angle - yaw_offset 
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
@@ -238,9 +240,9 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
 
         self.theta = self.theta + delta_theta
+        self.theta_kalman = self.theta_kalman + delta_theta
 
-        theta_odometry = self.theta
-
+        
         print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -277,8 +279,8 @@ class Regulation():
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
-            self.theta = skalman_state[2].item()
-            print("yaw angle ", self.theta)
+            self.theta_kalman = skalman_state[2].item()
+            print("yaw angle ", self.theta_kalman)
 
         else:
             state_x = x_rotated
@@ -341,25 +343,18 @@ class Regulation():
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y_kalman
         self.x_old = self.x_kalman
-
-        # log data
-        self.drive_node.pub_total_error(self.x_error, self.y_error)
-        self.drive_node.pub_state_estimation(self.x_kalman, self.y_kalman, self.theta)
-        self.drive_node.pub_odometry(self.x_odometry, self.y_odometry, theta_odometry)
-        self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
+        
 
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
 
-    def PID_X(self, error, kp, ki, kd):
+    def PID_x(self, error, kp, ki, kd):
         delta = error*kp+ki*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
         return delta
-    
-    def PID_Y(self, error, kp, ki, kd):
+
+    def PID_y(self, error, kp, ki, kd):
         delta = error*kp+ki*self.err_sum_y+kd*(error-self.delta_ye_old)/self.Ts
         return delta
-
-    
 
     def reset_error_sum_dir(self,dir):
         if dir == "x":
@@ -374,8 +369,8 @@ class Regulation():
             self.err_sum_x = 0        
 
     def reset_error_sum_rotation(self):
-        self.err_sum_x = 0
         self.err_sum_y = 0
+        self.err_sum_x = 0   
 
     def clamping(self, speed, steering):
         speed = round(speed, 2)

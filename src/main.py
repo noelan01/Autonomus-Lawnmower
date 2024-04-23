@@ -48,11 +48,13 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         while rotate == True:            
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
 
-            if abs(theta_ref - theta) >= np.pi/2:
+            if abs(theta_ref - theta) >= np.pi/2-0.1:
                 rotate = False
                 path.update_point()
         index_end_point +=1
         regulator.reset_error_sum_rotation()
+        #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
+        #print("AAAAAA")
 
     seperate = True
     
@@ -108,10 +110,10 @@ def main():
     # set ref path
     #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    path.set_path(0, 0, 5.5, 0, 50,"x")
-    path.set_path(5, 0.2, 5, 5, 50,"y")
-    # path.set_path(10, -10, 0, -10,25,"x")
-    # path.set_path(0, -10, 0, 0, 25,"y")
+    path.set_path(0, 0, 5, 0, 25,"x")
+    path.set_path(4.9, 0.25, 4.9, 5, 25,"y")
+    #path.set_path(5, 5, 0, 5,30,"x")
+    #path.set_path(0, 5, 0, 0, 30,"y")
 
 
     # path.set_path(0,0,100,0, 20)
