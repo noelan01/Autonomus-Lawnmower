@@ -36,14 +36,18 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
     delta_xe = x_ref - x
     delta_ye = y_ref - y
 
-    err_sum_x = err_sum_x + Ki_x*delta_xe*Ts
-    err_sum_y = err_sum_y + Ki_y*delta_ye*Ts
+    err_sum_x = err_sum_x + delta_xe*Ts
+    err_sum_y = err_sum_y + delta_ye*Ts
     
        
     if rotate == False:
+
+        delta_x = PID(delta_xe, Kp_x, Ki_x, Kd_x,err_sum_x,delta_xe_old,Ts)
+        delta_y = PID(delta_ye, Kp_y, Ki_y, Kd_y,err_sum_y,delta_ye_old,Ts)
+
         #Increasing the error with the PID-controller
-        delta_x = delta_xe*Kp_x+err_sum_x+Kd_x*(delta_xe-delta_xe_old)/Ts
-        delta_y = delta_ye*Kp_y+err_sum_y+Kd_y*(delta_ye-delta_ye_old)/Ts
+        #delta_x = delta_xe*Kp_x+Ki_x*err_sum_x+Kd_x*(delta_xe-delta_xe_old)/Ts
+        #delta_y = delta_ye*Kp_y+Ki_y*err_sum_y+Kd_y*(delta_ye-delta_ye_old)/Ts
 
         #Calculating delta_omega(k) and delta_S(k)
         delta_omega = cmath.asin((delta_x*math.sin(theta_old)-delta_y*math.cos(theta_old))/D).real
@@ -80,8 +84,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         print("ROTATING!!!!")
 
     #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-    rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
-    rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
+    rand1 = random.uniform(-6*math.pi/PPR,6*math.pi/PPR) + random.uniform(-0.01,0.01)
+    rand2 = random.uniform(-6*math.pi/PPR,6*math.pi/PPR) + random.uniform(-0.01,0.01)
     rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
     dtheta1_out_dt = dtheta1_dt*Ts/(T+Ts)+dtheta1_out_dt_old*T/(T+Ts)+rand1
@@ -182,3 +186,6 @@ def reset_error_sum_crossed_line(dir,err_sum_x,err_sum_y):
     return err_sum_x,err_sum_y
 
 
+def PID(error, kp, ki, kd,err_sum_x,delta_xe_old,Ts):
+        delta = error*kp+ki*err_sum_x+kd*(error-delta_xe_old)/Ts
+        return delta

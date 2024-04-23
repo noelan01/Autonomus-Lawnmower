@@ -108,12 +108,12 @@ class Regulation():
         delta_ye = y_ref - self.y_kalman
     
         if rotate == False:
-            self.err_sum_x = self.err_sum_x + delta_xe
-            self.err_sum_y = self.err_sum_y + delta_ye 
+            self.err_sum_x = self.err_sum_x + delta_xe*self.Ts
+            self.err_sum_y = self.err_sum_y + delta_ye*self.Ts
 
             #PID regulator
-            delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
-            delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
+            delta_x = self.PID_X(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
+            delta_y = self.PID_Y(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
             
             print("PID: X: ", delta_x, "Y: ", delta_y)
             #print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
@@ -239,7 +239,6 @@ class Regulation():
 
         self.theta = self.theta + delta_theta
 
-        
         #print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -345,8 +344,12 @@ class Regulation():
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
 
-    def PID(self, error, kp, ki, kd):
-        delta = error*kp+ki*self.Ts*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
+    def PID_X(self, error, kp, ki, kd):
+        delta = error*kp+ki*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
+        return delta
+    
+    def PID_Y(self, error, kp, ki, kd):
+        delta = error*kp+ki*self.err_sum_y+kd*(error-self.delta_ye_old)/self.Ts
         return delta
 
     
@@ -363,6 +366,9 @@ class Regulation():
         elif dir == "y":
             self.err_sum_x = 0        
 
+    def reset_error_sum_rotation(self):
+        self.err_sum_x = 0
+        self.err_sum_y = 0
 
     def clamping(self, speed, steering):
         speed = round(speed, 2)

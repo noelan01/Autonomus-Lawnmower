@@ -29,7 +29,7 @@ def main():
     x_kalman = 0
     y_kalman = 0
 
-    theta = -math.pi/2
+    theta = -math.pi
     delta_x = 0
     delta_y = 0
     delta_xe = 0
@@ -114,40 +114,40 @@ def main():
     #load pitch data from json file
     route.load_pitch_data()
 
-    path.set_circle_path(9.15,(9.15,0),8000,"None")
-    # #Outer lines
-    # route.outerLines(path)
+    # path.set_circle_path(9.15,(9.15,0),8000,"None")
+    #Outer lines
+    route.outerLines(path)
     
-    # #Lower penalty area
-    # route.lowerPenaltyArea(path)
+    #Lower penalty area
+    route.lowerPenaltyArea(path)
     
-    # route.lowerArc(path)
+    route.lowerArc(path)
     
-    # #Lower goal area
-    # route.lowerGoalArea(path)
+    #Lower goal area
+    route.lowerGoalArea(path)
 
-    # # #Transport path to reach mid line
-    # route.transportMidLine(path)
+    # #Transport path to reach mid line
+    route.transportMidLine(path)
 
-    # # #Midline and mid circle
-    # route.midLine(path)
+    # #Midline and mid circle
+    route.midLine(path)
     
-    # #Transport from midLine to upper goal area
-    # route.driveToUpperLineFromMid(path)
+    #Transport from midLine to upper goal area
+    route.driveToUpperLineFromMid(path)
 
-    # #Upper penalty area
-    # route.upperPenaltyArea(path)
-    # route.upperArc(path)
+    #Upper penalty area
+    route.upperPenaltyArea(path)
+    route.upperArc(path)
 
-    # #upper goal area
+    #upper goal area
 
-    # route.upperGoalArea(path)
+    route.upperGoalArea(path)
 
-    # #Corner flags
-    # route.upperLeftCorner(path)
-    # route.lowerLeftCorner(path)
-    # route.bottomRightCorner(path)
-    # route.upperRightCorner(path)
+    #Corner flags
+    route.upperLeftCorner(path)
+    route.lowerLeftCorner(path)
+    route.bottomRightCorner(path)
+    route.upperRightCorner(path)
 
     #Defining the reached goal variable to false to begin the simulation
     reached_goal = False
@@ -207,7 +207,7 @@ def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_re
                 path.update_point()
         index_end_point += 1
 
-    seperate = False
+    seperate = True
     
     if seperate == True:
         if dir =="x":

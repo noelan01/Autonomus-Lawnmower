@@ -52,6 +52,8 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 rotate = False
                 path.update_point()
         index_end_point +=1
+        regulator.reset_error_sum_rotation()
+
     seperate = True
     
     if seperate == True:
