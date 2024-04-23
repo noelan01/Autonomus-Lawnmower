@@ -106,8 +106,8 @@ def main():
     # set ref path
     #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    path.set_path(0, 0, 5.5, 0, 25,"x")
-    path.set_path(5, 0.2, 5, 5, 25,"y")
+    path.set_path(0, 0, 5.5, 0, 50,"x")
+    path.set_path(5, 0.2, 5, 5, 50,"y")
     # path.set_path(10, -10, 0, -10,25,"x")
     # path.set_path(0, -10, 0, 0, 25,"y")
 
