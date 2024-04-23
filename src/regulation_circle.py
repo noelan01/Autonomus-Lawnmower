@@ -33,7 +33,7 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = - np.pi
+        self.theta = - np.pi/2
 
         self.x_base = 0
         self.y_base = 0
@@ -221,7 +221,7 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset - np.pi
+        yaw_angle = yaw_angle - yaw_offset - np.pi/2
         
         #print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         #print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
