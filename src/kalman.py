@@ -19,7 +19,7 @@ EXTENDED sKALMAN FILTER
 class EKF():
     def __init__(self, sim):
         # init
-        self._state = np.array([[0],[0],[0]])   
+        self._state = np.array([[0],[0],[-np.pi]]) # x, y, theta   
         self._input = np.array([[0],[0]])
         self._noise = 0
         self._time = 0
@@ -37,11 +37,11 @@ class EKF():
         self._K_k = None
         self._y_k = None        # diff mellan mätvärden och predikterade mätvärden
         
-        self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # Predikterad kovarians matris av state estimering  JUSTERA
+        self._P = np.array([[0.1, 0, 0], [0, 0.1, 0], [0, 0, 0.1]])     # Predikterad kovarians matris av state estimering
         self._H_k = np.eye(3)   # Mätningsmatris
-        self._R_k = np.eye(3) * 0.9  # Sensorbrus kovarians matris       justera vid behov
+        self._R_k = np.eye(3) * 0.9  # Sensorbrus kovarians matris
         self._F_k = np.eye(3)   # Funkar som A matrisen
-        self._Q_k = np.eye(3)   # kovariansmatris INIT, sätt till covarianser med setter om de behövs
+        self._Q_k = np.eye(3)   # kovariansmatris INIT
 
         # 1 if simulation. 0
         self._sim = sim

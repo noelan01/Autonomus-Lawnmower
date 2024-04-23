@@ -239,7 +239,9 @@ class Regulation():
 
         self.theta = self.theta + delta_theta
 
-        #print("THETA odometry: ", self.theta)
+        theta_odometry = self.theta
+
+        print("THETA odometry: ", self.theta)
 
         # get coord inits
         x_rtk, y_rtk = self.drive_node.get_rtk()
@@ -339,7 +341,12 @@ class Regulation():
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y_kalman
         self.x_old = self.x_kalman
-        
+
+        # log data
+        self.drive_node.pub_total_error(self.x_error, self.y_error)
+        self.drive_node.pub_state_estimation(self.x_kalman, self.y_kalman, self.theta)
+        self.drive_node.pub_odometry(self.x_odometry, self.y_odometry, theta_odometry)
+        self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
 
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
