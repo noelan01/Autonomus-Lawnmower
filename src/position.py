@@ -54,8 +54,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         delta_omega2 = 1/r*(delta_S-L*delta_omega)
         
         #Calculating the needed angular velocity of each wheel
-        dtheta1_dt = 1*(delta_omega1)
-        dtheta2_dt = 1*(delta_omega2)
+        dtheta1_dt = -1*(delta_omega1)
+        dtheta2_dt = -1*(delta_omega2)
 
         #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
         if dtheta1_dt>6.5:
@@ -68,7 +68,7 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
             dtheta2_dt = -6.5
 
         #Calculating the steering variable to see the output
-        s = (dtheta1_dt-dtheta2_dt)/dtheta1_dt
+        #s = (dtheta1_dt-dtheta2_dt)/dtheta1_dt
 
         #Converting to linear and angular movement of the robot to use in the Kalman filter
         lin_vel = (r/2*(dtheta1_dt+dtheta2_dt))
@@ -87,8 +87,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
     dtheta1_out_dt = dtheta1_dt*Ts/(T+Ts)+dtheta1_out_dt_old*T/(T+Ts)+rand1
     dtheta2_out_dt = dtheta2_dt*Ts/(T+Ts)+dtheta2_out_dt_old*T/(T+Ts)+rand2
 
-    theta_1_meas = theta_1_meas_old+(1*dtheta1_out_dt*Ts)
-    theta_2_meas = theta_2_meas_old+(1*dtheta2_out_dt*Ts)
+    theta_1_meas = theta_1_meas_old+(-1*dtheta1_out_dt*Ts)
+    theta_2_meas = theta_2_meas_old+(-1*dtheta2_out_dt*Ts)
 
     #Calculating the angular difference between the two samples
     delta_theta_1 = theta_1_meas-theta_1_meas_old

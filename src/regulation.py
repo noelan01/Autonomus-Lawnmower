@@ -112,12 +112,8 @@ class Regulation():
             self.err_sum_y = self.err_sum_y + delta_ye 
 
             #PID regulator
-
             delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
             delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
-
-            #delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
-            #delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
             
             #print("PID: X: ", delta_x, "Y: ", delta_y)
             print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
@@ -125,11 +121,6 @@ class Regulation():
             #Calculating delta_omega(k) and delta_S(k)
             delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
             delta_S = self.D*math.cos(delta_omega)-self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
-
-            #Old version
-            #Calculating delta_omega0(k) and delta_omega1(k)
-            #delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
-            #delta_omega1 = 1/self.r*(delta_S - self.L*delta_omega)
 
             #Calculating delta_omega0(k) and delta_omega1(k)
             delta_omega1 = 1/self.r*(delta_S + self.L*delta_omega)
@@ -144,11 +135,6 @@ class Regulation():
 
             print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
             print("")
-
-            #Old version
-            #dtheta_sum = dtheta0_dt + dtheta1_dt
-            #l_ratio = dtheta0_dt/dtheta_sum
-            #r_ratio = dtheta1_dt/dtheta_sum
 
             #New version
             dtheta_sum = dtheta1_dt + dtheta0_dt
@@ -183,7 +169,7 @@ class Regulation():
                     self.steering = max_steering * (r_ratio-l_ratio)
                 
 
-            speed_clamp = 32
+            speed_clamp = 16
             speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
             # speed = 0.2
 
@@ -222,9 +208,9 @@ class Regulation():
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
         yaw_angle = yaw_angle - yaw_offset - np.pi
         
-        #print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
-        #print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
-        #print("")
+        print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
+        print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
+        print("")
 
         #Convert to angular displacement
         #Here I multiply with -1 again to make sure that the sign of rotation is the same in the model. Since the total step command is the same in absolute terms, we can take the negative sign and convert it back so that the model can still be used
@@ -255,8 +241,8 @@ class Regulation():
         x_init_rtk, y_init_rtk = self.drive_node.get_coord_init_pos1()
         offset_angle = self.drive_node.get_rtk_angle_offset()
 
-        #print("rkt init: x:", x_init_rtk, "y: ", y_init_rtk)
-        #print("rkt: x:", x_rtk, "y: ", y_rtk)
+        print("rkt init: x:", x_init_rtk, "y: ", y_init_rtk)
+        print("rkt: x:", x_rtk, "y: ", y_rtk)
 
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
