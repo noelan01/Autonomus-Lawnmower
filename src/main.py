@@ -2,6 +2,7 @@
 
 import node_lawnmower_control
 import regulation
+import regulation_circle
 import signal
 import rclpy
 import threading
@@ -14,6 +15,7 @@ import termios
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
+regulator_circle = regulation_circle.Regulation(drive_node)
 
 #import differential_drive
 #diff_drive = differential_drive.Differential_Drive(drive_node)
@@ -119,7 +121,7 @@ def main():
     radius = 3
     rotate = False
     index_end_point = 0
-    #path.set_circle_path(radius, (3,0), 3000,dir = "None")
+    #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
