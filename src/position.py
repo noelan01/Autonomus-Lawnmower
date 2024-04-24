@@ -19,7 +19,7 @@ import kalman
 state_estimation = kalman.EKF(0)
 
 #This is the code that simulates the lawnmower
-def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y):
+def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,acc_sum_delta_omega_1,acc_sum_delta_omega_2):
 
     x_ref = next_point[0]
     y_ref = next_point[1]
@@ -55,21 +55,27 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
 
         #Calculating delta_omega1(k) and delta_omega2(k)
         delta_omega1 = 1/r*(delta_S+L*delta_omega)
-        delta_omega2 = 1/r*(delta_S-L*delta_omega)
-        
+        delta_omega2 = 1/r*(delta_S-L*delta_omega)    
+
+        #Calculating the accumulated signal
+        acc_sum_delta_omega_1 += delta_omega1*Ts
+        acc_sum_delta_omega_2 += delta_omega2*Ts
+
+
         #Calculating the needed angular velocity of each wheel
-        dtheta1_dt = -1*(delta_omega1)
-        dtheta2_dt = -1*(delta_omega2)
+        clamping = 1
+        dtheta1_dt = (delta_omega1)/clamping
+        dtheta2_dt = (delta_omega2)/clamping
 
         #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
-        if dtheta1_dt>6.5:
-            dtheta1_dt = 6.5
-        elif dtheta1_dt<-6.5:
-            dtheta1_dt = -6.5
-        if dtheta2_dt>6.5:
-            dtheta2_dt =6.5
-        elif dtheta2_dt<-6.5:
-            dtheta2_dt = -6.5
+        # if dtheta1_dt>6.5:
+        #     dtheta1_dt = 6.5
+        # elif dtheta1_dt<-6.5:
+        #     dtheta1_dt = -6.5
+        # if dtheta2_dt>6.5:
+        #     dtheta2_dt =6.5
+        # elif dtheta2_dt<-6.5:
+        #     dtheta2_dt = -6.5
 
         #Calculating the steering variable to see the output
         #s = (dtheta1_dt-dtheta2_dt)/dtheta1_dt
@@ -91,8 +97,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
     dtheta1_out_dt = dtheta1_dt*Ts/(T+Ts)+dtheta1_out_dt_old*T/(T+Ts)+rand1
     dtheta2_out_dt = dtheta2_dt*Ts/(T+Ts)+dtheta2_out_dt_old*T/(T+Ts)+rand2
 
-    theta_1_meas = theta_1_meas_old+(-1*dtheta1_out_dt*Ts)
-    theta_2_meas = theta_2_meas_old+(-1*dtheta2_out_dt*Ts)
+    theta_1_meas = theta_1_meas_old+(dtheta1_out_dt*Ts)
+    theta_2_meas = theta_2_meas_old+(dtheta2_out_dt*Ts)
 
     #Calculating the angular difference between the two samples
     delta_theta_1 = theta_1_meas-theta_1_meas_old
@@ -163,7 +169,7 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
     x_old = x
 
 
-    return delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral
+    return delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral,acc_sum_delta_omega_1,acc_sum_delta_omega_2
 
 
 def reset_error_sum_dir(dir,err_sum_x,err_sum_y):
