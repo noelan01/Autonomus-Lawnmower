@@ -7,6 +7,7 @@ import cmath
 import random
 import path_planner
 import RouteSequencePlanner
+#import main_simulation
 
 #Create variables so the classes can be reached
 path = path_planner.Path()
@@ -68,14 +69,14 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         dtheta2_dt = (delta_omega2)/clamping
 
         #Clamping the angular velocity of the wheels to be more representable of the real lawnmower
-        # if dtheta1_dt>6.5:
-        #     dtheta1_dt = 6.5
-        # elif dtheta1_dt<-6.5:
-        #     dtheta1_dt = -6.5
-        # if dtheta2_dt>6.5:
-        #     dtheta2_dt =6.5
-        # elif dtheta2_dt<-6.5:
-        #     dtheta2_dt = -6.5
+        if dtheta1_dt>6.5:
+            dtheta1_dt = 6.5
+        elif dtheta1_dt<-6.5:
+            dtheta1_dt = -6.5
+        if dtheta2_dt>6.5:
+            dtheta2_dt =6.5
+        elif dtheta2_dt<-6.5:
+            dtheta2_dt = -6.5
 
         #Calculating the steering variable to see the output
         #s = (dtheta1_dt-dtheta2_dt)/dtheta1_dt
@@ -85,8 +86,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         ang_vel = (r/(2*L)*(dtheta1_dt-dtheta2_dt))
 
     elif rotate == True:
-        dtheta1_dt = -2
-        dtheta2_dt = 2
+        dtheta1_dt = 2
+        dtheta2_dt = -2
         print("ROTATING!!!!")
 
     #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
@@ -130,6 +131,7 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
     #Updating the chalking mechanism position
     x = x_base - D*math.cos(theta)
     y = y_base - D*math.sin(theta) 
+
     delta_xe_old = delta_xe
     delta_ye_old = delta_ye        
 
@@ -189,6 +191,11 @@ def reset_error_sum_crossed_line(dir,err_sum_x,err_sum_y):
     elif dir == "y":
         err_sum_x = 0  
         err_sum_y = err_sum_y
+    return err_sum_x,err_sum_y
+
+def reset_error_sum_rotation():
+    err_sum_x = 0
+    err_sum_y = 0
     return err_sum_x,err_sum_y
 
 

@@ -13,6 +13,29 @@ class Path():
         #La till att man kan bestämma vilken riktning den åker i för att ändra regleringen
         self._dir = None
 
+    #Interpolera punkter vid roteringar så att inte avstånden mellan önskad och verklig punkt blir för stort
+    def interpolate_points(self,coord_list, threshold):
+        self.interpolated_coords = [coord_list[0]]  # Initialize with the first point
+
+        
+        self.start_x, self.start_y,self.dir = coord_list[self._current_point]
+        self.end_x, self.end_y,self.new_dir = coord_list[self._next_point]
+        self.distance = np.sqrt((self.end_x - self.start_x) ** 2 + (self.end_y - self.start_y) ** 2)
+
+        if self.distance > threshold:
+            num_intermediate_points = int(self.distance // threshold)
+            self.dx = (self.end_x - self.start_x) / (num_intermediate_points + 1)
+            self.dy = (self.end_y - self.start_y) / (num_intermediate_points + 1)
+            new_index = 0
+
+            for j in range(1, num_intermediate_points + 1):
+                interpolated_x = self.start_x + j * self.dx
+                interpolated_y = self.start_y + j * self.dy
+                self.interpolated_coords.append((interpolated_x, interpolated_y))
+                index_to_insert = self._path.index((self.start_x,self.start_y,self.dir))+new_index
+                new_index+=new_index
+                self._path.insert(index_to_insert,(interpolated_x,interpolated_y,self.new_dir))  # Add the next point
+
 
     def set_path(self, x_0, y_0, x_n, y_n , ppm, dir):
 
@@ -68,6 +91,7 @@ class Path():
         self._current_point += 1
         self._prev_point = self._current_point - 1
         self._next_point = self._current_point + 1
+        return self._current_point
 
     def get_point(self):
         if self._current_point >= self._num_points:

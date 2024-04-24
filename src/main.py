@@ -35,7 +35,7 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point,threshold):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     point = path.get_point()
@@ -50,7 +50,10 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
 
             if abs(theta_ref - theta) >= np.pi/2-0.1:
                 rotate = False
-                path.update_point()
+                next_dir = path._path[path._next_point][2]
+                path._path[path.update_point()] = (x_kalman,y_kalman,next_dir)
+                path.interpolate_points(path._path,threshold)
+                #path.update_point()
         index_end_point +=1
         regulator.reset_error_sum_rotation()
         #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
@@ -125,6 +128,7 @@ def main():
     radius = 3
     rotate = False
     index_end_point = 0
+    threshold = 0.04
     #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
 
     
@@ -167,7 +171,7 @@ def main():
             #rtk_pos[time] = [x_rtk,y_rtk]
 
             # calc next ref point
-            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point)
+            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point,threshold)
 
     # write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
