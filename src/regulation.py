@@ -192,6 +192,7 @@ class Regulation():
             #Publish angular and linear velocity to the lawnmower node
             rate = self.drive_node.get_rate()
             self.drive_node.drive(speed, steering)
+            print("RATE:", rate.sleep())
             rate.sleep()
 
             self.steering_prev = self.steering
@@ -214,7 +215,7 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset 
+        yaw_angle = yaw_angle - yaw_offset -np.pi
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
@@ -225,8 +226,8 @@ class Regulation():
         theta_1_meas = wheel_1_counter*2*math.pi/self.PPR*-1
         theta_0_meas = wheel_0_counter*2*math.pi/self.PPR*-1
 
-        #print("ANGLULAR DIST 0: ", theta_0_meas, "ANGLULAR DIST 1: ", theta_1_meas)
-        #print("")
+        print("ANGLULAR DIST 0: ", theta_0_meas, "ANGLULAR DIST 1: ", theta_1_meas)
+        print("")
 
         #Calculating the angular difference between the two samples
         delta_theta_1 = theta_1_meas-self.theta_1_meas_old
@@ -376,14 +377,14 @@ class Regulation():
         speed = round(speed, 2)
         steering = round(steering, 2)
 
-        if speed >= 0 and speed < 0.2:
-            speed = 0.2
-        elif speed < 0 and speed >-0.2:
-            speed = -0.2
-        elif speed > 1:
-            speed = 1
-        elif speed < -1:
-            speed = -1.0
+        #if speed >= 0 and speed < 0.2:
+        #    speed = 0.2
+        #elif speed < 0 and speed >-0.2:
+        #    speed = -0.2
+        #elif speed > 1:
+        #    speed = 1
+        #elif speed < -1:
+        #    speed = -1.0
 
         diff = 0.1
 
