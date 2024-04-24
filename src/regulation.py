@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.2        # distance between RTK module and track.
+        self.D = 0.4   # distance between RTK module and track.
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         self.chalk_offset = 0.4     # distance between 
@@ -177,7 +177,7 @@ class Regulation():
                     self.steering = max_steering * (r_ratio-l_ratio)
                 
 
-            speed_clamp = 32
+            speed_clamp = 16
             speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
             # speed = 0.2
 
@@ -267,7 +267,7 @@ class Regulation():
 
             z_k = np.array([[x_rotated],
                             [y_rotated],
-                            [yaw_angle]])
+                            [self.theta]])
             
             control_input = np.array([[v],
                                       [yaw_rate]])
@@ -280,8 +280,8 @@ class Regulation():
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
-            self.theta_kalman = skalman_state[2].item()
-            print("yaw angle ", self.theta_kalman)
+            #self.theta = skalman_state[2].item()
+            print("yaw angle ", self.theta)
 
         else:
             state_x = x_rotated

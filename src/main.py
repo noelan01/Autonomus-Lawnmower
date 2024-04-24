@@ -48,10 +48,11 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         while rotate == True:            
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
 
-            if abs(theta_ref - theta) >= np.pi/2-0.1:
+            if abs(theta_ref - theta) >= np.pi/2:
                 rotate = False
                 next_dir = path._path[path._next_point][2]
                 path._path[path.update_point()] = (x_kalman,y_kalman,next_dir)
+                print("NEW POINT: ", path._path[path._current_point])
                 path.interpolate_points(path._path,threshold)
                 #path.update_point()
         index_end_point +=1
@@ -72,7 +73,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 0.3:
+        if total_error < 0.1:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -113,10 +114,11 @@ def main():
     # set ref path
     #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    path.set_path(0, 0, 5, 0, 25,"x")
-    path.set_path(5, 0.3, 5, 5, 25,"y")
-    #path.set_path(5, 5, 0, 5,30,"x")
-    #path.set_path(0, 5, 0, 0, 30,"y")
+    path.set_path(0, 0, 5.4, 0, 80,"x")
+    path.set_path(5, 0.4, 5, 5.4, 80,"y")
+    path.set_path(4.6, 5, -0.4, 5,80,"x")
+    path.set_path(0, 4.6, 0, 0 , 80,"y")
+
 
 
     # path.set_path(0,0,100,0, 20)
@@ -128,7 +130,7 @@ def main():
     radius = 3
     rotate = False
     index_end_point = 0
-    threshold = 0.04
+    threshold = 0.01
     #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
 
     
@@ -173,7 +175,7 @@ def main():
             # calc next ref point
             next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point,threshold)
 
-    # write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
 
     drive_node.destroy_node()
