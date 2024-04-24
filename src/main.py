@@ -71,6 +71,14 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
             if y_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
+        elif dir == "-x":
+            if x_error > -0.3:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+        elif dir == "-y":
+            if y_error >-0.3:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
     else:
 
         if total_error < 0.1:
@@ -116,8 +124,8 @@ def main():
     # path.set_path(0, 0, 50, 0, 25,"x")
     path.set_path(0, 0, 5.4, 0, 80,"x")
     path.set_path(5, 0.4, 5, 5.4, 80,"y")
-    path.set_path(4.6, 5, -0.4, 5,80,"x")
-    path.set_path(0, 4.6, 0, 0 , 80,"y")
+    path.set_path(4.6, 5, -0.4, 5,80,"-x")
+    path.set_path(0, 4.6, 0, 0 , 80,"-y")
 
 
 

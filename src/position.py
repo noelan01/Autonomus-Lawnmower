@@ -175,20 +175,20 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
 
 
 def reset_error_sum_dir(dir,err_sum_x,err_sum_y):
-        if dir == "x":
+        if dir == "x" or dir == "-x":
             err_sum_x = 0
             err_sum_y = err_sum_y
-        elif dir == "y":
+        elif dir == "y" or dir == "-y":
             err_sum_x = err_sum_x
             err_sum_y = 0
         return err_sum_x,err_sum_y
 
 
 def reset_error_sum_crossed_line(dir,err_sum_x,err_sum_y):
-    if dir == "x":
+    if dir == "x" or dir == "-x":
         err_sum_x = err_sum_x
         err_sum_y = 0
-    elif dir == "y":
+    elif dir == "y" or dir == "-y":
         err_sum_x = 0  
         err_sum_y = err_sum_y
     return err_sum_x,err_sum_y
