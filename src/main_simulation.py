@@ -106,6 +106,7 @@ def main():
     y_err = [0]
     x_err = [0]
     dir = [0]
+    threshold = 0.02
     
     #Defining simulation time
     simTime = 120
@@ -114,6 +115,7 @@ def main():
     #load pitch data from json file
     route.load_pitch_data()
 
+    # path.set_circle_path(9.15,(9.15,0),8000,"None")
     #Outer lines
     route.outerLines(path)
     
@@ -156,11 +158,11 @@ def main():
 
     while reached_goal == False:
 
-        delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral = simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y)
+        delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral,acc_sum_delta_omega_1,acc_sum_delta_omega_2 = simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,acc_sum_delta_omega_1,acc_sum_delta_omega_2)
 
         theta_ref = theta
         
-        next_point,err_sum_x,err_sum_y,index_end_point = goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point)
+        next_point,err_sum_x,err_sum_y,index_end_point = goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point,acc_sum_delta_omega_1,acc_sum_delta_omega_2,threshold)
 
         if next_point[0] == None or next_point[1]==None:
             reached_goal = True
@@ -188,7 +190,7 @@ def main():
 
 
 
-def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point):
+def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_ref,y_ref,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,index_end_point,acc_sum_delta_omega_1,acc_sum_delta_omega_2,threshold):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     point = path.get_point()
@@ -199,11 +201,15 @@ def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_re
         rotate = True
 
         while rotate == True:    
-            delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral = simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y)
+            delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,dir,reset_integral,acc_sum_delta_omega_1,acc_sum_delta_omega_2 = simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,delta_y,delta_omega,delta_S,delta_omega1,delta_omega2,dtheta1_dt,dtheta2_dt,s,lin_vel,ang_vel,dtheta1_out_dt,dtheta2_out_dt,r,L,x,y,D,PPR,theta_1_meas,theta_2_meas,T,delta_theta_1,delta_theta_2,delta_s,delta_theta,x_base,y_base,x_base_kalman,y_base_kalman,theta_kalman,x_kalman,y_kalman,tot_error,next_point,rotate,delta_xe_old,delta_ye_old,theta_old,dtheta1_out_dt_old,dtheta2_out_dt_old,theta_1_meas_old,theta_2_meas_old,x_base_old,y_base_old,Kalman,y_old,x_old,err_sum_x,err_sum_y,acc_sum_delta_omega_1,acc_sum_delta_omega_2)
 
             if abs(theta_ref - theta) >= np.pi/2:
                 rotate = False
-                path.update_point()
+                next_dir = path._path[path._next_point][2]
+                path._path[path.update_point()] = (x,y,next_dir)
+                path.interpolate_points(path._path,threshold)
+
+        err_sum_x,err_sum_y = position.reset_error_sum_rotation()
         index_end_point += 1
 
     seperate = True

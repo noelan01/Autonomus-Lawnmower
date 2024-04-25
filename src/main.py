@@ -2,6 +2,7 @@
 
 import node_lawnmower_control
 import regulation
+import regulation_circle
 import signal
 import rclpy
 import threading
@@ -24,6 +25,7 @@ GPIO.output(RELAY_PIN, False)
 
 drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
+regulator_circle = regulation_circle.Regulation(drive_node)
 
 #import differential_drive
 #diff_drive = differential_drive.Differential_Drive(drive_node)
@@ -43,7 +45,7 @@ def constant_speed():
     rate.sleep()
 
 
-def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point):
+def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point,threshold):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
     point = path.get_point()
@@ -58,9 +60,17 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
 
             if abs(theta_ref - theta) >= np.pi/2:
                 rotate = False
-                path.update_point()
+                next_dir = path._path[path._next_point][2]
+                path._path[path.update_point()] = (x_kalman,y_kalman,next_dir)
+                print("NEW POINT: ", path._path[path._current_point])
+                path.interpolate_points(path._path,threshold)
+                #path.update_point()
         index_end_point +=1
-    seperate = False
+        regulator.reset_error_sum_rotation()
+        #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
+        #print("AAAAAA")
+
+    seperate = True
     
     if seperate == True:
         if dir =="x":
@@ -73,7 +83,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 1:
+        if total_error < 0.1:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -112,11 +122,13 @@ def main():
     rate.sleep()
     
     # set ref path
+    #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    #path.set_path(0, 0, 5, 0, 25,"x")
-    #path.set_path(5, 0, 5, 5, 25,"y")
-    # path.set_path(10, -10, 0, -10,25,"x")
-    # path.set_path(0, -10, 0, 0, 25,"y")
+    path.set_path(0, 0, 5.4, 0, 80,"x")
+    path.set_path(5, 0.4, 5, 5.4, 80,"y")
+    path.set_path(4.6, 5, -0.4, 5,80,"x")
+    path.set_path(0, 4.6, 0, 0 , 80,"y")
+
 
 
     # path.set_path(0,0,100,0, 20)
@@ -128,7 +140,8 @@ def main():
     radius = 3
     rotate = False
     index_end_point = 0
-    path.set_circle_path(radius, (3,0), 3000,dir = "None")
+    threshold = 0.01
+    #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
@@ -172,9 +185,9 @@ def main():
 
             GPIO.output(RELAY_PIN, GPIO.HIGH)
             # calc next ref point
-            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point)
+            next_point,index_end_point = goal(x_error, y_error, x_error_old, y_error_old, dir,reset_integral, theta_ref,index_end_point,threshold)
 
-    # write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
+    #write_json(kalman_pos, ref_pos, odometry_pos, rtk_pos)
 
     GPIO.output(RELAY_PIN, GPIO.LOW)
     GPIO.cleanup()

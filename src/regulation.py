@@ -18,7 +18,7 @@ class Regulation():
         self.drive_node = drive_node
 
         #Starting with defining variables for the robot
-        self.D = 0.1        # distance between RTK module and track.
+        self.D = 0.4   # distance between RTK module and track.
         self.r = 0.752/(2*math.pi)
         self.L = (43/2+3.2/2)/100
         self.chalk_offset = 0.4     # distance between 
@@ -33,10 +33,12 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = - np.pi/2
+        self.theta = -np.pi
 
         self.x_base = 0
         self.y_base = 0
+        self.x_base_kalman = 0
+        self.y_base_kalman = 0
         self.theta_kalman = 0
         self.reset_integral = False
 
@@ -90,38 +92,39 @@ class Regulation():
         self.y_error = 0
         self.x_error_old = 0
         self.y_error_old = 0
+        self.theta_odo=-math.pi
+        self.theta_kalman=0
 
 
     def update(self, x_ref, y_ref,dir, rotate):
+        
+        
+        # keep up with regular
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
         
         #Implementing the kinematic model of the robot
-        #Drive with RTK data
-        delta_xe = x_ref - self.rtk_x
-        delta_ye = y_ref - self.rtk_y
-        
-        # keep up with regular shit
+        #Drive with Kalman data
+        delta_xe = x_ref - self.x_kalman
+        delta_ye = y_ref - self.y_kalman
+    
         if rotate == False:
-            self.err_sum_x = self.err_sum_x + delta_xe
-            self.err_sum_y = self.err_sum_y + delta_ye 
+            self.err_sum_x = self.err_sum_x + delta_xe*self.Ts
+            self.err_sum_y = self.err_sum_y + delta_ye*self.Ts
 
             #PID regulator
-
-            delta_x = self.PID(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
-            delta_y = self.PID(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
-
-            #delta_x = delta_xe*self.Kp+self.Ki*self.Ts*self.err_sum_x+self.Kd*(delta_xe-self.delta_xe_old)/self.Ts
-            #delta_y = delta_ye*self.Kp+self.Ki*self.Ts*self.err_sum_y+self.Kd*(delta_ye-self.delta_ye_old)/self.Ts
+            delta_x = self.PID_x(delta_xe, self.Kp_x, self.Ki_x, self.Kd_x)
+            delta_y = self.PID_y(delta_ye, self.Kp_y, self.Ki_y, self.Kd_y)
             
-            #print("PID: X: ", delta_x, "Y: ", delta_y)
-            print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
+            print("PID: X: ", delta_x, "Y: ", delta_y)
+            #print("error sum x: ", self.err_sum_x, "error sum y: ", self.err_sum_y)
             
             #Calculating delta_omega(k) and delta_S(k)
             delta_omega = cmath.asin((delta_x*math.sin(self.theta_old)-delta_y*math.cos(self.theta_old))/self.D).real
-            delta_S = self.D*math.cos(delta_omega)+self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
+            delta_S = self.D*math.cos(delta_omega)-self.D+delta_x*math.cos(self.theta_old)+delta_y*math.sin(self.theta_old)
 
+            print("Delta S: ",delta_S)
             #Old version
             #Calculating delta_omega0(k) and delta_omega1(k)
             #delta_omega0 = 1/self.r*(delta_S + self.L*delta_omega)
@@ -141,17 +144,12 @@ class Regulation():
             print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
             print("")
 
-            #Old version
-            #dtheta_sum = dtheta0_dt + dtheta1_dt
-            #l_ratio = dtheta0_dt/dtheta_sum
-            #r_ratio = dtheta1_dt/dtheta_sum
-
             #New version
             dtheta_sum = dtheta1_dt + dtheta0_dt
             l_ratio = dtheta1_dt/dtheta_sum
             r_ratio = dtheta0_dt/dtheta_sum
 
-            print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
+            #print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
 
             #Converting the linear and angular velocity to the signals
 
@@ -179,7 +177,7 @@ class Regulation():
                     self.steering = max_steering * (r_ratio-l_ratio)
                 
 
-            speed_clamp = 32
+            speed_clamp = 16
             speed = (dtheta1_dt + dtheta0_dt)*self.r/(speed_clamp)
             # speed = 0.2
 
@@ -194,6 +192,7 @@ class Regulation():
             #Publish angular and linear velocity to the lawnmower node
             rate = self.drive_node.get_rate()
             self.drive_node.drive(speed, steering)
+            print("RATE:", rate.sleep())
             rate.sleep()
 
             self.steering_prev = self.steering
@@ -202,7 +201,7 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.5, 2.0)
+            self.drive_node.drive(0.1, 2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
@@ -216,7 +215,7 @@ class Regulation():
 
         wheel_0_counter = wheel_0_counter-wheel_0_counter_init
         wheel_1_counter = wheel_1_counter-wheel_1_counter_init
-        yaw_angle = yaw_angle - yaw_offset - np.pi/2
+        yaw_angle = yaw_angle - yaw_offset -np.pi
         
         print("WHEELCOUNTER 1 (left): ", wheel_1_counter, "   WHEELCOUNTER 0 (right): ", wheel_0_counter)
         print("WHEELCOUNTER 1 init (left): ", wheel_1_counter_init, "   WHEELCOUNTER 0 init (right): ", wheel_0_counter_init)
@@ -230,11 +229,6 @@ class Regulation():
         print("ANGLULAR DIST 0: ", theta_0_meas, "ANGLULAR DIST 1: ", theta_1_meas)
         print("")
 
-        #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-        rand1 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        rand2 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-        rand3 = random.uniform(-360/self.PPR,360/self.PPR) + random.uniform(-0.001,0.001)
-
         #Calculating the angular difference between the two samples
         delta_theta_1 = theta_1_meas-self.theta_1_meas_old
         delta_theta_0 = theta_0_meas-self.theta_0_meas_old     
@@ -245,10 +239,11 @@ class Regulation():
         #Updating the robots base position
         self.x_base = self.x_base + delta_s*math.cos(self.theta_old)
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
+
         self.theta = self.theta + delta_theta
+        self.theta_kalman = self.theta_kalman + delta_theta
 
-        theta_odometry = self.theta
-
+        
         print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -272,7 +267,7 @@ class Regulation():
 
             z_k = np.array([[x_rotated],
                             [y_rotated],
-                            [yaw_angle]])
+                            [self.theta]])
             
             control_input = np.array([[v],
                                       [yaw_rate]])
@@ -285,7 +280,7 @@ class Regulation():
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
-            self.theta = skalman_state[2].item()
+            #self.theta = skalman_state[2].item()
             print("yaw angle ", self.theta)
 
         else:
@@ -297,13 +292,18 @@ class Regulation():
         self.x_odometry = self.x_base -  self.D*math.cos(self.theta)
         self.y_odometry = self.y_base -  self.D*math.sin(self.theta)
 
+        self.x_base_kalman = state_x + 0.2*math.cos(self.theta)
+        self.y_base_kalman = state_y + 0.2*math.sin(self.theta)
+
+        print("X base Kalman: ",self.x_base_kalman, "Y base Kalman: ", self.y_base_kalman)
+
         #Updating based on Kalman
-        self.x_kalman = state_x -  self.D*math.cos(self.theta)
-        self.y_kalman = state_y -  self.D*math.sin(self.theta)
+        self.x_kalman = self.x_base_kalman - self.D*math.cos(self.theta)
+        self.y_kalman = self.y_base_kalman- self.D*math.sin(self.theta)
 
         #Updating based on rtk
-        self.rtk_x = x_rotated -  self.D*math.cos(self.theta)
-        self.rtk_y = y_rotated -  self.D*math.sin(self.theta)
+        self.rtk_x = x_rotated + 0.1*math.cos(self.theta) -  self.D*math.cos(self.theta)
+        self.rtk_y = y_rotated + 0.1*math.sin(self.theta) - self.D*math.sin(self.theta)
 
         print("Kalman X: ", self.x_kalman, "  Y: ", self.y_kalman)
         print("ODOMETRY X: ", self.x_odometry, "  Y: ", self.y_odometry)
@@ -333,6 +333,8 @@ class Regulation():
             reset_integral = False
             print("Signs: ",signs)
         
+        print("X error: ",self.x_error, "Y error: ",self.y_error)
+        print("")
 
         #Updating the old variables to the new ones
         self.theta_old = self.theta
@@ -342,21 +344,18 @@ class Regulation():
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y_kalman
         self.x_old = self.x_kalman
-
-        # log data
-        self.drive_node.pub_total_error(self.x_error, self.y_error)
-        self.drive_node.pub_state_estimation(self.x_kalman, self.y_kalman, self.theta)
-        self.drive_node.pub_odometry(self.x_odometry, self.y_odometry, theta_odometry)
-        self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
+        
 
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
     
 
-    def PID(self, error, kp, ki, kd):
-        delta = error*kp+ki*self.Ts*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
+    def PID_x(self, error, kp, ki, kd):
+        delta = error*kp+ki*self.err_sum_x+kd*(error-self.delta_xe_old)/self.Ts
         return delta
 
-    
+    def PID_y(self, error, kp, ki, kd):
+        delta = error*kp+ki*self.err_sum_y+kd*(error-self.delta_ye_old)/self.Ts
+        return delta
 
     def reset_error_sum_dir(self,dir):
         if dir == "x":
@@ -370,19 +369,22 @@ class Regulation():
         elif dir == "y":
             self.err_sum_x = 0        
 
+    def reset_error_sum_rotation(self):
+        self.err_sum_y = 0
+        self.err_sum_x = 0   
 
     def clamping(self, speed, steering):
         speed = round(speed, 2)
         steering = round(steering, 2)
 
-        if speed >= 0 and speed < 0.2:
-            speed = 0.2
-        elif speed < 0 and speed >-0.2:
-            speed = -0.2
-        elif speed > 1:
-            speed = 1
-        elif speed < -1:
-            speed = -1.0
+        #if speed >= 0 and speed < 0.2:
+        #    speed = 0.2
+        #elif speed < 0 and speed >-0.2:
+        #    speed = -0.2
+        #elif speed > 1:
+        #    speed = 1
+        #elif speed < -1:
+        #    speed = -1.0
 
         diff = 0.1
 
