@@ -48,7 +48,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         while rotate == True:            
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
 
-            if abs(theta_ref - theta) >= np.pi/2:
+            if abs(theta_ref - theta) >= np.pi/2-0.1:
                 rotate = False
                 next_dir = path._path[path._next_point][2]
                 path._path[path.update_point()] = (x_kalman,y_kalman,next_dir)
@@ -60,7 +60,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
         #print("AAAAAA")
 
-    seperate = True
+    seperate = False
     
     if seperate == True:
         if dir =="x":
@@ -81,7 +81,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 0.1:
+        if total_error < 0.3:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -122,10 +122,10 @@ def main():
     # set ref path
     #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
     # path.set_path(0, 0, 50, 0, 25,"x")
-    path.set_path(0, 0, 5.4, 0, 80,"x")
-    path.set_path(5, 0.4, 5, 5.4, 80,"y")
-    path.set_path(4.6, 5, -0.4, 5,80,"-x")
-    path.set_path(0, 4.6, 0, 0 , 80,"-y")
+    #path.set_path(0, 0, 0, 2.4, 80,"y")
+    #path.set_path(0.4, 2, 2.4, 2, 80,"x")
+    #path.set_path(2, 1.6, 2, -0.4,80,"-y")
+    #path.set_path(1.6, 0, -0.4, 0 , 80,"-x")
 
 
 
@@ -135,11 +135,11 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 3
+    radius = 1
     rotate = False
     index_end_point = 0
     threshold = 0.01
-    #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
+    path.set_circle_path(radius, (1,0), 1000,dir = "None")
 
     
     next_point = path.get_point()

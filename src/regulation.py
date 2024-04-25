@@ -33,7 +33,7 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = -np.pi
+        self.theta = -np.pi/2
 
         self.x_base = 0
         self.y_base = 0
@@ -143,11 +143,17 @@ class Regulation():
 
             print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
             print("")
+            
 
             #New version
             dtheta_sum = dtheta1_dt + dtheta0_dt
-            l_ratio = dtheta1_dt/dtheta_sum
-            r_ratio = dtheta0_dt/dtheta_sum
+
+            if not dtheta_sum == 0:
+                l_ratio = dtheta1_dt/dtheta_sum
+                r_ratio = dtheta0_dt/dtheta_sum
+            else:
+                l_ratio = 0.5
+                r_ratio = 0.5
 
             #print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
 
@@ -201,7 +207,7 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.1, 2.0)
+            self.drive_node.drive(0.1, -2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
@@ -257,7 +263,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = True
+        use_kalman = False
 
         if use_kalman == True:
             v = (wheelspeed0 + wheelspeed1)/2
