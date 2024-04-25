@@ -35,6 +35,7 @@ class Path():
                 index_to_insert = self._path.index((self.start_x,self.start_y,self.dir))+new_index
                 new_index+=new_index
                 self._path.insert(index_to_insert,(interpolated_x,interpolated_y,self.new_dir))  # Add the next point
+                self._num_points += 1
 
 
     def set_path(self, x_0, y_0, x_n, y_n , ppm, dir):
