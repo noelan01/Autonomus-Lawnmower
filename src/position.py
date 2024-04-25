@@ -91,8 +91,8 @@ def simulation(delta_xe,delta_ye,x_ref,y_ref,x_error,y_error,theta,Ts,delta_x,de
         print("ROTATING!!!!")
 
     #The random noise was calculated by finding the resolution of the lawnmower (360/PPR) and estimating that a reasonable error would be if the robot misses a step or reports back a too high or low step
-    rand1 = random.uniform(-6*math.pi/PPR,6*math.pi/PPR) + random.uniform(-0.01,0.01)
-    rand2 = random.uniform(-6*math.pi/PPR,6*math.pi/PPR) + random.uniform(-0.01,0.01)
+    rand1 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
+    rand2 = random.uniform(-2*math.pi/PPR,2*math.pi/PPR) + random.uniform(-0.01,0.01)
     rand3 = random.uniform(-360/PPR,360/PPR) + random.uniform(-0.001,0.001)
 
     dtheta1_out_dt = dtheta1_dt*Ts/(T+Ts)+dtheta1_out_dt_old*T/(T+Ts)+rand1
