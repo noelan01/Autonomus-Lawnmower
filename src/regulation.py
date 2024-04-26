@@ -7,7 +7,6 @@ import random
 import rclpy
 
 import kalman
-skalman = kalman.EKF(0)
 
 import node_lawnmower_control 
 import coord_transformation
@@ -94,6 +93,8 @@ class Regulation():
         self.y_error_old = 0
         self.theta_odo=-math.pi
         self.theta_kalman=0
+
+        self.skalman = kalman.EKF(0, self.theta + np.pi)
 
 
     def update(self, x_ref, y_ref,dir, rotate):
@@ -261,7 +262,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = False
+        use_kalman = True
 
         if use_kalman == True:
             v = (wheelspeed0 + wheelspeed1)/2
@@ -271,7 +272,7 @@ class Regulation():
 
             z_k = np.array([[x_rotated],
                             [y_rotated],
-                            [self.theta]])
+                            [self.theta + np.pi]])
             
             control_input = np.array([[v],
                                       [yaw_rate]])
@@ -280,7 +281,7 @@ class Regulation():
                                      [rtk_error_y],
                                      [0]])
 
-            skalman_state = skalman.update(z_k, control_input, sensor_error)
+            skalman_state = self.skalman.update(z_k, control_input, sensor_error)
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
