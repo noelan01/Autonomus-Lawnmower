@@ -26,6 +26,11 @@ class Lawnmower_Control(Node):
 
         # Publishers
         self.drive_publisher = self.create_publisher(RemoteDriverDriveCommand, '/hqv_mower/remote_driver/drive', 100)
+
+        self.log_error_publisher = self.create_publisher(Float64MultiArray, '/log/total_error', 100)
+        self.log_ekf_publisher = self.create_publisher(Float64MultiArray, '/log/state_estimation', 100)
+        self.log_odometry_publisher = self.create_publisher(Float64MultiArray, '/log/odometry', 100)
+        self.log_rtk_publisher = self.create_publisher(Float64MultiArray, '/log/rtk', 100)
         
         # Subscribers
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
@@ -59,6 +64,11 @@ class Lawnmower_Control(Node):
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
         self._msg_angle_offset = Float64()
+
+        self._msg_total_error = Float64MultiArray()
+        self._msg_ekf = Float64MultiArray()
+        self._msg_odometry = Float64MultiArray()
+        self._msg_rtk = Float64MultiArray()
 
         # other
         self._update_rate = 40.0
@@ -222,6 +232,22 @@ class Lawnmower_Control(Node):
         self._msg_drive.steering = 0.0
         self.drive_publisher.publish(self._msg_drive)
         print("STOP")
+
+    def pub_total_error(self, x, y):
+        self._msg_total_error.data = [float(x), float(y)]
+        self.log_error_publisher.publish(self._msg_total_error)
+
+    def pub_state_estimation(self, x, y, yaw):
+        self._msg_ekf.data = [float(x), float(y), float(yaw)]
+        self.log_ekf_publisher.publish(self._msg_ekf)
+
+    def pub_odometry(self, x, y, yaw):
+        self._msg_odometry.data = [float(x), float(y), float(yaw)]
+        self.log_odometry_publisher.publish(self._msg_odometry)
+
+    def pub_rtk(self, x, y):
+        self._msg_rtk.data = [float(x), float(y)]
+        self.log_rtk_publisher.publish(self._msg_rtk)
 
 
     ######   ######   #######   #######    ######    #######    ######
