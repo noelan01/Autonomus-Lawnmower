@@ -88,7 +88,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 0.5:
+        if total_error < 0.4:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -143,11 +143,11 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 1
+    radius = 2
     rotate = False
     index_end_point = 0
     threshold = 0.01
-    path.set_circle_path(radius, (1,0), 1000,dir = "None")
+    path.set_circle_path(radius, (2,0), 1000,dir = "None")
 
     
     next_point = path.get_point()

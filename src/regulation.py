@@ -43,12 +43,12 @@ class Regulation():
 
         # PID PARAMETERS
         self.Kp_x = 20
-        self.Ki_x = 20
+        self.Ki_x = 15
         self.Kd_x = 0.5
         
         # y
         self.Kp_y = 20
-        self.Ki_y = 20
+        self.Ki_y = 15
         self.Kd_y = 0.5
     
 
@@ -374,6 +374,9 @@ class Regulation():
             self.err_sum_x = 0
         elif dir == "y":
             self.err_sum_y = 0
+        else:
+            self.err_sum_x=0
+            self.err_sum_y=0
 
     def reset_error_sum_crossed_line(self,dir):
         if dir == "x":
