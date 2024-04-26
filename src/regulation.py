@@ -99,16 +99,16 @@ class Regulation():
     def update(self, x_ref, y_ref,dir, rotate):
         
         
-        # keep up with regular
+        # keep up with regular shit
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
         
         #Implementing the kinematic model of the robot
-        #Drive with Kalman data
-        delta_xe = x_ref - self.x_kalman
-        delta_ye = y_ref - self.y_kalman
-    
+        #Drive with RTK data
+        delta_xe = x_ref - self.rtk_x
+        delta_ye = y_ref - self.rtk_y
+            
         if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe*self.Ts
             self.err_sum_y = self.err_sum_y + delta_ye*self.Ts
@@ -247,9 +247,7 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
 
         self.theta = self.theta + delta_theta
-        self.theta_kalman = self.theta_kalman + delta_theta
 
-        
         print("THETA odometry: ", self.theta)
 
         # get coord inits
