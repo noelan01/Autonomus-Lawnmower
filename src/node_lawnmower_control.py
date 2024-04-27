@@ -31,7 +31,6 @@ class Lawnmower_Control(Node):
         self.log_ekf_publisher = self.create_publisher(Float64MultiArray, '/log/state_estimation', 100)
         self.log_odometry_publisher = self.create_publisher(Float64MultiArray, '/log/odometry', 100)
         self.log_rtk_publisher = self.create_publisher(Float64MultiArray, '/log/rtk', 100)
-
         
         # Subscribers
         self.rtk_subscriber = self.create_subscription(MowerGnssRtkRelativePositionENU, '/hqv_mower/gnss_rtk/rel_enu', self.rtk_callback, 10)
@@ -64,10 +63,8 @@ class Lawnmower_Control(Node):
 
         # drive message
         self._msg_drive = RemoteDriverDriveCommand()
-
         self._msg_angle_offset = Float64()
 
-        # data logging msgs
         self._msg_total_error = Float64MultiArray()
         self._msg_ekf = Float64MultiArray()
         self._msg_odometry = Float64MultiArray()

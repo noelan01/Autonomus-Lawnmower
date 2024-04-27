@@ -7,7 +7,6 @@ import random
 import rclpy
 
 import kalman
-skalman = kalman.EKF(0)
 
 import node_lawnmower_control 
 import coord_transformation
@@ -51,6 +50,8 @@ class Regulation():
         self.Kp_y = 20
         self.Ki_y = 20
         self.Kd_y = 0.5
+
+        self.skalman = kalman.EKF(0, self.theta + np.pi)
     
 
         #Put the sample time to the same as the update time of the drive publish node
