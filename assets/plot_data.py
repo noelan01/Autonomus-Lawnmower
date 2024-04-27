@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "assets/data/2024_03_28_ChangedWheelIndex/circle.json"
+JSON_OBJECT1 = "assets/RTK_kvadrat_80ppm/Kvadrat_80ppm.json"
 #JSON_OBJECT2 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
 #JSON_OBJECT3 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
 
@@ -15,39 +15,33 @@ def plot_data(file1):
     # Load data from JSON files
     with open(file1, 'r') as f1:
         data1 = json.load(f1)
-
-
     
     # Remove yaw angle
-    kalman_data = data1
-    #ref_data = data1["ref"]
-    #odometry_data = data1["odometry"]
-    #rtk_data = data1["rtk"]
+    kalman_data = data1["kalman"]
+    ref_data = data1["ref"]
+    odometry_data = data1["odometry"]
+    rtk_data = data1["rtk"]
 
-    # for key in kalman_data.keys():
-    #     kalman_data[key].pop()
+    for key in kalman_data.keys():
+        kalman_data[key].pop()
 
     # Extract x and y values from the data
 
     x_kalman =     [kalman_data[key][0] for key in kalman_data.keys()]
     y_kalman =     [kalman_data[key][1] for key in kalman_data.keys()]
-    theta_kalman = [kalman_data[key][2] for key in kalman_data.keys()]
-    # x_ref = [ref_data[key][0] for key in ref_data.keys()]
-    # y_ref = [ref_data[key][1] for key in ref_data.keys()]
-    # x_odo = [odometry_data[key][0] for key in odometry_data.keys()]
-    # y_odo = [odometry_data[key][1] for key in odometry_data.keys()]
-    # x_rtk = [rtk_data[key][0] for key in rtk_data.keys()]
-    # y_rtk = [rtk_data[key][1] for key in rtk_data.keys()]
+    x_ref = [ref_data[key][0] for key in ref_data.keys()]
+    y_ref = [ref_data[key][1] for key in ref_data.keys()]
+    x_odo = [odometry_data[key][0] for key in odometry_data.keys()]
+    y_odo = [odometry_data[key][1] for key in odometry_data.keys()]
+    x_rtk = [rtk_data[key][0] for key in rtk_data.keys()]
+    y_rtk = [rtk_data[key][1] for key in rtk_data.keys()]
 
 
     # Plotting
-    plt.figure()
-    plt.plot(x_kalman,y_kalman)
-    plt.figure()
-    plt.plot(theta_kalman, label='kalman', color='blue')
-    # plt.plot(x_ref, y_ref, label='referens', color='orange')
-    # plt.plot(x_odo, y_odo, label='odometri', color='green')
-    # plt.plot(x_rtk, y_rtk, label='rtk', color='cyan')
+    plt.plot(x_kalman, y_kalman, label='kalman', color='blue')
+    plt.plot(x_ref, y_ref, label='referens', color='orange')
+    plt.plot(x_odo, y_odo, label='odometri', color='green')
+    plt.plot(x_rtk, y_rtk, label='rtk', color='cyan')
 
     # Add legends and labels
     plt.legend()
@@ -63,7 +57,7 @@ def plot_data(file1):
 def plot_data_with_odo(file1, file2, file3):
     # Load data from JSON files
     with open(file1, 'r') as f1:
-        data1 = json.load(f1)
+        data1 = json.load(f1)   
     
     # Remove yaw angle
     for key in data1.keys():
