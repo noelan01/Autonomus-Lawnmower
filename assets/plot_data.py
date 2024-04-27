@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
 
 
-JSON_OBJECT1 = "assets/RTK_kvadrat_80ppm/Kvadrat_80ppm.json"
+JSON_OBJECT1 = "assets/RTK_cirkel_1000ppm/Circle_1000ppm.json"
 #JSON_OBJECT2 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_2.json"
 #JSON_OBJECT3 = "assets/data/2024_03_28_Mossen_rtk/ref_path_straight_line_50_odometry_2.json"
 
@@ -44,9 +44,12 @@ def plot_data(file1):
     plt.plot(x_rtk, y_rtk, label='rtk', color='cyan')
 
     # Add legends and labels
-    plt.legend()
+    plt.legend(loc="upper left")
     plt.xlabel('X [m]')
     plt.ylabel('Y [m]')
+
+    ax = plt.gca()
+    ax.set_aspect('equal', adjustable='box')
     
     plt.title('följning av referenslinje')
 
