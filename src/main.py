@@ -139,7 +139,7 @@ def main():
     rotate = False
     index_end_point = 0
     threshold = 0.01
-    path.set_circle_path(radius, (1,0), 1000,dir = "None")
+    path.set_circle_path(radius, (1,0), 3000,dir = "None")
 
     
     next_point = path.get_point()
