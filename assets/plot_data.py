@@ -1,5 +1,6 @@
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 
 # JSON_OBJECT1 = "assets/data/following_path_08-03-24/x0_y2_dynamic_speed.json"
 # JSON_OBJECT2 = "assets/data/following_path_08-03-24/ref_x0_y2_dynamic_speed.json"
@@ -38,10 +39,12 @@ def plot_data(file1):
 
 
     # Plotting
+    plt.figure()
     plt.plot(x_kalman, y_kalman, label='kalman', color='blue')
     plt.plot(x_ref, y_ref, label='referens', color='orange')
     plt.plot(x_odo, y_odo, label='odometri', color='green')
     plt.plot(x_rtk, y_rtk, label='rtk', color='cyan')
+
 
     # Add legends and labels
     plt.legend(loc="upper left")
@@ -55,6 +58,23 @@ def plot_data(file1):
 
     # Show the plot
     plt.show()
+
+    plt.figure()
+    x_error = np.subtract(x_ref,x_rtk)
+    y_error = np.subtract(y_ref,y_rtk)
+    error = np.sqrt(x_error**2+y_error**2)
+    plt.xlabel("Sampling")
+    plt.ylabel("Total avvikelse [m]")
+    plt.plot(error,label="Total avvikelse")
+    plt.legend(loc="upper left")
+    plt.title("Avvikelse vid cirkelkörning")
+    #ax = plt.gca()
+    #ax.set_aspect('equal', adjustable='box')
+    plt.show()
+    print(min(error))
+    print(max(error))
+    print(np.mean(error))
+    print(error[-1])
 
 
 def plot_data_with_odo(file1, file2, file3):
