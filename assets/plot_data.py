@@ -8,10 +8,10 @@ sys.path.append('../src/')
 import path_planner
 path = path_planner.Path()
 
-path.set_path(0, 0, 0, 2, 80,"y")
-path.set_path(0, 2, 2, 2, 80,"x")
-path.set_path(2, 2, 2, 0, 80,"-y")
-path.set_path(2, 0, 0, 0,80,"-x")
+path.set_path(0, 0, 0, 2, 60,"y")
+path.set_path(0, 2, 2, 2, 60,"x")
+path.set_path(2, 2, 2, 0, 60,"-y")
+path.set_path(2, 0, 0, 0,60,"-x")
 x_ref_plot = []
 y_ref_plot = []
 
@@ -19,7 +19,6 @@ y_ref_plot = []
 # JSON_OBJECT2 = "assets/data/following_path_08-03-24/ref_x0_y2_dynamic_speed.json"
 
 # "../assets/data/2024_03_28_ChangedWheelIndex/path.json"
-
 
 JSON_OBJECT1 = "RTK_kvadrat_60ppm/Kvadrat_60ppm.json"
 err_to_plot=[]
