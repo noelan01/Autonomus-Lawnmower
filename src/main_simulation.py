@@ -29,7 +29,7 @@ def main():
     x_kalman = 0
     y_kalman = 0
 
-    theta = -math.pi
+    theta = 0
     delta_x = 0
     delta_y = 0
     delta_xe = 0

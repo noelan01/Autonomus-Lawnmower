@@ -43,12 +43,12 @@ class Regulation():
 
         # PID PARAMETERS
         self.Kp_x = 20
-        self.Ki_x = 15
+        self.Ki_x = 20
         self.Kd_x = 0.5
         
         # y
         self.Kp_y = 20
-        self.Ki_y = 15
+        self.Ki_y = 20
         self.Kd_y = 0.5
     
 
@@ -262,7 +262,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = False
+        use_kalman = True
 
         if use_kalman == True:
             v = (wheelspeed0 + wheelspeed1)/2
@@ -358,7 +358,7 @@ class Regulation():
         self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
         
 
-        return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
+        return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral,x_ref,y_ref
     
 
     def PID_x(self, error, kp, ki, kd):
