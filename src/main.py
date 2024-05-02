@@ -23,9 +23,6 @@ drive_node = node_lawnmower_control.Lawnmower_Control()
 regulator = regulation.Regulation(drive_node)
 regulator_circle = regulation_circle.Regulation(drive_node)
 
-#import differential_drive
-#diff_drive = differential_drive.Differential_Drive(drive_node)
-
 import path_planner
 path = path_planner.Path()
 
@@ -36,12 +33,13 @@ def ctrlc_shutdown(sig, frame):
     rclpy.shutdown()
 
 
-def constant_speed():
+def constant_speed():       # constant speed function
     rate = drive_node.get_rate()
     drive_node.drive(0.5, 0.0)
     rate.sleep()
 
 
+# calculation of next goal (point)
 def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_ref,index_end_point,threshold):
     total_error = np.sqrt(x_error**2 +  y_error**2)
 
@@ -64,10 +62,9 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
                 #path.update_point()
         index_end_point +=1
         regulator.reset_error_sum_rotation()
-        #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
-        #print("AAAAAA")
 
-    seperate = False
+
+    seperate = False    # update point based on total error or only x or y
     
     if seperate == True:
         if dir =="x":
@@ -103,7 +100,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
     return point, index_end_point
 
 
-def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
+def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):  # function for writing json files of data
     json_data = {
         "kalman":kalman_pos,
         "ref":ref_pos,
@@ -142,7 +139,7 @@ def main():
     # path.set_path(1,0,2,1,100)      # (x_0, y_0, x_n, y_n, ppm, dir)
     # path.set_path(2,0,2,2,100)
 
-    # kom ihåg startvinkel
+    # remember starting angle
     radius = 2
     rotate = False
     index_end_point = 0
@@ -158,6 +155,7 @@ def main():
     odometry_pos = {}
     rtk_pos = {}
     angle_offset = 0
+
     while rclpy.ok():
         if drive_node.get_coord_init_ongoing() == True:     # Initialization of local coordinate system
             if drive_node.get_coord_init_done() == True:    # Pos1 and pos2 has been set
@@ -177,14 +175,13 @@ def main():
 
             # Original regulator
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2], rotate)
-            # if x_kalman >= 2.2 and x_kalman <8.2:
+            
+            # if x_kalman >= 2.2 and x_kalman <8.2:     # pin high between 2.2 and 8.2 (where we paint)
             #     GPIO.output(RELAY_PIN, GPIO.HIGH)
             # else:
             #     GPIO.output(RELAY_PIN, GPIO.LOW)
 
             theta_ref = theta
-            # New regulator
-            #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
             
             print("TIME: ", time)
 

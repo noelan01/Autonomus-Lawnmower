@@ -1,15 +1,5 @@
 import numpy as np
-#import node_lawnmower_control
 
-#drive_node = node_lawnmower_control.Lawnmower_Control()
-
-"""# Only for simulation
-import sys
-sys.path.append('/home/noelan/chalmers/kandidatarbete/Autonomus-Lawnmower/tests')
-import sub_data
-sim_data = sub_data.Get_data()
-#
-"""
 ###################################################################
 """
 EXTENDED sKALMAN FILTER
@@ -20,11 +10,11 @@ class EKF():
     def __init__(self, sim, theta_init):
         # init
         self._state = np.array([[0],[0],[theta_init]]) # x, y, theta   
-        self._input = np.array([[0],[0]])
+        self._input = np.array([[0],[0]])   # control input
         self._noise = 0
         self._time = 0
-        self._Z_k = np.array([[0],[0],[0]])
-        self._sensor_error = np.array([[0],[0],[0]])
+        self._Z_k = np.array([[0],[0],[0]]) # measured state
+        self._sensor_error = np.array([[0],[0],[0]])    # sensor error in measurements
 
         # previous
         self._Z_k_prev = np.array([[0],[0],[0]])

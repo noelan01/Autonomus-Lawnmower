@@ -444,10 +444,3 @@ def pos_global_to_local(x_rtk,y_rtk, x_init_rtk,y_init_rtk,offset_angle):
     pos_xy_local = rotated
     return pos_xy_local[0],pos_xy_local[1]
 
-
-
-def control_conversion(speed, steering):
-    longitudonal = ...
-    yaw_rate = ...
-
-    return longitudonal, yaw_rate

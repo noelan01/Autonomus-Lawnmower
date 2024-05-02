@@ -61,10 +61,11 @@ class Lawnmower_Control(Node):
 
         self.coord_init_yaw_subscriber = self.create_subscription(Float64, '/pos_init/yaw_offset', self.coord_init_yaw_callback, 10)
 
-        # drive message
+        # drive messages
         self._msg_drive = RemoteDriverDriveCommand()
         self._msg_angle_offset = Float64()
 
+        # data logging messages
         self._msg_total_error = Float64MultiArray()
         self._msg_ekf = Float64MultiArray()
         self._msg_odometry = Float64MultiArray()
@@ -256,6 +257,10 @@ class Lawnmower_Control(Node):
     #    #   #           #         #       #         # ##            #
     ######   ######      #         #       ######    #   ##     ######
 
+
+    """
+        get latest data published on ROS
+    """
 
     def get_rate(self):
         return self.create_rate(self._update_rate)
