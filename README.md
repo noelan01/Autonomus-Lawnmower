@@ -14,8 +14,8 @@ Struktur:
 Uppkoppling till gräsklipparen samt start av ROS noderna:
 1. Sätt igång klipparen och koppla telefonen till klipparen med Automower appen (kod 1111 eller 0000).
 2. använd ssh för att koppla till datorn:
-    a. koppla till samma nätverk som klipparen.
-    b. använd en terminal eller VS codes ssh extension. Skriv in "ssh mower@ubuntu.local" (alt. "ssh mower@192.168.1.110" för CASELAB wifi) (ssh hostname@ip) och Ros2mower som lösenord.
+    1. koppla till samma nätverk som klipparen.
+    2. använd en terminal eller VS codes ssh extension. Skriv in "ssh mower@ubuntu.local" (alt. "ssh mower@192.168.1.110" för CASELAB wifi) (ssh hostname@ip) och Ros2mower som lösenord.
 3. Byt till Autonomous-Lawnmower mappen med "cd Autonomous-Lawnmower/"
 4. starta hrp2 noden genom att köra "source scripts/hrp2-autostart.sh" och skriv in lösenordet "Ros2mower" vid behov.
 5. starta lawnmower-control noden genom att köra "source scripts/main_autostart.sh".
