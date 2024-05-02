@@ -1,17 +1,17 @@
 # Autonomus-Lawnmower
-Kandidatarbete autonom gräsklippare 2024
+## Kandidatarbete autonom gräsklippare 2024
 
 Följ först Husqvarnas interna dokument för att göra HRP2 noden körbar. Beroendes på om det gamla SD-kortet sitter kvar eller ej i Raspberry PI:n kan det vara så att inget i Husqvarnas dokument behövs göras. Vi använde ej WI-FI dongles enligt deras instruktioner så det är inte nödvändigt.
 
 För att kunna arbeta med Raspberry PI:n måste appen Automower laddas ner och ett konto måste göras. Klipparen som ska kopplas till är en Husqvarna 550 EPOS och koden är för tillfället 0000 eller 1111 i appen för att koppla till klipparen.
 
-Struktur:
+## Struktur:
     Projektet är uppbyggt i 3 ROS2 noder varav en är husqvarnas egna HRP2 noder.
     De egenskrivna noderna är lawnmower_contorl noden som sköter styrningen av gräsklipparen och coordinate_init noden som initierar koordinatsystemet.
 
     Den mesta koden som är skriven ligger under src/, UserInputServer/, scripts/ och coordinate_init/. Koden skriven av Husqvarna ligger under hrp2-p2z-open-dist/ och ska ej ändras.
 
-Uppkoppling till gräsklipparen samt start av ROS noderna:
+## Uppkoppling till gräsklipparen samt start av ROS noderna:
 1. Sätt igång klipparen och koppla telefonen till klipparen med Automower appen (kod 1111 eller 0000).
 2. använd ssh för att koppla till datorn:
     1. koppla till samma nätverk som klipparen.
