@@ -7,7 +7,7 @@ För att kunna arbeta med Raspberry PI:n måste appen Automower laddas ner och e
 
 ## Struktur:
 Projektet är uppbyggt i 3 ROS2 noder varav en är husqvarnas egna HRP2 noder.
-De egenskrivna noderna är lawnmower_contorl noden som sköter styrningen av gräsklipparen och coordinate_init noden som initierar koordinatsystemet.
+De egenskrivna noderna är **lawnmower_control** noden som sköter styrningen av gräsklipparen och **coordinate_init** noden som initierar koordinatsystemet.
 
 Den mesta koden som är skriven ligger under src/, UserInputServer/, scripts/ och coordinate_init/. Koden skriven av Husqvarna ligger under hrp2-p2z-open-dist/ och ska ej ändras.
 
