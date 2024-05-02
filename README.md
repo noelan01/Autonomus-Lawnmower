@@ -1,7 +1,7 @@
 # Autonomus-Lawnmower
 Kandidatarbete autonom gräsklippare 2024
 
-Följ först Husqvarnas interna dokument för att göra HRP2 noden körbar. Vi använde ej WI-FI dongles enligt deras instruktioner så det är inte nödvändigt.
+Följ först Husqvarnas interna dokument för att göra HRP2 noden körbar. Beroendes på om det gamla SD-kortet sitter kvar eller ej i Raspberry PI:n kan det vara så att inget i Husqvarnas dokument behövs göras. Vi använde ej WI-FI dongles enligt deras instruktioner så det är inte nödvändigt.
 
 Struktur:
     Projektet är uppbyggt i 3 ROS2 noder varav en är husqvarnas egna HRP2 noder.
