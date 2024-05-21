@@ -7,7 +7,6 @@ import random
 import rclpy
 
 import kalman
-skalman = kalman.EKF(0)
 
 import node_lawnmower_control 
 import coord_transformation
@@ -33,7 +32,7 @@ class Regulation():
 
         self.rtk_x, self.rtk_y = self.drive_node.get_rtk_init()
 
-        self.theta = -np.pi
+        self.theta = -np.pi/2
 
         self.x_base = 0
         self.y_base = 0
@@ -44,12 +43,12 @@ class Regulation():
 
         # PID PARAMETERS
         self.Kp_x = 20
-        self.Ki_x = 20
+        self.Ki_x = 15
         self.Kd_x = 0.5
         
         # y
         self.Kp_y = 20
-        self.Ki_y = 20
+        self.Ki_y = 15
         self.Kd_y = 0.5
     
 
@@ -95,20 +94,22 @@ class Regulation():
         self.theta_odo=-math.pi
         self.theta_kalman=0
 
+        self.skalman = kalman.EKF(0, self.theta + np.pi)
+
 
     def update(self, x_ref, y_ref,dir, rotate):
         
         
-        # keep up with regular
+        # keep up with regular shit
         x_ref = x_ref
         y_ref = y_ref
         dir = dir
         
         #Implementing the kinematic model of the robot
-        #Drive with Kalman data
-        delta_xe = x_ref - self.x_kalman
-        delta_ye = y_ref - self.y_kalman
-    
+        #Drive with RTK data
+        delta_xe = x_ref - self.rtk_x
+        delta_ye = y_ref - self.rtk_y
+            
         if rotate == False:
             self.err_sum_x = self.err_sum_x + delta_xe*self.Ts
             self.err_sum_y = self.err_sum_y + delta_ye*self.Ts
@@ -143,11 +144,17 @@ class Regulation():
 
             print("DTHETA 1 (Left): ", dtheta1_dt, "DTHETA 0 (Right): ", dtheta0_dt)
             print("")
+            
 
             #New version
             dtheta_sum = dtheta1_dt + dtheta0_dt
-            l_ratio = dtheta1_dt/dtheta_sum
-            r_ratio = dtheta0_dt/dtheta_sum
+
+            if not dtheta_sum == 0:
+                l_ratio = dtheta1_dt/dtheta_sum
+                r_ratio = dtheta0_dt/dtheta_sum
+            else:
+                l_ratio = 0.5
+                r_ratio = 0.5
 
             #print("l_ratio: ", l_ratio, "r_ratio: ", r_ratio)
 
@@ -201,7 +208,7 @@ class Regulation():
             time_prev, time = self.drive_node.get_time()
             
             rate = self.drive_node.get_rate()
-            self.drive_node.drive(0.1, 2.0)
+            self.drive_node.drive(0.1, -2.0)
             rate.sleep()
             print("ROTATING!!!!!")
 
@@ -241,9 +248,7 @@ class Regulation():
         self.y_base = self.y_base + delta_s*math.sin(self.theta_old)
 
         self.theta = self.theta + delta_theta
-        self.theta_kalman = self.theta_kalman + delta_theta
 
-        
         print("THETA odometry: ", self.theta)
 
         # get coord inits
@@ -257,7 +262,7 @@ class Regulation():
         x_rotated, y_rotated = pos_global_to_local(x_rtk, y_rtk, x_init_rtk, y_init_rtk, offset_angle)
         y_rotated = y_rotated*(-1)
         # EKF
-        use_kalman = True
+        use_kalman = False
 
         if use_kalman == True:
             v = (wheelspeed0 + wheelspeed1)/2
@@ -267,7 +272,7 @@ class Regulation():
 
             z_k = np.array([[x_rotated],
                             [y_rotated],
-                            [self.theta]])
+                            [self.theta + np.pi]])
             
             control_input = np.array([[v],
                                       [yaw_rate]])
@@ -276,7 +281,7 @@ class Regulation():
                                      [rtk_error_y],
                                      [0]])
 
-            skalman_state = skalman.update(z_k, control_input, sensor_error)
+            skalman_state = self.skalman.update(z_k, control_input, sensor_error)
 
             state_x = skalman_state[0].item()
             state_y = skalman_state[1].item()
@@ -344,6 +349,13 @@ class Regulation():
         self.theta_0_meas_old = theta_0_meas
         self.y_old = self.y_kalman
         self.x_old = self.x_kalman
+
+
+        # log data
+        self.drive_node.pub_total_error(self.x_error, self.y_error)
+        self.drive_node.pub_state_estimation(self.x_kalman, self.y_kalman, self.theta)
+        self.drive_node.pub_odometry(self.x_odometry, self.y_odometry, self.theta)
+        self.drive_node.pub_rtk(self.rtk_x, self.rtk_y)
         
 
         return self.x_error, self.y_error, self.x_error_old, self.y_error_old, self.x_kalman, self.y_kalman, self.theta, time, self.x_odometry, self.y_odometry, dir, self.rtk_x, self.rtk_y, reset_integral
@@ -362,6 +374,9 @@ class Regulation():
             self.err_sum_x = 0
         elif dir == "y":
             self.err_sum_y = 0
+        else:
+            self.err_sum_x=0
+            self.err_sum_y=0
 
     def reset_error_sum_crossed_line(self,dir):
         if dir == "x":

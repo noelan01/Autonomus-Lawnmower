@@ -106,7 +106,7 @@ def main():
     y_err = [0]
     x_err = [0]
     dir = [0]
-    threshold = 0.02
+    threshold = 0.01
     
     #Defining simulation time
     simTime = 120
@@ -119,7 +119,7 @@ def main():
     #Outer lines
     route.outerLines(path)
     
-    #Lower penalty area
+    # Lower penalty area
     route.lowerPenaltyArea(path)
     
     route.lowerArc(path)
@@ -168,10 +168,10 @@ def main():
             reached_goal = True
 
 
-        if dir == "x":
+        if dir == "x" or dir == "-x":
             y_to_plot_1.append(delta_ye)
             err_to_plot.append(delta_ye)
-        elif dir == "y":
+        elif dir == "y" or dir == "-y":
             y_to_plot_2.append(delta_xe)
             err_to_plot.append(delta_xe)
         elif dir == "None":
@@ -223,6 +223,15 @@ def goal(x_error, y_error, dir, reset_integral, theta_ref,delta_xe,delta_ye,x_re
             if y_error<0.3:
                 path.update_point()
                 err_sum_x,err_sum_y = position.reset_error_sum_dir(dir,err_sum_x,err_sum_y)
+        elif dir == "-x":
+            if x_error >-0.3:
+                path.update_point()
+                err_sum_x,err_sum_y = position.reset_error_sum_dir(dir,err_sum_x,err_sum_y)
+        elif dir == "-y":
+            if y_error > -0.3:
+                path.update_point()
+                err_sum_x,err_sum_y = position.reset_error_sum_dir(dir,err_sum_x,err_sum_y)
+
         elif total_error<0.3:
             path.update_point()
     else:

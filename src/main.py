@@ -12,6 +12,12 @@ import json
 import sys
 import tty
 import termios
+import RPi.GPIO as GPIO
+RELAY_PIN = 7
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(RELAY_PIN, GPIO.OUT)
+GPIO.output(RELAY_PIN, False)
+
 
 import RPi.GPIO as GPIO
 import time
@@ -36,6 +42,7 @@ path = path_planner.Path()
 
 def ctrlc_shutdown(sig, frame):
     drive_node.stop_drive()
+    GPIO.output(RELAY_PIN, GPIO.LOW)
     rclpy.shutdown()
 
 
@@ -58,7 +65,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         while rotate == True:            
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(point[0], point[1], point[2], rotate)
 
-            if abs(theta_ref - theta) >= np.pi/2:
+            if abs(theta_ref - theta) >= np.pi/2-0.1:
                 rotate = False
                 next_dir = path._path[path._next_point][2]
                 path._path[path.update_point()] = (x_kalman,y_kalman,next_dir)
@@ -70,7 +77,7 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
         #path.set_path(x_kalman,y_kalman,x_kalman,5,25,"y")
         #print("AAAAAA")
 
-    seperate = True
+    seperate = False
     
     if seperate == True:
         if dir =="x":
@@ -81,9 +88,17 @@ def goal(x_error, y_error, x_error_old, y_error_old, dir, reset_integral, theta_
             if y_error<0.3:
                 path.update_point()
                 regulator.reset_error_sum_dir(dir)
+        elif dir == "-x":
+            if x_error > -0.3:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
+        elif dir == "-y":
+            if y_error >-0.3:
+                path.update_point()
+                regulator.reset_error_sum_dir(dir)
     else:
 
-        if total_error < 0.1:
+        if total_error < 0.4:
             path.update_point()
             regulator.reset_error_sum_dir(dir)
     
@@ -113,6 +128,7 @@ def write_json(kalman_pos, ref_pos, odometry_pos,rtk_pos):
 
 
 def main():
+    GPIO.output(RELAY_PIN, GPIO.LOW)
     signal.signal(signal.SIGINT, ctrlc_shutdown)
 
     thread = threading.Thread(target=rclpy.spin, args=(drive_node,))
@@ -123,11 +139,11 @@ def main():
     
     # set ref path
     #När vi sätter path så behöver vi tänka på att vi stannar en bit innan samt att vi roterar baserat på avståndet D så vi behöver lägga till/ta bort 0,5 i x och 0,2 i y
-    # path.set_path(0, 0, 50, 0, 25,"x")
-    path.set_path(0, 0, 5.4, 0, 80,"x")
-    path.set_path(5, 0.4, 5, 5.4, 80,"y")
-    path.set_path(4.6, 5, -0.4, 5,80,"x")
-    path.set_path(0, 4.6, 0, 0 , 80,"y")
+    #path.set_path(0, 0, 0, 4.4, 40,"y")
+    #path.set_path(0.4, 4, 4.4, 4, 40,"x")
+    #path.set_path(4, 3.6, 4, -0.4, 40,"-y")
+    #path.set_path(3.6, 0, -0.4, 0,40,"-x")
+    #path.set_path(1.6, 0, -0.4, 0 , 80,"-x")
 
 
 
@@ -137,11 +153,11 @@ def main():
     # path.set_path(2,0,2,2,100)
 
     # kom ihåg startvinkel
-    radius = 3
+    radius = 2
     rotate = False
     index_end_point = 0
     threshold = 0.01
-    #path.set_circle_path(radius, (9.15,0), 3000,dir = "None")
+    path.set_circle_path(radius, (2,0), 1000,dir = "None")
 
     
     next_point = path.get_point()
@@ -169,8 +185,14 @@ def main():
         else:
             print("-----------------------------------------------")
 
+
             # Original regulator
             x_error,y_error, x_error_old, y_error_old, x_kalman, y_kalman, theta, time, x_odometry, y_odometry, dir, x_rtk, y_rtk, reset_integral = regulator.update(next_point[0], next_point[1], next_point[2], rotate)
+            # if x_kalman >= 2.2 and x_kalman <8.2:
+            #     GPIO.output(RELAY_PIN, GPIO.HIGH)
+            # else:
+            #     GPIO.output(RELAY_PIN, GPIO.LOW)
+
             theta_ref = theta
             # New regulator
             #x_error, y_error, x, y, theta, time = diff_drive.update(next_point[0], next_point[1])
